@@ -77,7 +77,6 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
         router.push(`/booking-confirmed?id=${docRef.id}`);
     })
     .catch(async (serverError) => {
-        console.error("Firebase error:", serverError);
         const permissionError = new FirestorePermissionError({
             path: 'bookings',
             operation: 'create',

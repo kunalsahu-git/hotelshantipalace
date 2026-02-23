@@ -61,7 +61,6 @@ export function EnquiryForm() {
         form.reset();
       })
       .catch(async (serverError) => {
-        console.error("Firebase error:", serverError);
         const permissionError = new FirestorePermissionError({
             path: 'enquiries',
             operation: 'create',
