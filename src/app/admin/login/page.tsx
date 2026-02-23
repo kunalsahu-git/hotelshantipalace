@@ -184,7 +184,7 @@ export default function LoginPage() {
           <Terminal className="h-4 w-4" />
           <AlertTitle>Test Credentials</AlertTitle>
           <AlertDescription>
-            <p>Admin: admin@shantipalace.com / Admin@123</p>
+            <p>You can use any email/password to sign in. The first account created will be an admin.</p>
           </AlertDescription>
         </Alert>
 

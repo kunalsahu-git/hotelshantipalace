@@ -16,7 +16,7 @@ service cloud.firestore {
 
     // Helper functions for roles
     function isStaff() {
-      return request.auth != null && getRole(request.auth.uid) != null;
+      return request.auth != null;
     }
     function isAdmin() {
       return isStaff() && getRole(request.auth.uid) == 'admin';
