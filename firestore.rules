@@ -30,20 +30,15 @@ service cloud.firestore {
     // --- Collections with Public Write Access ---
 
     // Bookings:
-    // - Anyone can create a booking (from the website).
-    // - Authenticated users can read, update, or delete bookings (from the admin panel).
+    // 'read' covers 'get' and 'list'. 'write' covers 'create', 'update', 'delete'.
+    // We need to allow public 'create' but restrict other operations.
     match /bookings/{bookingId} {
       allow create: if true;
-      allow get, update, delete: if request.auth != null;
-    }
-    // Authenticated users can list bookings.
-    match /bookings {
-      allow list: if request.auth != null;
+      allow read, update, delete: if request.auth != null;
     }
 
     // Enquiries:
-    // - Anyone can create an enquiry (from the website).
-    // - Authenticated users can read, update, or delete enquiries (from the admin panel).
+    // Allow anyone to create, but only authenticated users to manage.
     match /enquiries/{enquiryId} {
       allow create: if true;
       allow read, update, delete: if request.auth != null;
