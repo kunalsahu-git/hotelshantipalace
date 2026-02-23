@@ -51,6 +51,7 @@ export function RoomResultCard({ category, checkInDate, checkOutDate }: RoomResu
           alt={`Photo of ${category.name}`}
           fill
           className="object-cover"
+          sizes="(max-width: 768px) 100vw, 33vw"
           data-ai-hint={category.imageHint}
         />
       </div>

@@ -91,6 +91,7 @@ export default function Home() {
             fill
             className="object-cover"
             priority
+            sizes="100vw"
             data-ai-hint={heroImage.imageHint}
           />
         )}
@@ -150,21 +151,20 @@ export default function Home() {
             <Carousel
               opts={{
                 align: 'start',
-                loop: roomCategories.length > 4, // Only loop if there are more items than fit
               }}
               className="w-full"
             >
               <CarouselContent>
                 {roomCategories.map((category) => (
-                  <CarouselItem key={category.id} className="md:basis-1/2 lg:basis-1/4">
+                  <CarouselItem key={category.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                     <div className="p-1 h-full">
                       <RoomCategoryCard category={category} />
                     </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 hidden md:flex" />
-              <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 hidden md:flex" />
+              <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 hidden lg:flex" />
+              <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 hidden lg:flex" />
             </Carousel>
           </div>
         </div>

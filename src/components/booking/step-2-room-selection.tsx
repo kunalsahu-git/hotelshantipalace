@@ -111,7 +111,7 @@ export function Step2RoomSelection({ prevStep, nextStep, allRooms }: { prevStep:
                         <Card className={cn("cursor-pointer hover:border-primary", field.value === room.id && "border-2 border-primary ring-2 ring-primary ring-offset-2")}>
                              <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
                                 <div className="relative md:col-span-1 min-h-[180px] md:min-h-full">
-                                    <Image src={room.photoUrl} alt={room.name} fill className="object-cover rounded-t-lg md:rounded-l-lg md:rounded-t-none" data-ai-hint={room.imageHint} />
+                                    <Image src={room.photoUrl} alt={room.name} fill className="object-cover rounded-t-lg md:rounded-l-lg md:rounded-t-none" data-ai-hint={room.imageHint} sizes="(max-width: 768px) 100vw, 33vw" />
                                 </div>
                                 <div className="md:col-span-2 p-4 flex flex-col">
                                     <h3 className="text-xl font-bold">{room.name}</h3>

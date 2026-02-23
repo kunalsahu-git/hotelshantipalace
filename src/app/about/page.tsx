@@ -45,6 +45,7 @@ export default function AboutPage() {
             fill
             className="object-cover"
             priority
+            sizes="100vw"
             data-ai-hint={heroImage.imageHint}
           />
         )}
