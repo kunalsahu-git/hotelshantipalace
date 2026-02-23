@@ -32,7 +32,7 @@ export function RoomCategoryCard({ category }: { category: RoomCategory }) {
           <Users className="w-4 h-4 text-muted-foreground" />
           <span className="text-sm text-muted-foreground">Up to {category.maxOccupancy} guests</span>
         </div>
-        <p className="text-muted-foreground mb-4">{category.description}</p>
+        <p className="text-muted-foreground mb-4 line-clamp-3">{category.description}</p>
         <div className="flex flex-wrap gap-2">
             {category.amenities.map((amenity, index) => {
                  const Icon = amenityIcons[amenity];
@@ -45,7 +45,7 @@ export function RoomCategoryCard({ category }: { category: RoomCategory }) {
             })}
         </div>
       </CardContent>
-      <CardFooter className="p-6 bg-background/50 flex justify-between items-center">
+      <CardFooter className="p-6 bg-background/50 flex justify-between items-center mt-auto">
         <div>
           <p className="text-sm text-muted-foreground">From</p>
           <p className="text-2xl font-bold text-primary">₹{category.basePrice.toLocaleString()}<span className="text-sm font-normal text-muted-foreground">/night</span></p>

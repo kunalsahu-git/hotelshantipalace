@@ -150,21 +150,21 @@ export default function Home() {
             <Carousel
               opts={{
                 align: 'start',
-                loop: true,
+                loop: roomCategories.length > 4, // Only loop if there are more items than fit
               }}
               className="w-full"
             >
               <CarouselContent>
                 {roomCategories.map((category) => (
-                  <CarouselItem key={category.id} className="md:basis-1/2 lg:basis-1/3">
-                    <div className="p-1">
+                  <CarouselItem key={category.id} className="md:basis-1/2 lg:basis-1/4">
+                    <div className="p-1 h-full">
                       <RoomCategoryCard category={category} />
                     </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2 hidden lg:flex" />
-              <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2 hidden lg:flex" />
+              <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 hidden md:flex" />
+              <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 hidden md:flex" />
             </Carousel>
           </div>
         </div>
