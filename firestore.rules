@@ -1,95 +1,10 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // --- Helper Functions ---
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    // Safely get the user's role from their document.
-    // It checks for document existence before trying to access data.
-    function getRole() {
-      let userDocPath = /databases/$(database)/documents/users/$(request.auth.uid);
-      if (exists(userDocPath)) {
-        return get(userDocPath).data.role;
-      }
-      return null;
-    }
-
-    // Check if the user is an admin
-    function isAdmin() {
-      return isSignedIn() && getRole() == 'admin';
-    }
-    
-    // Check if the user is a front desk staff (or an admin)
-    function isFrontdesk() {
-      let role = getRole();
-      return isSignedIn() && (role == 'frontdesk' || role == 'admin');
-    }
-    
-    // Check if the user is a housekeeping staff (or an admin)
-    function isHousekeeping() {
-        let role = getRole();
-        return isSignedIn() && (role == 'housekeeping' || role == 'admin');
-    }
-
-    // --- Rules for each collection ---
-
-    // USERS: Any authenticated user can create their own document. Only admins can modify others.
-    match /users/{userId} {
-      allow create: if isSignedIn() && request.auth.uid == userId;
-      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
-      allow update, delete: if isAdmin();
-    }
-    
-    // ROOM CATEGORIES: Public can read, admin/frontdesk can write
-    match /roomCategories/{categoryId} {
-      allow read, list: if true;
-      allow write: if isFrontdesk();
-    }
-
-    // ROOMS: admin/frontdesk can write, housekeeping can read & update status
-    match /rooms/{roomId} {
-      allow read, list: if isSignedIn(); // All staff can see rooms
-      allow write: if isFrontdesk();
-      // Housekeeping can only update the housekeeping status
-      allow update: if isHousekeeping() && request.resource.data.keys().hasOnly(['housekeepingStatus']);
-    }
-
-    // GUESTS: Admin/frontdesk can manage
-    match /guests/{guestId} {
-      allow read, write, list: if isFrontdesk();
-    }
-
-    // BOOKINGS: Public can create, admin/frontdesk can manage.
-    match /bookings/{bookingId} {
-      allow create: if true; // Allows website bookings
-      allow read, update, delete, list: if isFrontdesk();
-    }
-
-    // BILLS: Admin/frontdesk can manage.
-    match /bills/{billId} {
-      allow read, write, list: if isFrontdesk();
-    }
-
-    // MAINTENANCE: All staff can create/read, admin/frontdesk can update.
-    match /maintenanceTickets/{ticketId} {
-      allow create, read, list: if isSignedIn();
-      allow update, delete: if isFrontdesk();
-    }
-
-    // ENQUIRIES: Public can create, admin/frontdesk can manage.
-    match /enquiries/{enquiryId} {
-      allow create: if true; // Allows website contact form
-      allow read, update, delete, list: if isFrontdesk();
-    }
-
-    // SETTINGS: Public can read, admin can write.
-    match /settings/{docId} {
-      allow read: if true;
-      allow write: if isAdmin();
+    // TEMPORARY DEBUGGING RULE: Allow any authenticated user to read/write.
+    // This is not secure for production but will help verify app logic.
+    match /{document=**} {
+      allow read, write: if request.auth != null;
     }
   }
 }
