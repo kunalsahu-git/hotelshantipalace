@@ -36,37 +36,38 @@ service cloud.firestore {
       return getRole(request.auth.uid) == 'admin';
     }
 
-    // Anyone authenticated can create an enquiry (i.e., submit the contact form).
-    // Only front office staff can read, list, and update enquiries.
+    // TEMPORARY: Read access is opened for any logged-in user to fix UI loading issues.
+    // Write access remains protected by role.
+
     match /enquiries/{enquiryId} {
       allow create: if request.auth != null;
-      allow read, list, update: if isFrontOffice();
+      allow read, list: if request.auth != null;
+      allow update: if isFrontOffice();
     }
     
-    // Front office staff can manage bookings.
     match /bookings/{bookingId} {
-      allow read, write, list: if isFrontOffice();
+      allow read, list: if request.auth != null;
+      allow write: if isFrontOffice();
     }
 
-    // Front office staff can manage guests.
     match /guests/{guestId} {
-      allow read, write, list: if isFrontOffice();
+      allow read, list: if request.auth != null;
+      allow write: if isFrontOffice();
     }
 
-    // Front office staff can manage bills.
     match /bills/{billId} {
-      allow read, write, list: if isFrontOffice();
+      allow read, list: if request.auth != null;
+      allow write: if isFrontOffice();
     }
     
-    // Any staff member can view rooms. Housekeeping and front office can update room status.
     match /rooms/{roomId} {
-      allow read, list: if isStaff();
+      allow read, list: if request.auth != null;
       allow write: if isStaff(); 
     }
     
-    // Any staff member can manage maintenance tickets.
     match /maintenanceTickets/{ticketId} {
-       allow read, write, list: if isStaff();
+       allow read, list: if request.auth != null;
+       allow write: if isStaff();
     }
     
     // Public read for room categories, admin write.
