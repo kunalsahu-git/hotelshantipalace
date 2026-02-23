@@ -7,13 +7,7 @@ import { Button } from '@/components/ui/button';
 import { RoomBookingWidget } from './_components/room-booking-widget';
 import Link from 'next/link';
 import type { RoomCategory } from '@/lib/types';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel';
+import { RoomGallery } from './_components/room-gallery';
 
 const amenityIcons: { [key: string]: React.ElementType } = {
   'Free WiFi': Wifi,
@@ -51,27 +45,7 @@ export default function RoomDetailPage({ params }: { params: { id: string } }) {
                  <h1 className="text-4xl md:text-5xl font-bold ">{room.name}</h1>
             </div>
             
-            <Carousel className="w-full mb-8 rounded-lg overflow-hidden shadow-lg relative">
-                <CarouselContent>
-                    {room.gallery.map((photo, index) => (
-                        <CarouselItem key={index}>
-                            <div className="relative aspect-[16/10] w-full">
-                                <Image
-                                    src={photo.url}
-                                    alt={`Photo of ${room.name} ${index + 1}`}
-                                    fill
-                                    className="object-cover"
-                                    sizes="(max-width: 1024px) 100vw, 66vw"
-                                    priority={index === 0}
-                                    data-ai-hint={photo.hint}
-                                />
-                            </div>
-                        </CarouselItem>
-                    ))}
-                </CarouselContent>
-                <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 z-10" />
-                <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 z-10" />
-            </Carousel>
+            <RoomGallery room={room} />
             
             <div className="max-w-none text-lg text-muted-foreground mb-8">
                 <p>{room.description}</p>
