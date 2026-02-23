@@ -27,7 +27,7 @@ export function BookingProgress({ currentStep }: { currentStep: number }) {
                         </svg>
                       </span>
                     </span>
-                    <span className="ml-4 text-sm font-medium text-primary">{step.name}</span>
+                    <span className="ml-4 text-sm font-medium text-primary hidden md:block">{step.name}</span>
                   </div>
                 ) : step.id === currentStep ? (
                   // Current step
@@ -37,7 +37,7 @@ export function BookingProgress({ currentStep }: { currentStep: number }) {
                         <span className="text-primary">{step.id}</span>
                       </span>
                     </span>
-                    <span className="ml-4 text-sm font-medium text-primary">{step.name}</span>
+                    <span className="ml-4 text-sm font-medium text-primary hidden md:block">{step.name}</span>
                   </div>
                 ) : (
                   // Upcoming step
@@ -47,7 +47,7 @@ export function BookingProgress({ currentStep }: { currentStep: number }) {
                         <span className="text-muted-foreground">{step.id}</span>
                       </span>
                     </span>
-                    <span className="ml-4 text-sm font-medium text-muted-foreground">{step.name}</span>
+                    <span className="ml-4 text-sm font-medium text-muted-foreground hidden md:block">{step.name}</span>
                   </div>
                 )}
                 {/* Connector */}
@@ -60,7 +60,7 @@ export function BookingProgress({ currentStep }: { currentStep: number }) {
         </ol>
       </nav>
       <p className="text-center mt-2 text-muted-foreground font-semibold">
-        Step {currentStep} of {steps.length}
+        Step {currentStep} of {steps.length}: {steps[currentStep-1].name}
       </p>
     </div>
   );

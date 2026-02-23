@@ -14,8 +14,12 @@ function BookingConfirmation() {
 
   const bookingId = searchParams.get('id');
 
+  // In a real app, you would fetch the full booking details using the ID
+  // For this prototype, we'll just show the ID.
+
   if (!bookingId) {
-    // In a real app, you might want a more robust fallback
+    // Redirect home if no ID is present.
+    // This needs to be in a useEffect to avoid server/client mismatch issues with router.
     if (typeof window !== 'undefined') {
         router.push('/');
     }
@@ -46,7 +50,7 @@ function BookingConfirmation() {
                 <span className="text-muted-foreground">Status</span>
                 <Badge variant="secondary">Pending Confirmation</Badge>
              </div>
-             {/* In a real app, you would fetch the full booking details using the ID */}
+             {/* In a real app, you would fetch and display the full booking details using the ID */}
           </div>
           
           <div className="text-center text-muted-foreground text-sm pt-4">

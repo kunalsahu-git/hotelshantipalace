@@ -11,7 +11,7 @@ export const BookingFormSchema = z.object({
   checkOut: z.date({ required_error: "Check-out date is required." }),
 
   roomTypeId: z.string({ required_error: "Please select a room category." }).min(1, { message: "Please select a room category." }),
-}).refine(data => data.checkOut > data.checkIn, {
+}).refine(data => data.checkIn < data.checkOut, {
     message: "Check-out date must be after check-in date.",
     path: ["checkOut"],
 });

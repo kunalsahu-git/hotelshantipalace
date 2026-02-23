@@ -19,7 +19,7 @@ export type Booking = {
   phone: string;
   email: string;
   guests: number;
-  specialRequests?: string;
+  specialRequests: string;
   roomTypeId: string;
   roomTypeName: string;
   checkIn: string; // YYYY-MM-DD

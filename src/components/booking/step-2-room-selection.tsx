@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormContext, Controller } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import { format, differenceInDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import type { BookingFormData } from '@/lib/schemas';
 import type { RoomCategory } from '@/lib/types';
@@ -28,18 +28,18 @@ const amenityIcons: { [key: string]: React.ElementType } = {
 };
 
 export function Step2RoomSelection({ prevStep, nextStep, allRooms }: { prevStep: () => void; nextStep: () => void; allRooms: RoomCategory[] }) {
-  const { control, watch, setValue } = useFormContext<BookingFormData>();
+  const { control, watch, formState: { errors } } = useFormContext<BookingFormData>();
 
   const checkIn = watch('checkIn');
   const checkOut = watch('checkOut');
   const selectedRoomId = watch('roomTypeId');
 
   const selectedRoom = allRooms.find(r => r.id === selectedRoomId);
-  const numberOfNights = checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0;
+  const numberOfNights = checkIn && checkOut && checkOut > checkIn ? differenceInDays(checkOut, checkIn) : 0;
   const totalPrice = selectedRoom && numberOfNights > 0 ? selectedRoom.basePrice * numberOfNights : 0;
 
   return (
-    <div className="space-y-8">
+    <form onSubmit={(e) => { e.preventDefault(); nextStep(); }} className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold">Choose Your Room</h2>
         <p className="text-muted-foreground">Select your dates and preferred room category.</p>
@@ -99,9 +99,9 @@ export function Step2RoomSelection({ prevStep, nextStep, allRooms }: { prevStep:
         name="roomTypeId"
         render={({ field }) => (
           <FormItem className="space-y-3">
-            <FormLabel>Available Room Categories</FormLabel>
+            <FormLabel className={cn(errors.roomTypeId && 'text-destructive')}>Available Room Categories</FormLabel>
             <FormControl>
-              <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="grid grid-cols-1 gap-4">
+              <RadioGroup onValueChange={field.onChange} value={field.value} className="grid grid-cols-1 gap-4">
                 {allRooms.map((room) => (
                   <FormItem key={room.id}>
                     <FormControl>
@@ -113,7 +113,7 @@ export function Step2RoomSelection({ prevStep, nextStep, allRooms }: { prevStep:
                                 <div className="relative md:col-span-1 min-h-[180px] md:min-h-full">
                                     <Image src={room.photoUrl} alt={room.name} fill className="object-cover rounded-t-lg md:rounded-l-lg md:rounded-t-none" data-ai-hint={room.imageHint} />
                                 </div>
-                                <div className="md:col-span-2 p-4">
+                                <div className="md:col-span-2 p-4 flex flex-col">
                                     <h3 className="text-xl font-bold">{room.name}</h3>
                                      <div className="flex items-center gap-2 my-2">
                                         <Users className="w-4 h-4 text-muted-foreground" />
@@ -125,7 +125,7 @@ export function Step2RoomSelection({ prevStep, nextStep, allRooms }: { prevStep:
                                             return Icon ? <Badge key={amenity} variant="secondary" className="gap-1.5"><Icon className="w-3.5 h-3.5" /> {amenity}</Badge> : null;
                                         })}
                                     </div>
-                                     <p className="text-lg font-bold text-primary mt-3">₹{room.basePrice.toLocaleString()}/night</p>
+                                     <p className="text-lg font-bold text-primary mt-auto pt-2">₹{room.basePrice.toLocaleString()}/night</p>
                                 </div>
                              </div>
                         </Card>
@@ -155,10 +155,10 @@ export function Step2RoomSelection({ prevStep, nextStep, allRooms }: { prevStep:
         <Button type="button" variant="outline" size="lg" onClick={prevStep}>
           <ArrowLeft className="mr-2 h-5 w-5" /> Back
         </Button>
-        <Button type="button" size="lg" onClick={nextStep}>
+        <Button type="submit" size="lg">
           Next Step <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
       </div>
-    </div>
+    </form>
   );
 }

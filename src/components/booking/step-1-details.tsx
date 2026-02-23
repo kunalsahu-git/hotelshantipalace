@@ -25,7 +25,7 @@ export function Step1Details({ nextStep }: { nextStep: () => void }) {
   const form = useFormContext<BookingFormData>();
 
   return (
-    <div className="space-y-8">
+    <form onSubmit={(e) => { e.preventDefault(); nextStep(); }} className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold">Your Details</h2>
         <p className="text-muted-foreground">Please provide your contact information.</p>
@@ -65,7 +65,7 @@ export function Step1Details({ nextStep }: { nextStep: () => void }) {
             <FormItem>
               <FormLabel>Email Address</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. anjali.sharma@example.com" {...field} />
+                <Input type="email" placeholder="e.g. anjali.sharma@example.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -84,11 +84,9 @@ export function Step1Details({ nextStep }: { nextStep: () => void }) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="1">1 Guest</SelectItem>
-                  <SelectItem value="2">2 Guests</SelectItem>
-                  <SelectItem value="3">3 Guests</SelectItem>
-                  <SelectItem value="4">4 Guests</SelectItem>
-                  <SelectItem value="5">5+ Guests</SelectItem>
+                  {[1,2,3,4,5].map(g => (
+                    <SelectItem key={g} value={String(g)}>{g} Guest{g > 1 ? 's' : ''}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -117,10 +115,10 @@ export function Step1Details({ nextStep }: { nextStep: () => void }) {
       </div>
       
       <div className="flex justify-end">
-        <Button type="button" size="lg" onClick={nextStep}>
+        <Button type="submit" size="lg">
           Next Step <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
       </div>
-    </div>
+    </form>
   );
 }

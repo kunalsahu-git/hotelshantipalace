@@ -27,8 +27,16 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
   const room = roomCategories.find((r) => r.id === data.roomTypeId);
   
   if (!room || !data.checkIn || !data.checkOut) {
-    // Should not happen if steps are followed
-    return <div>Something went wrong. Please go back and fill out the form correctly.</div>;
+    // This should not happen if steps are followed correctly.
+    // Maybe show a more user-friendly message or redirect.
+    return (
+      <div className="text-center">
+        <p className="text-destructive mb-4">Something went wrong. Please go back and fill out the form correctly.</p>
+        <Button type="button" variant="outline" size="lg" onClick={prevStep}>
+          <ArrowLeft className="mr-2 h-5 w-5" /> Go Back
+        </Button>
+      </div>
+    );
   }
   
   const numberOfNights = differenceInDays(data.checkOut, data.checkIn);
@@ -47,7 +55,7 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
       email: data.email,
       phone: data.phone,
       guests: data.guests,
-      specialRequests: data.specialRequests,
+      specialRequests: data.specialRequests || '',
       roomTypeId: room.id,
       roomTypeName: room.name,
       checkIn: format(data.checkIn, 'yyyy-MM-dd'),
@@ -66,10 +74,10 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
         createdAt: serverTimestamp(),
     })
     .then(docRef => {
-        const redirectUrl = `/booking-confirmed?id=${docRef.id}`;
-        router.push(redirectUrl);
+        router.push(`/booking-confirmed?id=${docRef.id}`);
     })
     .catch(async (serverError) => {
+        console.error("Firebase error:", serverError);
         const permissionError = new FirestorePermissionError({
             path: 'bookings',
             operation: 'create',
@@ -111,7 +119,7 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
                   <hr />
                   <div>
                     <strong className="block text-muted-foreground">Special Requests</strong>
-                    <p className="italic">"{data.specialRequests}"</p>
+                    <p className="italic text-muted-foreground">"{data.specialRequests}"</p>
                   </div>
                 </>
             )}
@@ -123,10 +131,10 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
         </CardContent>
       </Card>
 
-       <Alert>
-          <PartyPopper className="h-4 w-4" />
-          <AlertTitle>No Payment Needed Now</AlertTitle>
-          <AlertDescription>
+       <Alert className="bg-primary/5 border-primary/20 text-primary-foreground">
+          <PartyPopper className="h-4 w-4 text-primary" />
+          <AlertTitle className="text-primary font-bold">No Payment Needed Now</AlertTitle>
+          <AlertDescription className="text-primary/90">
             Your booking request will be confirmed by our team. You can pay at the hotel during check-in or check-out.
           </AlertDescription>
         </Alert>

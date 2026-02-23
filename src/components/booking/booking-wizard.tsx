@@ -38,15 +38,21 @@ export function BookingWizard({ allRooms }: { allRooms: RoomCategory[] }) {
   });
 
   const nextStep = async () => {
-    const isStepValid = await methods.trigger(
-        currentStep === 1 ? ["fullName", "email", "phone", "guests"] : 
-        currentStep === 2 ? ["checkIn", "checkOut", "roomTypeId"] : []
-    );
+    const fieldsToValidate: (keyof BookingFormData)[] = 
+      currentStep === 1 ? ["fullName", "email", "phone", "guests"] : 
+      currentStep === 2 ? ["checkIn", "checkOut", "roomTypeId"] : [];
+      
+    const isStepValid = await methods.trigger(fieldsToValidate);
+    
     if (isStepValid) {
         setCurrentStep((prev) => prev + 1);
+        window.scrollTo(0, 0);
     }
   };
-  const prevStep = () => setCurrentStep((prev) => prev - 1);
+  const prevStep = () => {
+    setCurrentStep((prev) => prev - 1);
+    window.scrollTo(0, 0);
+  };
 
   return (
     <FormProvider {...methods}>
