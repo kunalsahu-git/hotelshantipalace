@@ -13,7 +13,7 @@ import {
   Settings,
   LogOut,
   ConciergeBell,
-  LifeBuoy
+  ArrowRight,
 } from 'lucide-react';
 import { useAdmin } from './admin-provider';
 import { useAuth } from '@/firebase';
@@ -21,6 +21,7 @@ import { Logo } from '../logo';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
+import { LifeBuoy } from 'lucide-react';
 
 const navLinks = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, role: ['admin', 'frontdesk'] },
