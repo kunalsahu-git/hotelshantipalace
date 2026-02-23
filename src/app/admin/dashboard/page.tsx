@@ -28,6 +28,7 @@ import { useAdmin } from '@/components/admin/admin-provider';
 
 export default function DashboardPage() {
   const { isStaffLoading } = useAdmin();
+  const firestore = useFirestore();
 
   // --- Data Fetching ---
   // We can only fetch data once the staff loading is complete.
@@ -86,7 +87,6 @@ export default function DashboardPage() {
     </Card>
   );
 
-  const firestore = useFirestore();
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
