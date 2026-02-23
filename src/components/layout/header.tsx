@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { Home, BedDouble, Info, Mail, Menu, X } from 'lucide-react';
 import { Logo } from '../logo';
 import { Button } from '../ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '../ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '../ui/sheet';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
@@ -73,6 +73,10 @@ export function Header() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-full bg-background p-0">
+                  <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Main navigation links for Hotel Shanti Palace.
+                  </SheetDescription>
                   <div className="flex flex-col h-full">
                     <div className="flex justify-between items-center p-4 border-b">
                        <Logo />
