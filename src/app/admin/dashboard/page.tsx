@@ -30,7 +30,6 @@ export default function DashboardPage() {
   const { isStaffLoading } = useAdmin();
   const firestore = useFirestore();
 
-  // This flag now correctly waits for the AdminProvider to confirm auth is ready.
   const canFetch = !isStaffLoading;
 
   const roomsQuery = useMemoFirebase(
