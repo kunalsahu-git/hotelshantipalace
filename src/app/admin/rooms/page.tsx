@@ -25,6 +25,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Building, Sparkles } from 'lucide-react';
+import { AddRoomForm } from '@/components/admin/add-room-form';
 
 // Define initial rooms to seed
 const getInitialRooms = () => {
@@ -182,7 +183,7 @@ export default function AdminRoomsPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Rooms</h1>
-        <Button>Add New Room</Button>
+        <AddRoomForm />
       </div>
       <Card>
         <CardHeader>

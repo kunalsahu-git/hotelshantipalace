@@ -35,3 +35,14 @@ export const LoginFormSchema = z.object({
 });
 
 export type LoginFormData = z.infer<typeof LoginFormSchema>;
+
+export const RoomFormSchema = z.object({
+  roomNumber: z.string().min(1, { message: "Room number is required." }),
+  floor: z.string().min(1, { message: "Floor is required." }),
+  categoryId: z.string({ required_error: "Please select a room category." }),
+  status: z.enum(['available', 'occupied', 'reserved', 'maintenance', 'dirty']),
+  housekeepingStatus: z.enum(['clean', 'dirty', 'in_progress', 'inspected']),
+  notes: z.string().optional(),
+});
+
+export type RoomFormData = z.infer<typeof RoomFormSchema>;
