@@ -49,17 +49,14 @@ service cloud.firestore {
     // -------------------------------------------------------------------------
 
     match /users/{userId} {
-      // An authenticated user can create their own user document.
+      // A user can create their own document
       allow create: if isOwner(userId);
-      
-      // Users can read their own profile. Any staff can read any profile.
-      allow get, list: if isOwner(userId) || isAnyStaff();
-      
-      // Admins can update any user profile. Users can only update their own.
-      allow update: if isOwner(userId) || isAdmin();
-      
-      // Only admins can delete users.
-      allow delete: if isAdmin();
+      // A user can read their own doc, any staff can read any other doc
+      allow get: if isOwner(userId) || isAnyStaff(); 
+      // Any staff can list users
+      allow list: if isAnyStaff();
+      // Only admins can modify/delete users
+      allow update, delete: if isAdmin();
     }
 
     match /roomCategories/{categoryId} {
@@ -69,8 +66,8 @@ service cloud.firestore {
 
     match /rooms/{roomId} {
       allow read: if isAnyStaff();
-      allow create, update, delete: if isAdminOrFrontDesk();
-      allow update: if isHousekeeping() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['housekeepingStatus']);
+      allow create, delete: if isAdminOrFrontDesk();
+      allow update: if (isHousekeeping() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['housekeepingStatus'])) || isAdminOrFrontDesk();
     }
 
     match /guests/{guestId} {
@@ -78,8 +75,7 @@ service cloud.firestore {
     }
     
     match /bookings/{bookingId} {
-      // Public can create bookings from the website.
-      // Admin/Frontdesk can read and write all bookings.
+      // Public can create bookings from the website
       allow create: if true; 
       allow read, update, delete: if isAdminOrFrontDesk();
     }
@@ -89,23 +85,18 @@ service cloud.firestore {
     }
 
     match /maintenanceTickets/{ticketId} {
-      // Any staff can create tickets.
-      // Admin/frontdesk can manage them.
-      allow create: if isAnyStaff();
-      allow read: if isAnyStaff();
-      allow write: if isAdminOrFrontDesk();
+      allow create, read: if isAnyStaff();
+      allow update, delete: if isAdminOrFrontDesk();
     }
     
     match /enquiries/{enquiryId} {
-      // Public can create enquiries from the website.
-      // Admin/Frontdesk can read and write all enquiries.
+      // Public can create enquiries from the website
       allow create: if true;
       allow read, write: if isAdminOrFrontDesk();
     }
     
     match /settings/{docId} {
-       // Settings are public-read for the website.
-       // Only admins can change them.
+       // Settings are public-read for the website
        allow get, list: if true;
        allow write: if isAdmin();
     }
