@@ -65,7 +65,7 @@ export default function EnquiriesPage() {
             ) : error ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-destructive">
-                  Error loading enquiries: {error.message}
+                   Error loading enquiries. You may not have permission to view this data.
                 </TableCell>
               </TableRow>
             ) : (
@@ -77,6 +77,7 @@ export default function EnquiriesPage() {
                   <TableCell className="font-medium">
                     <div>{enquiry.name}</div>
                     <div className="text-muted-foreground font-normal text-sm">{enquiry.email}</div>
+                    {enquiry.phone && <div className="text-muted-foreground font-normal text-sm">{enquiry.phone}</div>}
                   </TableCell>
                   <TableCell className="text-muted-foreground font-normal">
                     <p className="truncate max-w-xs">{enquiry.message}</p>

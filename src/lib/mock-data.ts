@@ -28,7 +28,8 @@ export const roomCategories: RoomCategory[] = [
         standardRoomPhoto,
         getImage('standard-room-2'),
         getImage('gallery-1')
-    ]
+    ],
+    isActive: true,
   },
   {
     id: 'deluxe',
@@ -43,7 +44,8 @@ export const roomCategories: RoomCategory[] = [
         deluxeRoomPhoto,
         getImage('deluxe-room-2'),
         getImage('gallery-2')
-    ]
+    ],
+    isActive: true,
   },
   {
     id: 'suite',
@@ -58,7 +60,8 @@ export const roomCategories: RoomCategory[] = [
         suiteRoomPhoto,
         getImage('suite-room-2'),
         getImage('gallery-3')
-    ]
+    ],
+    isActive: true,
   },
   {
     id: 'executive',
@@ -73,6 +76,7 @@ export const roomCategories: RoomCategory[] = [
         executiveRoomPhoto,
         getImage('executive-room-2'),
         getImage('gallery-1')
-    ]
+    ],
+    isActive: true,
   },
 ];

@@ -5,15 +5,14 @@ import { signOut } from 'firebase/auth';
 import {
   LayoutDashboard,
   Calendar,
-  LogIn,
-  Bed,
+  BedDouble,
   Users,
   Wrench,
   FileText,
   MessageSquare,
   Settings,
   LogOut,
-  Sparkles,
+  ConciergeBell,
   LifeBuoy
 } from 'lucide-react';
 import { useAdmin } from './admin-provider';
@@ -26,8 +25,8 @@ import { cn } from '@/lib/utils';
 const navLinks = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, role: ['admin', 'frontdesk'] },
   { href: '/admin/bookings', label: 'Bookings', icon: Calendar, role: ['admin', 'frontdesk'] },
-  { href: '/admin/checkin', label: 'Check-in/Out', icon: LogIn, role: ['admin', 'frontdesk'] },
-  { href: '/admin/rooms', label: 'Rooms', icon: Bed, role: ['admin', 'frontdesk', 'housekeeping'] },
+  { href: '/admin/checkin', label: 'Check-in/Out', icon: ConciergeBell, role: ['admin', 'frontdesk'] },
+  { href: '/admin/rooms', label: 'Rooms', icon: BedDouble, role: ['admin', 'frontdesk', 'housekeeping'] },
   { href: '/admin/guests', label: 'Guests', icon: Users, role: ['admin', 'frontdesk'] },
   { href: '/admin/housekeeping', label: 'Housekeeping', icon: LifeBuoy, role: ['admin', 'housekeeping'] },
   { href: '/admin/maintenance', label: 'Maintenance', icon: Wrench, role: ['admin', 'frontdesk', 'housekeeping'] },
@@ -42,11 +41,13 @@ export function AdminSidebar() {
   const auth = useAuth();
 
   const handleLogout = async () => {
-    await signOut(auth);
+    if (auth) {
+      await signOut(auth);
+    }
   };
 
-  if (!user) {
-    return null; // Don't render sidebar on login page
+  if (!user || !role) {
+    return null; // Don't render sidebar on login page or if user/role is not available
   }
 
   return (
@@ -56,7 +57,7 @@ export function AdminSidebar() {
       </div>
       <nav className="flex-1 px-4 py-6 space-y-2">
         {navLinks.map((link) => {
-          if (!link.role.includes(role!)) return null;
+          if (!link.role.includes(role)) return null;
 
           const isActive = pathname.startsWith(link.href);
           return (

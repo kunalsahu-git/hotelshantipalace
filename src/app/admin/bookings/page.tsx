@@ -15,6 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Booking } from '@/lib/types';
 import { format } from 'date-fns';
+import { Globe } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function BookingsPage() {
   const firestore = useFirestore();
@@ -36,7 +38,15 @@ export default function BookingsPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Bookings</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Bookings</h1>
+        <div className="flex items-center gap-2">
+            <p className="text-sm text-muted-foreground">Filter by source:</p>
+            <Button variant="outline" size="sm">All</Button>
+            <Button variant="outline" size="sm">Walk-in</Button>
+            <Button variant="outline" size="sm">Website</Button>
+        </div>
+      </div>
       <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
         <Table>
           <TableCaption>{isLoading ? "Loading..." : (bookings?.length === 0 ? "No bookings found." : "A list of recent bookings.")}</TableCaption>
@@ -63,15 +73,18 @@ export default function BookingsPage() {
             ) : error ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-destructive">
-                  Error loading bookings: {error.message}
+                  Error loading bookings. You may not have permission to view this data.
                 </TableCell>
               </TableRow>
             ) : (
               bookings?.map((booking) => (
                 <TableRow key={booking.id}>
                   <TableCell className="font-medium">
-                    <div>{booking.guestName}</div>
-                    <div className="text-muted-foreground text-sm">{booking.guestEmail}</div>
+                    <div className="flex items-center gap-2">
+                      {booking.source === 'website' && <Globe className="h-4 w-4 text-primary" titleAccess="Website booking" />}
+                      {booking.guestName}
+                    </div>
+                    <div className="text-muted-foreground text-sm ml-6">{booking.guestEmail}</div>
                   </TableCell>
                   <TableCell>{booking.categoryName}</TableCell>
                   <TableCell>
