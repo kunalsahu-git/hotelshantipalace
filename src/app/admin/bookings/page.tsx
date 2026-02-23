@@ -2,6 +2,7 @@
 
 import { collection, query, orderBy } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useAdmin } from '@/components/admin/admin-provider';
 import {
   Table,
   TableHeader,
@@ -20,11 +21,14 @@ import { Button } from '@/components/ui/button';
 
 export default function BookingsPage() {
   const firestore = useFirestore();
+  const { role, isStaffLoading } = useAdmin();
+
+  const shouldFetch = !isStaffLoading && !!role;
 
   const bookingsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !shouldFetch) return null;
     return query(collection(firestore, 'bookings'), orderBy('createdAt', 'desc'));
-  }, [firestore]);
+  }, [firestore, shouldFetch]);
 
   const { data: bookings, isLoading, error } = useCollection<Booking>(bookingsQuery);
 
@@ -35,6 +39,8 @@ export default function BookingsPage() {
       default: return 'outline';
     }
   }
+
+  const finalIsLoading = isLoading || isStaffLoading;
 
   return (
     <div className="p-6">
@@ -49,7 +55,7 @@ export default function BookingsPage() {
       </div>
       <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
         <Table>
-          <TableCaption>{isLoading ? "Loading..." : (bookings?.length === 0 ? "No bookings found." : "A list of recent bookings.")}</TableCaption>
+          <TableCaption>{finalIsLoading ? "Loading..." : (bookings?.length === 0 ? "No bookings found." : "A list of recent bookings.")}</TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead>Guest</TableHead>
@@ -60,7 +66,7 @@ export default function BookingsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
+            {finalIsLoading ? (
               [...Array(5)].map((_, i) => (
                 <TableRow key={i}>
                   <TableCell><Skeleton className="h-5 w-40" /></TableCell>

@@ -2,6 +2,7 @@
 
 import { collection, query, orderBy } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useAdmin } from '@/components/admin/admin-provider';
 import {
   Table,
   TableHeader,
@@ -19,11 +20,14 @@ import { Button } from '@/components/ui/button';
 
 export default function EnquiriesPage() {
   const firestore = useFirestore();
+  const { role, isStaffLoading } = useAdmin();
+
+  const shouldFetch = !isStaffLoading && !!role;
 
   const enquiriesQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !shouldFetch) return null;
     return query(collection(firestore, 'enquiries'), orderBy('submittedAt', 'desc'));
-  }, [firestore]);
+  }, [firestore, shouldFetch]);
 
   const { data: enquiries, isLoading, error } = useCollection<Enquiry>(enquiriesQuery);
 
@@ -36,12 +40,14 @@ export default function EnquiriesPage() {
     }
   }
 
+  const finalIsLoading = isLoading || isStaffLoading;
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Enquiries</h1>
       <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
         <Table>
-          <TableCaption>{isLoading ? "Loading..." : (enquiries?.length === 0 ? "No enquiries found." : "A list of recent website enquiries.")}</TableCaption>
+          <TableCaption>{finalIsLoading ? "Loading..." : (enquiries?.length === 0 ? "No enquiries found." : "A list of recent website enquiries.")}</TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead>Submitted</TableHead>
@@ -52,7 +58,7 @@ export default function EnquiriesPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
+            {finalIsLoading ? (
               [...Array(5)].map((_, i) => (
                 <TableRow key={i}>
                   <TableCell><Skeleton className="h-5 w-24" /></TableCell>

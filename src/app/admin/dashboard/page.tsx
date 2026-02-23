@@ -11,6 +11,7 @@ import {
   useCollection,
   useMemoFirebase,
 } from '@/firebase';
+import { useAdmin } from '@/components/admin/admin-provider';
 import type { Booking, Enquiry, Room } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,21 +33,24 @@ import { Badge } from '@/components/ui/badge';
 
 export default function DashboardPage() {
   const firestore = useFirestore();
+  const { role, isStaffLoading } = useAdmin();
 
   // --- Data Fetching ---
 
+  const shouldFetch = !isStaffLoading && !!role;
+
   // Enquiries for alert banner
   const enquiriesQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !shouldFetch) return null;
     return query(collection(firestore, 'enquiries'), where('status', '==', 'new'));
-  }, [firestore]);
+  }, [firestore, shouldFetch]);
   const { data: newEnquiries, isLoading: isLoadingEnquiries } = useCollection<Enquiry>(enquiriesQuery);
 
   // Total rooms
   const roomsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !shouldFetch) return null;
     return query(collection(firestore, 'rooms'));
-  }, [firestore]);
+  }, [firestore, shouldFetch]);
   const { data: rooms, isLoading: isLoadingRooms } = useCollection<Room>(roomsQuery);
 
   // Website bookings today
@@ -56,17 +60,17 @@ export default function DashboardPage() {
   };
 
   const todaysBookingsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !shouldFetch) return null;
     return query(
       collection(firestore, 'bookings'),
       where('source', '==', 'website'),
       where('createdAt', '>=', Timestamp.fromDate(getStartOfToday()))
     );
-  }, [firestore]);
+  }, [firestore, shouldFetch]);
 
   const { data: todaysWebsiteBookings, isLoading: isLoadingBookings } = useCollection<Booking>(todaysBookingsQuery);
 
-  const isLoading = isLoadingEnquiries || isLoadingRooms || isLoadingBookings;
+  const isLoading = isLoadingEnquiries || isLoadingRooms || isLoadingBookings || isStaffLoading;
 
   return (
     <div className="p-6">
@@ -94,7 +98,7 @@ export default function DashboardPage() {
             <Building className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {isLoadingRooms ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{rooms?.length || 0}</div>}
+            {isLoading ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{rooms?.length || 0}</div>}
           </CardContent>
         </Card>
         <Card>
@@ -113,7 +117,7 @@ export default function DashboardPage() {
             <Globe className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {isLoadingBookings ? <Skeleton className="h-8 w-16" /> : (
+            {isLoading ? <Skeleton className="h-8 w-16" /> : (
               <div className="text-2xl font-bold flex items-center gap-2">
                 {todaysWebsiteBookings?.length || 0}
                 {todaysWebsiteBookings && todaysWebsiteBookings.length > 0 && <Badge>New</Badge>}
