@@ -26,29 +26,29 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAdmin } from '@/components/admin/admin-provider';
 
 export default function DashboardPage() {
-  const { isStaffLoading } = useAdmin();
+  const { isStaffLoading, role } = useAdmin();
   const firestore = useFirestore();
 
   // --- Data Fetching ---
 
   const roomsQuery = useMemoFirebase(
-    () => (firestore ? collection(firestore, 'rooms') : null),
-    [firestore]
+    () => (firestore && role ? collection(firestore, 'rooms') : null),
+    [firestore, role]
   );
   const { data: roomsData, isLoading: roomsLoading } = useCollection(roomsQuery);
   const totalRooms = roomsData?.length ?? 0;
 
   const newEnquiriesQuery = useMemoFirebase(
     () =>
-      firestore
+      firestore && role
         ? query(collection(firestore, 'enquiries'), where('status', '==', 'new'))
         : null,
-    [firestore]
+    [firestore, role]
   );
   const { data: newEnquiries, isLoading: enquiriesLoading } = useCollection(newEnquiriesQuery);
 
   const websiteBookingsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !role) return null;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -60,7 +60,7 @@ export default function DashboardPage() {
       where('createdAt', '>=', Timestamp.fromDate(today)),
       where('createdAt', '<', Timestamp.fromDate(tomorrow))
     );
-  }, [firestore]);
+  }, [firestore, role]);
   const { data: websiteBookings, isLoading: bookingsLoading } = useCollection(websiteBookingsQuery);
 
   const isLoading = roomsLoading || enquiriesLoading || bookingsLoading || isStaffLoading;
