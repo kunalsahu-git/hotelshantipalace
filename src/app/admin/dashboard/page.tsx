@@ -19,6 +19,7 @@ import {
   Wrench,
   AlertCircle,
   Building,
+  BedDouble,
 } from 'lucide-react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, Timestamp } from 'firebase/firestore';
@@ -145,11 +146,17 @@ export default function DashboardPage() {
            <CardHeader>
              <CardTitle>Quick Actions</CardTitle>
            </CardHeader>
-           <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+           <CardContent className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               <Button asChild variant="outline" size="lg" className="h-20 flex-col gap-2">
                 <Link href="/admin/bookings">
                   <CalendarPlus className="h-6 w-6" />
                   New Booking
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="h-20 flex-col gap-2">
+                <Link href="/admin/rooms">
+                  <BedDouble className="h-6 w-6" />
+                  Add New Room
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="h-20 flex-col gap-2">
