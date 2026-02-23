@@ -4,7 +4,6 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUser } from '@/firebase';
 import type { User as StaffUser, StaffRole } from '@/lib/types';
-import { Skeleton } from '../ui/skeleton';
 
 interface AdminContextType {
   user: StaffUser | null;
@@ -26,31 +25,35 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [isStaffLoading, setIsStaffLoading] = useState(true);
 
   useEffect(() => {
+    console.log('[AdminProvider] Auth state change detected. isUserLoading:', isUserLoading, 'User UID:', user?.uid);
     const isLoginPage = pathname === '/admin/login';
 
     if (isUserLoading) {
-      // Still waiting for Firebase to determine auth state
+      console.log('[AdminProvider] Auth state is still loading, ensuring isStaffLoading is true.');
       setIsStaffLoading(true);
       return;
     }
 
     if (!user) {
-      // User is not logged in
+      console.log('[AdminProvider] User is confirmed to be logged out.');
       if (!isLoginPage) {
+        console.log('[AdminProvider] Not on login page, redirecting to /admin/login.');
         router.push('/admin/login');
       }
       setStaffInfo({ user: null, role: null });
       setIsStaffLoading(false);
+      console.log('[AdminProvider] Set isStaffLoading to false for logged-out user.');
       return;
     }
 
     // User is logged in
+    console.log('[AdminProvider] User is confirmed to be logged in:', user.uid);
     if (isLoginPage) {
+      console.log('[AdminProvider] User is on login page, redirecting to /admin/dashboard.');
       router.push('/admin/dashboard');
       return;
     }
 
-    // Since rules are simplified, any logged-in user is an admin.
     const pseudoStaffUser: StaffUser = {
       id: user.uid,
       name: user.displayName || user.email?.split('@')[0] || 'Admin',
@@ -62,11 +65,11 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     
     setStaffInfo({ user: pseudoStaffUser, role: 'admin' });
     setIsStaffLoading(false);
+    console.log('[AdminProvider] Set staff info and set isStaffLoading to false for logged-in user.');
 
   }, [user, isUserLoading, pathname, router]);
 
-  // Always render the provider. The children will decide what to do based on the context values.
-  // This prevents the race condition where children don't see the initial loading state.
+  // Always render the provider.
   return (
     <AdminContext.Provider value={{ ...staffInfo, isStaffLoading }}>
       {children}
