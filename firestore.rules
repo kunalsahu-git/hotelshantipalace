@@ -10,12 +10,16 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+    function getUserRole() {
+      let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      if (exists(userPath)) {
+        return get(userPath).data.role;
+      }
+      return null;
     }
 
-    function getUserRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
     }
 
     function isAdmin() {
@@ -44,70 +48,56 @@ service cloud.firestore {
     // Collection Rules
     // -------------------------------------------------------------------------
 
-    // /users/{uid}
-    //   name, email, role (admin | frontdesk | housekeeping), 
-    //   createdAt, isActive
     match /users/{userId} {
       allow read: if isAnyStaff();
       allow write: if isAdmin();
       allow get: if isOwner(userId);
     }
 
-    // /roomCategories/{categoryId}
-    //   name, description, basePrice, maxOccupancy, 
-    //   amenities[], photoURL, isActive
     match /roomCategories/{categoryId} {
       allow get, list: if true;
       allow write: if isAdminOrFrontDesk();
     }
 
-    // /rooms/{roomId}
-    //   roomNumber, floor, categoryId, categoryName,
-    //   status (available | occupied | reserved | maintenance | dirty),
-    //   housekeepingStatus (clean | dirty | in_progress | inspected),
-    //   isActive, notes, currentBookingId
     match /rooms/{roomId} {
       allow read: if isAnyStaff();
       allow write: if isAdminOrFrontDesk();
-      allow update: if isHousekeeping() && request.resource.data.keys().hasOnly(['housekeepingStatus']);
+      allow update: if isHousekeeping() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['housekeepingStatus']);
     }
 
-    // /guests/{guestId}
-    //   name, phone, email, idType, idNumber,
-    //   address, nationality, notes, tags[],
-    //   createdAt, totalStays, source (walkin | website)
     match /guests/{guestId} {
       allow read, write: if isAdminOrFrontDesk();
     }
     
-    // /bookings/{bookingId}
-    //   ...
-    //   source (admin | website), 
     match /bookings/{bookingId} {
-      allow create: if true; // Allow public creation for website bookings
-      allow read, write: if isAdminOrFrontDesk();
+      // Public can create bookings from the website.
+      // Admin/Frontdesk can read and write all bookings.
+      allow create: if true; 
+      allow read, update, delete: if isAdminOrFrontDesk();
     }
     
-    // /bills/{billId}
     match /bills/{billId} {
       allow read, write: if isAdminOrFrontDesk();
     }
 
-    // /maintenanceTickets/{ticketId}
     match /maintenanceTickets/{ticketId} {
+      // Any staff can create tickets.
+      // Admin/frontdesk can manage them.
       allow create: if isAnyStaff();
       allow read: if isAnyStaff();
       allow write: if isAdminOrFrontDesk();
     }
     
-    // /enquiries/{enquiryId}
     match /enquiries/{enquiryId} {
-      allow create: if true; // Allow public creation for website enquiries
+      // Public can create enquiries from the website.
+      // Admin/Frontdesk can read and write all enquiries.
+      allow create: if true;
       allow read, write: if isAdminOrFrontDesk();
     }
     
-    // /settings/{doc}
     match /settings/{docId} {
+       // Settings are public-read for the website.
+       // Only admins can change them.
        allow get, list: if true;
        allow write: if isAdmin();
     }
