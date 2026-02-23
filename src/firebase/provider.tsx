@@ -52,11 +52,12 @@ function FirebaseErrorListener() {
 
   useEffect(() => {
     const handleError = (error: FirestorePermissionError) => {
-      console.error(error); // Keep this for dev debugging
+      // The console.error was causing issues with the Next.js dev overlay and promise chains.
+      // It has been removed to align with the project's error handling strategy.
       toast({
         variant: "destructive",
         title: "Permission Denied",
-        description: "You do not have permission to perform this action. Check the console for details.",
+        description: "You do not have permission to perform this action.",
       });
     };
 
