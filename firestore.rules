@@ -2,21 +2,47 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // By default, allow all reads and writes if the user is authenticated.
-    // This provides a secure default for the admin panel while we build.
-    match /{document=**} {
+
+    // --- Admin Panel Collections ---
+    // Authenticated admins can read and write to these collections.
+    match /users/{userId} {
+      allow read, write: if request.auth != null;
+    }
+    match /roomCategories/{categoryId} {
+      allow read, write: if request.auth != null;
+    }
+    match /rooms/{roomId} {
+      allow read, write: if request.auth != null;
+    }
+    match /guests/{guestId} {
+      allow read, write: if request.auth != null;
+    }
+    match /bills/{billId} {
+      allow read, write: if request.auth != null;
+    }
+    match /maintenanceTickets/{ticketId} {
+      allow read, write: if request.auth != null;
+    }
+    match /settings/{docId} {
       allow read, write: if request.auth != null;
     }
 
-    // --- Public Website Submissions ---
-    // Anyone (even unauthenticated users) can submit an enquiry form from the website.
-    match /enquiries/{enquiryId} {
-      allow create: if true;
-    }
+    // --- Collections with Public Write Access ---
 
-    // Anyone (even unauthenticated users) can create a booking request from the website.
+    // Bookings:
+    // - Anyone can create a booking (from the website).
+    // - Authenticated users can read, update, or delete bookings (from the admin panel).
     match /bookings/{bookingId} {
       allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // Enquiries:
+    // - Anyone can create an enquiry (from the website).
+    // - Authenticated users can read, update, or delete enquiries (from the admin panel).
+    match /enquiries/{enquiryId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
     }
   }
 }
