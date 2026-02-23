@@ -3,19 +3,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // For this simplified setup, we consider any authenticated user to be an admin.
-    // This avoids complex and slow `get()` calls in the rules.
-    function isAdmin() {
-      return request.auth != null;
-    }
-
     // --- User Profiles ---
     match /users/{userId} {
       // A user must be logged in to create their own user document.
       allow create: if request.auth.uid == userId;
       // Any logged-in user (as admin) can read, update, list, and delete user profiles.
-      // This also implicitly allows users to read/update their own profile since they are logged in.
-      allow read, update, list, delete: if isAdmin();
+      allow read, update, list, delete: if request.auth != null;
     }
 
     // --- Public Website Submissions ---
@@ -23,35 +16,35 @@ service cloud.firestore {
       // Anyone can submit an enquiry form from the website.
       allow create: if true;
       // Admins can manage enquiries.
-      allow read, list, update, delete: if isAdmin();
+      allow read, list, update, delete: if request.auth != null;
     }
 
     match /bookings/{bookingId} {
       // Anyone can create a booking from the website.
       allow create: if true;
       // Admins can manage bookings.
-      allow read, list, update, delete: if isAdmin();
+      allow read, list, update, delete: if request.auth != null;
     }
 
     // --- Hotel Management Collections (Admin Only) ---
     // Any authenticated user (admin) can perform any action on these collections.
     match /roomCategories/{categoryId} {
-      allow read, list, write: if isAdmin();
+      allow read, list, write: if request.auth != null;
     }
     match /rooms/{roomId} {
-      allow read, list, write: if isAdmin();
+      allow read, list, write: if request.auth != null;
     }
     match /guests/{guestId} {
-      allow read, list, write: if isAdmin();
+      allow read, list, write: if request.auth != null;
     }
     match /bills/{billId} {
-      allow read, list, write: if isAdmin();
+      allow read, list, write: if request.auth != null;
     }
     match /maintenanceTickets/{ticketId} {
-      allow read, list, write: if isAdmin();
+      allow read, list, write: if request.auth != null;
     }
     match /settings/{docId} {
-      allow read, list, write: if isAdmin();
+      allow read, list, write: if request.auth != null;
     }
   }
 }
