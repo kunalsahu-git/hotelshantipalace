@@ -1,10 +1,83 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // TEMPORARY DEBUGGING RULE: Allow any authenticated user to read/write.
-    // This is not secure for production but will help verify app logic.
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+    
+    // Helper function to safely get the user's role from the /users collection
+    function getRole(userId) {
+      // Use exists() to check if the user's document exists before trying to access its data.
+      // This prevents errors during the brief moment a user is authenticated but their user document hasn't been created yet.
+      if (exists(/databases/$(database)/documents/users/$(userId))) {
+        return get(/databases/$(database)/documents/users/$(userId)).data.role;
+      }
+      return null;
+    }
+
+    // --- User Profiles ---
+    match /users/{userId} {
+      // A user can create their own profile document. This is crucial for initial sign-up.
+      allow create: if request.auth.uid == userId;
+      // A user can read or update their own profile. An admin can read or update any profile.
+      allow read, update: if request.auth.uid == userId || getRole(request.auth.uid) == 'admin';
+      // Only admins can list or delete users.
+      allow list, delete: if getRole(request.auth.uid) == 'admin';
+    }
+
+    // --- Staff-Only Collections ---
+    function isStaff() {
+      return getRole(request.auth.uid) in ['admin', 'frontdesk', 'housekeeping'];
+    }
+    
+    function isFrontOffice() {
+      return getRole(request.auth.uid) in ['admin', 'frontdesk'];
+    }
+
+    function isAdmin() {
+      return getRole(request.auth.uid) == 'admin';
+    }
+
+    // Anyone authenticated can create an enquiry (i.e., submit the contact form).
+    // Only front office staff can read, list, and update enquiries.
+    match /enquiries/{enquiryId} {
+      allow create: if request.auth != null;
+      allow read, list, update: if isFrontOffice();
+    }
+    
+    // Front office staff can manage bookings.
+    match /bookings/{bookingId} {
+      allow read, write, list: if isFrontOffice();
+    }
+
+    // Front office staff can manage guests.
+    match /guests/{guestId} {
+      allow read, write, list: if isFrontOffice();
+    }
+
+    // Front office staff can manage bills.
+    match /bills/{billId} {
+      allow read, write, list: if isFrontOffice();
+    }
+    
+    // Any staff member can view rooms. Housekeeping and front office can update room status.
+    match /rooms/{roomId} {
+      allow read, list: if isStaff();
+      allow write: if isStaff(); 
+    }
+    
+    // Any staff member can manage maintenance tickets.
+    match /maintenanceTickets/{ticketId} {
+       allow read, write, list: if isStaff();
+    }
+    
+    // Public read for room categories, admin write.
+    match /roomCategories/{categoryId} {
+      allow get, list: if request.auth != null;
+      allow write: if isAdmin();
+    }
+    
+    // Admin-only for hotel settings.
+    match /settings/{docId} {
+      allow read, write: if isAdmin();
     }
   }
 }
