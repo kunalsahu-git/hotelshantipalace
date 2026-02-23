@@ -34,7 +34,7 @@ export function Step1Details({ nextStep }: { nextStep: () => void }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
           control={form.control}
-          name="fullName"
+          name="guestName"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Full Name</FormLabel>
@@ -47,7 +47,7 @@ export function Step1Details({ nextStep }: { nextStep: () => void }) {
         />
         <FormField
           control={form.control}
-          name="phone"
+          name="guestPhone"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Phone Number</FormLabel>
@@ -60,7 +60,7 @@ export function Step1Details({ nextStep }: { nextStep: () => void }) {
         />
          <FormField
           control={form.control}
-          name="email"
+          name="guestEmail"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email Address</FormLabel>
@@ -73,7 +73,7 @@ export function Step1Details({ nextStep }: { nextStep: () => void }) {
         />
         <FormField
           control={form.control}
-          name="guests"
+          name="numberOfGuests"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Number of Guests</FormLabel>

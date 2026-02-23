@@ -1,3 +1,14 @@
+export type StaffRole = 'admin' | 'frontdesk' | 'housekeeping';
+
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  role: StaffRole;
+  isActive: boolean;
+  createdAt: any;
+}
+
 export type RoomCategory = {
   id: string;
   name: string;
@@ -15,21 +26,27 @@ export type RoomCategory = {
 
 export type Booking = {
   id?: string;
-  fullName: string;
-  phone: string;
-  email: string;
-  guests: number;
-  specialRequests: string;
-  roomTypeId: string;
-  roomTypeName: string;
+  guestId?: string;
+  guestName: string;
+  guestPhone: string;
+  guestEmail: string;
+  roomId?: string;
+  roomNumber?: string;
+  categoryId: string;
+  categoryName: string;
   checkIn: string; // YYYY-MM-DD
   checkOut: string; // YYYY-MM-DD
   numberOfNights: number;
-  totalPrice: number;
-  status: 'reserved' | 'confirmed' | 'cancelled' | 'completed';
+  numberOfGuests: number;
+  status: 'reserved' | 'checked_in' | 'checked_out' | 'cancelled';
   bookingType: 'advance' | 'walk-in';
-  source: 'website';
+  source: 'website' | 'admin';
+  specialRequests?: string;
   createdAt?: any;
+  createdBy?: string;
+  earlyCheckIn?: boolean;
+  lateCheckOut?: boolean;
+  totalPrice?: number; // Kept for wizard flow, not in DB model as per spec
 };
 
 export type Enquiry = {
@@ -39,4 +56,5 @@ export type Enquiry = {
     email: string;
     message: string;
     submittedAt?: any;
+    status: 'new' | 'read' | 'responded';
 }

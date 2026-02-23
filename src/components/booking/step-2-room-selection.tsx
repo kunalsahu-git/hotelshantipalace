@@ -32,7 +32,7 @@ export function Step2RoomSelection({ prevStep, nextStep, allRooms }: { prevStep:
 
   const checkIn = watch('checkIn');
   const checkOut = watch('checkOut');
-  const selectedRoomId = watch('roomTypeId');
+  const selectedRoomId = watch('categoryId');
 
   const selectedRoom = allRooms.find(r => r.id === selectedRoomId);
   const numberOfNights = checkIn && checkOut && checkOut > checkIn ? differenceInDays(checkOut, checkIn) : 0;
@@ -96,10 +96,10 @@ export function Step2RoomSelection({ prevStep, nextStep, allRooms }: { prevStep:
 
       <FormField
         control={control}
-        name="roomTypeId"
+        name="categoryId"
         render={({ field }) => (
           <FormItem className="space-y-3">
-            <FormLabel className={cn(errors.roomTypeId && 'text-destructive')}>Available Room Categories</FormLabel>
+            <FormLabel className={cn(errors.categoryId && 'text-destructive')}>Available Room Categories</FormLabel>
             <FormControl>
               <RadioGroup onValueChange={field.onChange} value={field.value} className="grid grid-cols-1 gap-4">
                 {allRooms.map((room) => (

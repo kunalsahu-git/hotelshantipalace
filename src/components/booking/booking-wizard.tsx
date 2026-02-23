@@ -29,11 +29,11 @@ export function BookingWizard({ allRooms }: { allRooms: RoomCategory[] }) {
     defaultValues: {
       checkIn: getInitialDate(searchParams.get('checkin')),
       checkOut: getInitialDate(searchParams.get('checkout')),
-      guests: parseInt(searchParams.get('guests') || '2', 10),
-      roomTypeId: searchParams.get('roomType') || undefined,
-      fullName: '',
-      email: '',
-      phone: '',
+      numberOfGuests: parseInt(searchParams.get('guests') || '2', 10),
+      categoryId: searchParams.get('roomType') || undefined,
+      guestName: '',
+      guestEmail: '',
+      guestPhone: '',
       specialRequests: '',
     },
   });
@@ -41,21 +41,21 @@ export function BookingWizard({ allRooms }: { allRooms: RoomCategory[] }) {
   const handleFillTestData = () => {
     const today = new Date();
     methods.reset({
-      fullName: 'Rohan Sharma',
-      email: 'rohan.sharma@example.com',
-      phone: '9876543210',
-      guests: 2,
+      guestName: 'Rohan Sharma',
+      guestEmail: 'rohan.sharma@example.com',
+      guestPhone: '9876543210',
+      numberOfGuests: 2,
       specialRequests: 'Testing the booking system with autofilled data.',
       checkIn: addDays(today, 2),
       checkOut: addDays(today, 5),
-      roomTypeId: 'deluxe',
+      categoryId: 'deluxe',
     });
   };
 
   const nextStep = async () => {
     const fieldsToValidate: (keyof BookingFormData)[] = 
-      currentStep === 1 ? ["fullName", "email", "phone", "guests"] : 
-      currentStep === 2 ? ["checkIn", "checkOut", "roomTypeId"] : [];
+      currentStep === 1 ? ["guestName", "guestEmail", "guestPhone", "numberOfGuests"] : 
+      currentStep === 2 ? ["checkIn", "checkOut", "categoryId"] : [];
       
     const isStepValid = await methods.trigger(fieldsToValidate);
     

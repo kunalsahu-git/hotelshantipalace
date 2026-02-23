@@ -49,10 +49,13 @@ export function EnquiryForm() {
 
     const enquiriesCollection = collection(firestore, 'enquiries');
 
-    addDoc(enquiriesCollection, {
+    const payload = {
       ...data,
+      status: 'new',
       submittedAt: serverTimestamp(),
-    })
+    }
+
+    addDoc(enquiriesCollection, payload)
       .then(() => {
         toast({
           title: 'Enquiry Sent!',
@@ -64,7 +67,7 @@ export function EnquiryForm() {
         const permissionError = new FirestorePermissionError({
             path: 'enquiries',
             operation: 'create',
-            requestResourceData: data,
+            requestResourceData: payload,
         });
         errorEmitter.emit('permission-error', permissionError);
       })

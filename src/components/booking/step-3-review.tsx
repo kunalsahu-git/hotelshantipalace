@@ -24,7 +24,7 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const data = getValues();
-  const room = roomCategories.find((r) => r.id === data.roomTypeId);
+  const room = roomCategories.find((r) => r.id === data.categoryId);
   
   if (!room || !data.checkIn || !data.checkOut) {
     // This should not happen if steps are followed correctly.
@@ -51,17 +51,17 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
     }
 
     const bookingPayload: Omit<Booking, 'id' | 'createdAt'> = {
-      fullName: data.fullName,
-      email: data.email,
-      phone: data.phone,
-      guests: data.guests,
+      guestName: data.guestName,
+      guestEmail: data.guestEmail,
+      guestPhone: data.guestPhone,
+      numberOfGuests: data.numberOfGuests,
       specialRequests: data.specialRequests || '',
-      roomTypeId: room.id,
-      roomTypeName: room.name,
+      categoryId: room.id,
+      categoryName: room.name,
       checkIn: format(data.checkIn, 'yyyy-MM-dd'),
       checkOut: format(data.checkOut, 'yyyy-MM-dd'),
-      totalPrice: totalPrice,
       numberOfNights: numberOfNights,
+      totalPrice: totalPrice,
       status: 'reserved',
       bookingType: 'advance',
       source: 'website',
@@ -101,10 +101,10 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
-                <div><strong className="block text-muted-foreground">Full Name</strong> {data.fullName}</div>
-                <div><strong className="block text-muted-foreground">Phone</strong> {data.phone}</div>
-                <div><strong className="block text-muted-foreground">Email</strong> {data.email}</div>
-                <div><strong className="block text-muted-foreground">Guests</strong> {data.guests}</div>
+                <div><strong className="block text-muted-foreground">Full Name</strong> {data.guestName}</div>
+                <div><strong className="block text-muted-foreground">Phone</strong> {data.guestPhone}</div>
+                <div><strong className="block text-muted-foreground">Email</strong> {data.guestEmail}</div>
+                <div><strong className="block text-muted-foreground">Guests</strong> {data.numberOfGuests}</div>
             </div>
             <hr />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
