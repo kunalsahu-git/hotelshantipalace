@@ -1,65 +1,837 @@
 {
   "entities": {
-    "booking": {
-      "title": "Booking",
-      "description": "Represents a guest's booking at the hotel.",
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
       "type": "object",
+      "description": "Represents a staff member with access to the admin panel, including their role and activity status.",
       "properties": {
-        "fullName": { "type": "string", "description": "Guest's full name." },
-        "phone": { "type": "string", "description": "Guest's phone number." },
-        "email": { "type": "string", "format": "email", "description": "Guest's email address." },
-        "guests": { "type": "number", "description": "Number of guests." },
-        "specialRequests": { "type": "string", "description": "Any special requests from the guest." },
-        "roomTypeId": { "type": "string", "description": "ID of the booked room category." },
-        "roomTypeName": { "type": "string", "description": "Name of the booked room category." },
-        "checkIn": { "type": "string", "format": "date", "description": "Check-in date (YYYY-MM-DD)." },
-        "checkOut": { "type": "string", "format": "date", "description": "Check-out date (YYYY-MM-DD)." },
-        "numberOfNights": { "type": "number", "description": "Total number of nights for the stay." },
-        "totalPrice": { "type": "number", "description": "Estimated total price for the stay." },
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity. This typically corresponds to the authentication UID."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the staff member."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the staff member, used for login.",
+          "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "description": "The assigned role of the staff member, determining their access permissions.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the user account was created.",
+          "format": "date-time"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates whether the user account is currently active."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "email",
+        "role",
+        "createdAt",
+        "isActive"
+      ]
+    },
+    "RoomCategory": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "RoomCategory",
+      "type": "object",
+      "description": "Defines different types of rooms available in the hotel, including their pricing, capacity, and amenities.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the RoomCategory entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the room category (e.g., 'Deluxe Room', 'Suite')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the room category."
+        },
+        "basePrice": {
+          "type": "number",
+          "description": "The base price per night for this room category."
+        },
+        "maxOccupancy": {
+          "type": "number",
+          "description": "The maximum number of guests allowed in this room category."
+        },
+        "amenities": {
+          "type": "array",
+          "description": "A list of amenities offered in rooms of this category (e.g., 'Mini Bar', 'WiFi', 'Bathtub').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "URL to a photo representing this room category.",
+          "format": "uri"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates whether this room category is active and available for booking."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "basePrice",
+        "maxOccupancy",
+        "amenities",
+        "isActive"
+      ]
+    },
+    "Room": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Room",
+      "type": "object",
+      "description": "Represents a physical room within the hotel, including its number, floor, category, and current status.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Room entity."
+        },
+        "roomNumber": {
+          "type": "string",
+          "description": "The unique number or identifier for the room (e.g., '101', '2A')."
+        },
+        "floor": {
+          "type": "string",
+          "description": "The floor on which the room is located (e.g., 'Ground Floor', '1st Floor')."
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to the RoomCategory this room belongs to. (Relationship: RoomCategory 1:N Room)"
+        },
+        "categoryName": {
+          "type": "string",
+          "description": "Denormalized name of the room category for quick display."
+        },
         "status": {
           "type": "string",
-          "enum": ["reserved", "confirmed", "cancelled", "completed"],
-          "description": "The current status of the booking."
+          "description": "The current operational status of the room (e.g., 'available', 'occupied', 'maintenance').",
+          "items": {
+            "type": "string"
+          }
         },
-        "bookingType": {
-            "type": "string",
-            "enum": ["advance", "walk-in"],
-            "description": "Type of booking."
+        "housekeepingStatus": {
+          "type": "string",
+          "description": "The current cleaning status of the room (e.g., 'clean', 'dirty', 'inspected').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates if the room is active and available for use."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Internal notes or remarks about the room."
+        },
+        "currentBookingId": {
+          "type": "string",
+          "description": "Reference to the active booking occupying this room, if any. (Relationship: Booking 1:1 Room)"
+        }
+      },
+      "required": [
+        "id",
+        "roomNumber",
+        "floor",
+        "categoryId",
+        "categoryName",
+        "status",
+        "housekeepingStatus",
+        "isActive"
+      ]
+    },
+    "Guest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Guest",
+      "type": "object",
+      "description": "Stores information about a guest, including personal details, contact, and stay history.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Guest entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the guest."
+        },
+        "phone": {
+          "type": "string",
+          "description": "The contact phone number of the guest."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the guest.",
+          "format": "email"
+        },
+        "idType": {
+          "type": "string",
+          "description": "The type of identification provided by the guest (e.g., 'Passport', 'Aadhar')."
+        },
+        "idNumber": {
+          "type": "string",
+          "description": "The identification number from the provided document."
+        },
+        "address": {
+          "type": "string",
+          "description": "The permanent address of the guest."
+        },
+        "nationality": {
+          "type": "string",
+          "description": "The nationality of the guest."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Internal notes or remarks about the guest."
+        },
+        "tags": {
+          "type": "array",
+          "description": "A list of tags associated with the guest (e.g., 'VIP', 'Corporate', 'Repeat').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the guest record was created.",
+          "format": "date-time"
+        },
+        "totalStays": {
+          "type": "number",
+          "description": "The total number of stays this guest has had at the hotel."
         },
         "source": {
-            "type": "string",
-            "enum": ["website"],
-            "description": "Where the booking originated from."
-        },
-        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the booking was created." }
+          "type": "string",
+          "description": "The initial source of the guest's first booking (e.g., 'walkin', 'website').",
+          "items": {
+            "type": "string"
+          }
+        }
       },
-      "required": ["fullName", "email", "guests", "roomTypeId", "checkIn", "checkOut", "status"]
+      "required": [
+        "id",
+        "name",
+        "phone",
+        "email",
+        "createdAt",
+        "totalStays",
+        "source"
+      ]
     },
-    "enquiry": {
-      "title": "Enquiry",
-      "description": "Represents a guest's enquiry from the contact form.",
+    "Booking": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Booking",
       "type": "object",
+      "description": "Details of a guest's reservation, including room choice, dates, guest information, and booking status.",
       "properties": {
-        "name": { "type": "string", "description": "Guest's name." },
-        "phone": { "type": "string", "description": "Guest's phone number." },
-        "email": { "type": "string", "format": "email", "description": "Guest's email address." },
-        "message": { "type": "string", "description": "The guest's message or query." },
-        "submittedAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the enquiry was submitted." }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Booking entity."
+        },
+        "guestId": {
+          "type": "string",
+          "description": "Reference to the Guest who made the booking. (Relationship: Guest 1:N Booking)"
+        },
+        "guestName": {
+          "type": "string",
+          "description": "Denormalized name of the guest for quick display."
+        },
+        "guestPhone": {
+          "type": "string",
+          "description": "Denormalized phone number of the guest for quick display."
+        },
+        "guestEmail": {
+          "type": "string",
+          "description": "Denormalized email of the guest for quick display.",
+          "format": "email"
+        },
+        "roomId": {
+          "type": "string",
+          "description": "Reference to the assigned Room for this booking, if any. (Relationship: Room 1:1 Booking)"
+        },
+        "roomNumber": {
+          "type": "string",
+          "description": "Denormalized room number for quick display, if a room is assigned."
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to the RoomCategory requested or assigned for this booking. (Relationship: RoomCategory 1:N Booking)"
+        },
+        "categoryName": {
+          "type": "string",
+          "description": "Denormalized name of the room category for quick display."
+        },
+        "checkIn": {
+          "type": "string",
+          "description": "The planned check-in date and time for the booking.",
+          "format": "date-time"
+        },
+        "checkOut": {
+          "type": "string",
+          "description": "The planned check-out date and time for the booking.",
+          "format": "date-time"
+        },
+        "numberOfNights": {
+          "type": "number",
+          "description": "The total number of nights for the stay."
+        },
+        "numberOfGuests": {
+          "type": "number",
+          "description": "The number of guests included in the booking."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the booking (e.g., 'reserved', 'checked_in', 'cancelled').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bookingType": {
+          "type": "string",
+          "description": "Indicates whether the booking is a 'walkin' or an 'advance' reservation.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "source": {
+          "type": "string",
+          "description": "The origin of the booking (e.g., 'admin' for staff-made, 'website' for guest-made).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "specialRequests": {
+          "type": "string",
+          "description": "Any special requests made by the guest."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the booking was created.",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "Reference to the User who created the booking, if applicable. (Relationship: User 1:N Booking)"
+        },
+        "earlyCheckIn": {
+          "type": "boolean",
+          "description": "Indicates if early check-in was requested or granted."
+        },
+        "lateCheckOut": {
+          "type": "boolean",
+          "description": "Indicates if late check-out was requested or granted."
+        }
       },
-      "required": ["name", "email", "message", "submittedAt"]
+      "required": [
+        "id",
+        "guestId",
+        "guestName",
+        "guestPhone",
+        "guestEmail",
+        "categoryId",
+        "categoryName",
+        "checkIn",
+        "checkOut",
+        "numberOfNights",
+        "numberOfGuests",
+        "status",
+        "bookingType",
+        "source",
+        "createdAt"
+      ]
+    },
+    "Bill": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Bill",
+      "type": "object",
+      "description": "Records the financial details for a guest's stay, including charges, taxes, discounts, and payment status.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Bill entity."
+        },
+        "bookingId": {
+          "type": "string",
+          "description": "Reference to the Booking associated with this bill. (Relationship: Booking 1:1 Bill)"
+        },
+        "guestId": {
+          "type": "string",
+          "description": "Reference to the Guest associated with this bill. (Relationship: Guest 1:N Bill)"
+        },
+        "guestName": {
+          "type": "string",
+          "description": "Denormalized name of the guest for quick display."
+        },
+        "roomNumber": {
+          "type": "string",
+          "description": "Denormalized room number for quick display."
+        },
+        "checkIn": {
+          "type": "string",
+          "description": "Denormalized check-in date from the booking.",
+          "format": "date-time"
+        },
+        "checkOut": {
+          "type": "string",
+          "description": "Denormalized check-out date from the booking.",
+          "format": "date-time"
+        },
+        "numberOfNights": {
+          "type": "number",
+          "description": "Denormalized number of nights from the booking."
+        },
+        "roomCharges": {
+          "type": "number",
+          "description": "The total charges for the room stay."
+        },
+        "extraCharges": {
+          "type": "array",
+          "description": "A list of additional charges (e.g., mini-bar, laundry).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "taxRate": {
+          "type": "number",
+          "description": "The tax rate applied to the bill (e.g., 0.12 for 12%)."
+        },
+        "taxAmount": {
+          "type": "number",
+          "description": "The calculated total tax amount."
+        },
+        "discountType": {
+          "type": "string",
+          "description": "The type of discount applied (e.g., 'percentage', 'fixed')."
+        },
+        "discountValue": {
+          "type": "number",
+          "description": "The value of the discount applied (e.g., 0.10 for 10% or 500 for ₹500 fixed)."
+        },
+        "discountAmount": {
+          "type": "number",
+          "description": "The calculated total discount amount."
+        },
+        "subtotal": {
+          "type": "number",
+          "description": "The total amount before taxes and discounts."
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "The final total amount due or paid."
+        },
+        "paymentStatus": {
+          "type": "string",
+          "description": "The current payment status of the bill (e.g., 'unpaid', 'paid', 'partial').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "The method used for payment (e.g., 'cash', 'card', 'upi').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "generatedAt": {
+          "type": "string",
+          "description": "Timestamp when the bill was generated.",
+          "format": "date-time"
+        },
+        "generatedBy": {
+          "type": "string",
+          "description": "Reference to the User who generated the bill. (Relationship: User 1:N Bill)"
+        }
+      },
+      "required": [
+        "id",
+        "bookingId",
+        "guestId",
+        "guestName",
+        "roomNumber",
+        "checkIn",
+        "checkOut",
+        "numberOfNights",
+        "roomCharges",
+        "extraCharges",
+        "taxRate",
+        "taxAmount",
+        "discountAmount",
+        "subtotal",
+        "totalAmount",
+        "paymentStatus",
+        "generatedAt",
+        "generatedBy"
+      ]
+    },
+    "MaintenanceTicket": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MaintenanceTicket",
+      "type": "object",
+      "description": "Records maintenance requests for rooms, tracking issues, priority, and resolution.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the MaintenanceTicket entity."
+        },
+        "roomId": {
+          "type": "string",
+          "description": "Reference to the Room for which the ticket was raised. (Relationship: Room 1:N MaintenanceTicket)"
+        },
+        "roomNumber": {
+          "type": "string",
+          "description": "Denormalized room number for quick display."
+        },
+        "title": {
+          "type": "string",
+          "description": "A brief title describing the maintenance issue (e.g., 'AC not working')."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the maintenance issue."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the maintenance ticket (e.g., 'open', 'in_progress', 'resolved').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "priority": {
+          "type": "string",
+          "description": "The priority level of the ticket (e.g., 'low', 'medium', 'high').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "raisedBy": {
+          "type": "string",
+          "description": "Reference to the User who raised the maintenance ticket. (Relationship: User 1:N MaintenanceTicket)"
+        },
+        "raisedAt": {
+          "type": "string",
+          "description": "Timestamp when the maintenance ticket was raised.",
+          "format": "date-time"
+        },
+        "resolvedAt": {
+          "type": "string",
+          "description": "Timestamp when the maintenance ticket was resolved.",
+          "format": "date-time"
+        },
+        "resolvedBy": {
+          "type": "string",
+          "description": "Reference to the User who resolved the maintenance ticket. (Relationship: User 1:N MaintenanceTicket)"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Internal notes or remarks about the maintenance issue or resolution."
+        }
+      },
+      "required": [
+        "id",
+        "roomId",
+        "roomNumber",
+        "title",
+        "description",
+        "status",
+        "priority",
+        "raisedBy",
+        "raisedAt"
+      ]
+    },
+    "Enquiry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Enquiry",
+      "type": "object",
+      "description": "Stores contact form submissions from the public guest website.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Enquiry entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the person submitting the enquiry."
+        },
+        "phone": {
+          "type": "string",
+          "description": "The contact phone number provided by the enquirer."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address provided by the enquirer.",
+          "format": "email"
+        },
+        "message": {
+          "type": "string",
+          "description": "The detailed message or query from the enquirer."
+        },
+        "submittedAt": {
+          "type": "string",
+          "description": "Timestamp when the enquiry was submitted.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the enquiry (e.g., 'new', 'read', 'responded').",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "phone",
+        "email",
+        "message",
+        "submittedAt",
+        "status"
+      ]
+    },
+    "HotelSetting": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "HotelSetting",
+      "type": "object",
+      "description": "Stores hotel-wide configuration and administrative settings, typically a single document.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the HotelSetting entity. (For schema consistency, typically a fixed document ID like 'hotelInfo')."
+        },
+        "hotelName": {
+          "type": "string",
+          "description": "The official name of the hotel."
+        },
+        "address": {
+          "type": "string",
+          "description": "The physical address of the hotel."
+        },
+        "phone": {
+          "type": "string",
+          "description": "The primary contact phone number for the hotel."
+        },
+        "email": {
+          "type": "string",
+          "description": "The primary contact email address for the hotel.",
+          "format": "email"
+        },
+        "logoURL": {
+          "type": "string",
+          "description": "URL to the hotel's logo image.",
+          "format": "uri"
+        },
+        "taxRate": {
+          "type": "number",
+          "description": "The default tax rate applied to services, as a decimal (e.g., 0.12 for 12%)."
+        },
+        "serviceChargeRate": {
+          "type": "number",
+          "description": "The default service charge rate applied, as a decimal (e.g., 0.05 for 5%)."
+        },
+        "checkInTime": {
+          "type": "string",
+          "description": "The standard check-in time for guests (e.g., '12:00 PM')."
+        },
+        "checkOutTime": {
+          "type": "string",
+          "description": "The standard check-out time for guests (e.g., '11:00 AM')."
+        },
+        "seasonalPricing": {
+          "type": "array",
+          "description": "A list of rules for seasonal price adjustments.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "hotelName",
+        "address",
+        "phone",
+        "email",
+        "taxRate",
+        "serviceChargeRate",
+        "checkInTime",
+        "checkOutTime"
+      ]
     }
   },
   "auth": {
-    "providers": []
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
-    "/bookings/{bookingId}": {
-      "schema": { "$ref": "#/entities/booking" },
-      "description": "Stores individual booking documents."
-    },
-    "/enquiries/{enquiryId}": {
-        "schema": { "$ref": "#/entities/enquiry" },
-        "description": "Stores guest enquiries from the contact form."
-    }
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores staff member details, including their role for role-based access control. User can read their own document. Admin has full read/write access. Roles are critical for DBAC. Path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique Firebase Authentication UID of the staff member."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roomCategories/{categoryId}",
+        "definition": {
+          "entityName": "RoomCategory",
+          "schema": {
+            "$ref": "#/backend/entities/RoomCategory"
+          },
+          "description": "Defines various room types available. Public users have read-only access for the guest website. Admin and Front Desk staff have read/write access to manage categories. Housekeeping has read-only access. Homogeneous security posture for all documents in this collection.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "The unique identifier for a room category."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/rooms/{roomId}",
+        "definition": {
+          "entityName": "Room",
+          "schema": {
+            "$ref": "#/backend/entities/Room"
+          },
+          "description": "Represents individual physical rooms in the hotel. Admin and Front Desk staff have read/write access. Housekeeping has read access and specific write access to the 'housekeepingStatus' field. Includes denormalized 'categoryName' for display and authorization independence.",
+          "params": [
+            {
+              "name": "roomId",
+              "description": "The unique identifier for a specific room."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/guests/{guestId}",
+        "definition": {
+          "entityName": "Guest",
+          "schema": {
+            "$ref": "#/backend/entities/Guest"
+          },
+          "description": "Stores guest profiles and contact information. Admin and Front Desk staff have full read/write access. Public users do not have direct access to guest profiles. All documents in this collection share the same internal staff-only security posture.",
+          "params": [
+            {
+              "name": "guestId",
+              "description": "The unique identifier for a guest."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/bookings/{bookingId}",
+        "definition": {
+          "entityName": "Booking",
+          "schema": {
+            "$ref": "#/backend/entities/Booking"
+          },
+          "description": "Details of guest reservations. Public users (guest website) can only create new bookings. Admin and Front Desk staff have full read/write access. Includes denormalized 'guestName', 'guestPhone', 'guestEmail', 'roomNumber', 'categoryName', and 'createdBy' for authorization independence and simplified rule checks.",
+          "params": [
+            {
+              "name": "bookingId",
+              "description": "The unique identifier for a booking."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/bills/{billId}",
+        "definition": {
+          "entityName": "Bill",
+          "schema": {
+            "$ref": "#/backend/entities/Bill"
+          },
+          "description": "Records financial details for guest stays. Admin and Front Desk staff have full read/write access. Public users have no access. Includes denormalized 'guestName', 'roomNumber', 'checkIn', 'checkOut', 'numberOfNights', and 'generatedBy' for authorization independence and simplified rule checks.",
+          "params": [
+            {
+              "name": "billId",
+              "description": "The unique identifier for a bill."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/maintenanceTickets/{ticketId}",
+        "definition": {
+          "entityName": "MaintenanceTicket",
+          "schema": {
+            "$ref": "#/backend/entities/MaintenanceTicket"
+          },
+          "description": "Tracks maintenance requests for rooms. All staff roles can create new tickets. Admin and Front Desk staff can update tickets. Includes denormalized 'roomNumber' and 'raisedBy' for authorization independence.",
+          "params": [
+            {
+              "name": "ticketId",
+              "description": "The unique identifier for a maintenance ticket."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/enquiries/{enquiryId}",
+        "definition": {
+          "entityName": "Enquiry",
+          "schema": {
+            "$ref": "#/backend/entities/Enquiry"
+          },
+          "description": "Stores contact form submissions from the guest website. Public users can only create new enquiries. Admin and Front Desk staff have full read/write access to manage them. Homogeneous security posture for all documents in this collection (public create, staff manage).",
+          "params": [
+            {
+              "name": "enquiryId",
+              "description": "The unique identifier for an enquiry submission."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/settings/{docId}",
+        "definition": {
+          "entityName": "HotelSetting",
+          "schema": {
+            "$ref": "#/backend/entities/HotelSetting"
+          },
+          "description": "Stores global hotel configuration and settings. Typically a single document (e.g., 'hotelInfo'). Public users have read-only access. Only Admin staff have read/write access. Provides a consistent security posture for all documents (just one) in this collection.",
+          "params": [
+            {
+              "name": "docId",
+              "description": "The fixed document identifier for hotel settings (e.g., 'hotelInfo')."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed following the core principles of Authorization Independence and Structural Segregation to ensure secure, scalable, and debuggable security rules. Each collection's documents share a homogeneous security posture, simplifying rules significantly.\n\n**Authorization Independence via Denormalization (Mandate A):**\n\nAuthorization for core application entities (`Booking`, `Bill`, `MaintenanceTicket`) avoids `get()` calls for cross-document authorization by proactively denormalizing critical reference data. For example:\n*   `/bookings/{bookingId}` documents include `guestName`, `guestPhone`, `guestEmail`, `roomNumber`, `categoryName`. This means a rule for a staff member to read a booking does not need to fetch the related `Guest`, `Room`, or `RoomCategory` documents to verify basic display data or enforce simple authorization logic based on these fields if such rules were introduced (e.g., 'only staff assigned to this room category'). More practically, it allows for efficient data retrieval for the admin panel's booking list view without multiple lookups.\n*   `/bills/{billId}` documents similarly denormalize `guestName`, `roomNumber`, `checkIn`, `checkOut`, `numberOfNights` from the associated `Booking` and `Guest`. This prevents rules from needing to `get()` the booking or guest details to authorize access to the bill, relying solely on the bill document's own fields.\n*   `/maintenanceTickets/{ticketId}` includes `roomNumber`, removing the need to fetch the `Room` document for basic contextual authorization.\n\nWhile global role checks for staff will involve a `get()` call to `/users/{request.auth.uid}`, this is an acceptable and standard pattern for Database Acl (DBAC) as it's a foundational check, not a hierarchical dependency for specific data authorization. The `createdBy` and `generatedBy` fields on `Booking` and `Bill` respectively, store the `uid` of the staff member, enabling direct ownership checks if more granular rules (e.g., 'only the creator can modify') were required, without extra `get()` calls.\n\n**QAPs (Queries as Authorization Primitives - Mandate B & C):**\n\nSecure `list` operations are supported by ensuring each collection has a consistent security posture, moving complexity from rule logic to the data structure:\n*   **`/roomCategories` and `/settings`:** These collections are entirely public-readable. Any `list` query by an unauthenticated user is inherently secure because all documents within them are meant to be public. For authenticated users, `list` operations are secured by their role, which grants broader read access.\n*   **`/bookings` and `/enquiries`:** These collections allow public `create` but restrict `read/update/delete` to authenticated staff. For unauthenticated users, `list` operations are denied by the rules. For authenticated staff (Admin, Front Desk), `list` queries are secure because all documents within these collections (once created) are accessible to them based on their role, and the documents contain sufficient denormalized information for display and basic filtering (e.g., by `source`).\n*   **`/users`, `/rooms`, `/guests`, `/bills`, `/maintenanceTickets`:** These are internal-only collections. All documents within them are accessible to specific authenticated staff roles (Admin, Front Desk, Housekeeping for rooms/maintenance) as per the security rules. Therefore, `list` queries by authorized staff are secure as the entire collection's content is intended for those roles. The security rules will primarily check the `request.auth.uid` against the user's role stored in `/users/{uid}`, rather than performing complex `get()` calls on each document during a list operation.\n\nThis design leverages structural segregation to ensure that security rules are simple, explicit, and easy to debug, enabling efficient `list` operations across the application."
   }
 }

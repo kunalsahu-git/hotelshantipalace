@@ -1,31 +1,240 @@
+/**
+ * Core Philosophy:
+ * This ruleset implements a strict Role-Based Access Control (RBAC) model for an internal hotel management system,
+ * while providing carefully controlled public access for a guest-facing website. The three internal roles
+ * (admin, frontdesk, housekeeping) have tiered permissions, with 'admin' having the highest level of access.
+ * Public, unauthenticated users have limited read and create permissions to enable website functionality
+ * like viewing rooms and submitting bookings.
+ *
+ * Data Structure:
+ * The database is organized into top-level collections representing core hotel entities (e.g., /rooms, /bookings, /guests).
+ * User roles, which are the foundation of the security model, are stored in the /users/{userId} collection.
+ *
+ * Key Security Decisions:
+ * - Default Deny: Access is denied by default. All permissions must be explicitly granted.
+ * - Centralized Roles: All staff permissions are derived from the 'role' field in their /users/{userId} document.
+ * - Public Access Segregation: Public data (like room categories and hotel settings) is fully readable.
+ *   Transactional data (bookings, enquiries) is create-only for the public, preventing them from reading or listing other users' data.
+ * - No User Listing: To protect staff privacy and prevent enumeration attacks, listing the /users collection is disallowed for everyone.
+ * - Granular Writes: Specific roles, like 'housekeeping', are granted write access only to specific fields they are responsible for
+ *   (e.g., 'housekeepingStatus' on a room), preventing unauthorized changes to other data.
+ *
+ * Denormalization for Authorization:
+ * This ruleset relies on roles stored in the /users collection. A get() call to the user's own document is used to
+ * determine their role for subsequent authorization checks. This is a standard and efficient pattern for RBAC.
+ * The data model itself heavily denormalizes non-sensitive data (e.g., 'guestName' on a booking) to simplify application
+ * queries, which also simplifies the security rules by removing the need for complex, multi-document lookups for authorization.
+ *
+ * Structural Segregation:
+ * The use of separate top-level collections for different entities (e.g., /roomCategories for public data, /guests for private data)
+ * creates a clean and secure boundary. This prevents accidental data leakage and allows for simple, high-performance rules,
+ * especially for list operations which do not have to filter out private documents from a mixed collection.
+ */
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /bookings/{bookingId} {
-      // Allow creation of bookings if the essential fields are present.
-      // In a real app, you'd have more robust validation.
-      allow create: if request.resource.data.fullName is string
-                      && request.resource.data.email is string
-                      && request.resource.data.status == 'reserved';
 
-      // This is insecure for a production app, but allows viewing data.
-      // In a real app, you should restrict this to authenticated admin users.
-      allow read: if true;
-      
-      // Disallow updates and deletes from the client for now.
-      allow update, delete: if false;
+    // -------------------------------------------------------------------------
+    // Helper Functions
+    // -------------------------------------------------------------------------
+
+    /**
+     * Checks if the request is from a signed-in user.
+     */
+    function isSignedIn() {
+      return request.auth != null;
     }
 
+    /**
+     * Checks if the user making the request is the owner of the document.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if the document being written to already exists.
+     * CRITICAL for all update and delete operations.
+     */
+    function isExistingDoc() {
+      return resource != null;
+    }
+
+    /**
+     * Fetches the requesting user's role from their document in the /users collection.
+     * This is the core of the Role-Based Access Control system.
+     */
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    /**
+     * Returns true if the requesting user has the 'admin' role.
+     */
+    function isAdmin() {
+      return isSignedIn() && getUserRole() == 'admin';
+    }
+
+    /**
+     * Returns true if the requesting user has the 'housekeeping' role.
+     */
+    function isHousekeeping() {
+      return isSignedIn() && getUserRole() == 'housekeeping';
+    }
+
+    /**
+     * Returns true if the user is an Admin or works at the Front Desk.
+     */
+    function isAdminOrFrontDesk() {
+      let role = getUserRole();
+      return isSignedIn() && (role == 'admin' || role == 'frontdesk');
+    }
+
+    /**
+     * Returns true if the user is any authenticated staff member.
+     */
+    function isAnyStaff() {
+      let role = getUserRole();
+      return isSignedIn() && (role == 'admin' || role == 'frontdesk' || role == 'housekeeping');
+    }
+
+    /**
+     * A specific rule for Housekeeping staff to ensure they can only update
+     * the 'housekeepingStatus' field on a room document and nothing else.
+     */
+    function canUpdateHousekeepingStatusOnly() {
+      return request.resource.data.keys().hasOnly(['housekeepingStatus']);
+    }
+
+    // -------------------------------------------------------------------------
+    // Collection Rules
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Controls access to staff user profiles and roles.
+     * @path /users/{userId}
+     * @allow (get) An admin reading any user's profile, or a staff member reading their own.
+     * @deny (list) Any user, including an admin, attempting to list all staff members.
+     * @principle Restricts access to a user's own data tree and grants full control to admins.
+     */
+    match /users/{userId} {
+      allow get: if isAdmin() || isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isAdmin() && isExistingDoc();
+      allow delete: if isAdmin() && isExistingDoc();
+    }
+
+    /**
+     * @description Manages hotel room categories.
+     * @path /roomCategories/{categoryId}
+     * @allow (list) An unauthenticated public user listing all room categories on the website.
+     * @deny (create) A housekeeping staff member trying to create a new room category.
+     * @principle Public read access for the guest website, with writes restricted to authorized staff.
+     */
+    match /roomCategories/{categoryId} {
+      allow get, list: if true;
+      allow create: if isAdminOrFrontDesk();
+      allow update: if isAdminOrFrontDesk() && isExistingDoc();
+      allow delete: if isAdminOrFrontDesk() && isExistingDoc();
+    }
+
+    /**
+     * @description Manages individual hotel rooms.
+     * @path /rooms/{roomId}
+     * @allow (update) A housekeeping staff member changing only the 'housekeepingStatus' of a room.
+     * @deny (update) A housekeeping staff member trying to change the room's 'status' or 'notes'.
+     * @principle Tiered write access: Admins/Front Desk have full control, while Housekeeping has limited, field-specific update permission.
+     */
+    match /rooms/{roomId} {
+      allow get, list: if isAnyStaff();
+      allow create: if isAdminOrFrontDesk();
+      allow update: if isExistingDoc() && (isAdminOrFrontDesk() || (isHousekeeping() && canUpdateHousekeepingStatusOnly()));
+      allow delete: if isAdminOrFrontDesk() && isExistingDoc();
+    }
+
+    /**
+     * @description Manages guest profiles. This is sensitive internal data.
+     * @path /guests/{guestId}
+     * @allow (create) A front desk staff member creating a new profile for a walk-in guest.
+     * @deny (get) Any public user or housekeeping staff attempting to read guest data.
+     * @principle Enforces that only authorized internal staff can access guest information.
+     */
+    match /guests/{guestId} {
+      allow get, list: if isAdminOrFrontDesk();
+      allow create: if isAdminOrFrontDesk();
+      allow update: if isAdminOrFrontDesk() && isExistingDoc();
+      allow delete: if isAdminOrFrontDesk() && isExistingDoc();
+    }
+
+    /**
+     * @description Manages guest bookings.
+     * @path /bookings/{bookingId}
+     * @allow (create) An unauthenticated guest submitting a new booking from the public website.
+     * @deny (list) A public user attempting to see all hotel bookings.
+     * @principle Allows public creation of documents while restricting all read and management operations to authorized staff.
+     */
+    match /bookings/{bookingId} {
+      allow get, list: if isAdminOrFrontDesk();
+      allow create: if true;
+      allow update: if isAdminOrFrontDesk() && isExistingDoc();
+      allow delete: if isAdminOrFrontDesk() && isExistingDoc();
+    }
+
+    /**
+     * @description Manages financial bills for guest stays.
+     * @path /bills/{billId}
+     * @allow (get) An admin or front desk staff member viewing a guest's bill.
+     * @deny (get) Any other user, including housekeeping staff, trying to access financial data.
+     * @principle Secures sensitive financial data, limiting access to staff with financial responsibilities.
+     */
+    match /bills/{billId} {
+      allow get, list: if isAdminOrFrontDesk();
+      allow create: if isAdminOrFrontDesk();
+      allow update: if isAdminOrFrontDesk() && isExistingDoc();
+      allow delete: if isAdminOrFrontDesk() && isExistingDoc();
+    }
+
+    /**
+     * @description Manages maintenance tickets for rooms.
+     * @path /maintenanceTickets/{ticketId}
+     * @allow (create) Any staff member (including housekeeping) creating a new maintenance ticket.
+     * @deny (update) A housekeeping staff member trying to resolve or delete a ticket.
+     * @principle Allows broad creation of requests across all staff roles, but restricts management to specific roles.
+     */
+    match /maintenanceTickets/{ticketId} {
+      allow get, list: if isAnyStaff();
+      allow create: if isAnyStaff() && request.resource.data.raisedBy == request.auth.uid;
+      allow update: if isAdminOrFrontDesk() && isExistingDoc();
+      allow delete: if isAdminOrFrontDesk() && isExistingDoc();
+    }
+
+    /**
+     * @description Manages contact form submissions from the public website.
+     * @path /enquiries/{enquiryId}
+     * @allow (create) An unauthenticated visitor submitting a question via the website's contact form.
+     * @deny (list) A public user trying to read all enquiries submitted by others.
+     * @principle Allows public creation of documents while restricting all read and management operations to authorized staff.
+     */
     match /enquiries/{enquiryId} {
-        // Allow creation of enquiries if the essential fields are present.
-        allow create: if request.resource.data.name is string 
-                        && request.resource.data.email is string 
-                        && request.resource.data.message is string;
-        
-        // This is insecure for a production app.
-        allow read: if true;
-        allow update, delete: if false;
+      allow get, list: if isAdminOrFrontDesk();
+      allow create: if true;
+      allow update: if isAdminOrFrontDesk() && isExistingDoc();
+      allow delete: if isAdminOrFrontDesk() && isExistingDoc();
+    }
+
+    /**
+     * @description Manages global hotel settings like name, address, and check-in times.
+     * @path /settings/{docId}
+     * @allow (get) An unauthenticated visitor's browser fetching the hotel's check-in time for display on the website.
+     * @deny (update) A front desk staff member trying to change the hotel's official name.
+     * @principle Public read access for website configuration, with writes restricted to top-level administrators.
+     */
+    match /settings/{docId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && isExistingDoc();
+      allow delete: if isAdmin() && isExistingDoc();
     }
   }
 }
