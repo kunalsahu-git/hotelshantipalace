@@ -13,10 +13,22 @@
       "imageHint": "cozy hotel room"
     },
     {
+      "id": "standard-room-2",
+      "description": "Standard Room Photo 2",
+      "imageUrl": "https://images.unsplash.com/photo-1560185893-a55de8537e27?q=80&w=1964&auto=format&fit=crop",
+      "imageHint": "hotel room bed"
+    },
+    {
       "id": "deluxe-room",
       "description": "Deluxe Room Photo",
       "imageUrl": "https://images.unsplash.com/photo-1594130139005-3f0c0f0e7c5e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c3BhY2lvdXMlMjBob3RlbCUyMHJvb218ZW58MHx8fHwxNzcxODY0NTY0fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "spacious hotel room"
+    },
+    {
+      "id": "deluxe-room-2",
+      "description": "Deluxe Room Photo 2",
+      "imageUrl": "https://images.unsplash.com/photo-1590490359683-658d3123b092?q=80&w=1932&auto=format&fit=crop",
+      "imageHint": "hotel room window"
     },
     {
       "id": "suite-room",
@@ -25,10 +37,22 @@
       "imageHint": "luxury hotel suite"
     },
     {
+      "id": "suite-room-2",
+      "description": "Suite Photo 2",
+      "imageUrl": "https://images.unsplash.com/photo-1618773928121-c32242e63f39?q=80&w=2070&auto=format&fit=crop",
+      "imageHint": "suite living area"
+    },
+    {
       "id": "executive-room",
       "description": "Executive Room Photo",
       "imageUrl": "https://images.unsplash.com/photo-1553365857-9cc1a715084f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBidXNpbmVzcyUyMGhvdGVsJTIwcm9vbXxlbnwwfHx8fDE3NzE4NjQ1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "modern business hotel room"
+    },
+    {
+      "id": "executive-room-2",
+      "description": "Executive Room Photo 2",
+      "imageUrl": "https://images.unsplash.com/photo-1631049552057-403d2b90696f?q=80&w=2070&auto=format&fit=crop",
+      "imageHint": "executive suite desk"
     },
     {
       "id": "about-hero",
@@ -39,37 +63,37 @@
     {
       "id": "gallery-1",
       "description": "Gallery image 1",
-      "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxob3RlbCUyMHJlc3RhdXJhbnR8ZW58MHx8fHwxNzcxODY0NTY0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxob3RlbCUyMHJlc3RhdXJhbnR8ZW58MHx8fHwxNzcxODY0NTY0fDA&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "hotel restaurant"
     },
     {
       "id": "gallery-2",
       "description": "Gallery image 2",
-      "imageUrl": "https://images.unsplash.com/photo-1661098716612-eb2e12fbf601?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxob3RlbCUyMHN3aW1taW5nJTIwcG9vbHxlbnwwfHx8fDE3NzE4NjQ1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1661098716612-eb2e12fbf601?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxob3RlbCUyMHN3aW1taW5nJTIwcG9vbHxlbnwwfHx8fDE3NzE4NjQ1NjR8MA&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "hotel swimming pool"
     },
     {
       "id": "gallery-3",
       "description": "Gallery image 3",
-      "imageUrl": "https://images.unsplash.com/photo-1758364301801-4940b38170c6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzZXJlbmUlMjBob3RlbCUyMGdhcmRlbnxlbnwwfHx8fDE3NzE4NjQ1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1758364301801-4940b38170c6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzZXJlbmUlMjBob3RlbCUyMGdhcmRlbnxlbnwwfHx8fDE3NzE4NjQ1NjR8MA&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "serene hotel garden"
     },
     {
       "id": "testimonial-1",
       "description": "Avatar for testimonial 1",
-      "imageUrl": "https://images.unsplash.com/photo-1508002366005-75a695ee2d17?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxoYXBweSUyMHBlcnNvbnxlbnwwfHx8fDE3NzE4NjQ1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1508002366005-75a695ee2d17?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxoYXBweSUyMHBlcnNvbnxlbnwwfHx8fDE3NzE4NjQ1NjR8MA&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "happy person"
     },
     {
       "id": "testimonial-2",
       "description": "Avatar for testimonial 2",
-      "imageUrl": "https://images.unsplash.com/photo-1702725450813-c695293ca867?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c21pbGluZyUyMGNvdXBsZXxlbnwwfHx8fDE3NzE4NjQ1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1702725450813-c695293ca867?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c21pbGluZyUyMGNvdXBsZXxlbnwwfHx8fDE3NzE4NjQ1NjR8MA&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "smiling couple"
     },
     {
       "id": "testimonial-3",
       "description": "Avatar for testimonial 3",
-      "imageUrl": "https://images.unsplash.com/photo-1656071378450-99e8b31ad57f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxyZWxheGVkJTIwZmFtaWx5fGVufDB8fHx8MTc3MTg2NDU2NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1656071378450-99e8b31ad57f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxyZWxheGVkJTIwZmFtaWx5fGVufDB8fHx8MTc3MTg2NDU2NHww&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "relaxed family"
     }
   ]

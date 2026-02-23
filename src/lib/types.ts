@@ -7,4 +7,8 @@ export type RoomCategory = {
   amenities: string[];
   photoUrl: string;
   imageHint: string;
+  gallery: {
+    url: string;
+    hint: string;
+  }[];
 };

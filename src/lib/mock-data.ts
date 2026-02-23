@@ -4,10 +4,15 @@ import { PlaceHolderImages } from './placeholder-images';
 const getImage = (id: string) => {
   const img = PlaceHolderImages.find((p) => p.id === id);
   return {
-    url: img?.imageUrl || `https://picsum.photos/seed/${id}/600/400`,
+    url: img?.imageUrl || `https://picsum.photos/seed/${id}/800/600`,
     hint: img?.imageHint || 'hotel room',
   };
 };
+
+const standardRoomPhoto = getImage('standard-room');
+const deluxeRoomPhoto = getImage('deluxe-room');
+const suiteRoomPhoto = getImage('suite-room');
+const executiveRoomPhoto = getImage('executive-room');
 
 export const roomCategories: RoomCategory[] = [
   {
@@ -17,8 +22,13 @@ export const roomCategories: RoomCategory[] = [
     basePrice: 1800,
     maxOccupancy: 2,
     amenities: ['Free WiFi', 'Flat-screen TV'],
-    photoUrl: getImage('standard-room').url,
-    imageHint: getImage('standard-room').hint,
+    photoUrl: standardRoomPhoto.url,
+    imageHint: standardRoomPhoto.hint,
+    gallery: [
+        standardRoomPhoto,
+        getImage('standard-room-2'),
+        getImage('gallery-1')
+    ]
   },
   {
     id: 'deluxe',
@@ -27,8 +37,13 @@ export const roomCategories: RoomCategory[] = [
     basePrice: 2800,
     maxOccupancy: 3,
     amenities: ['Free WiFi', 'Flat-screen TV', 'Air Conditioning'],
-    photoUrl: getImage('deluxe-room').url,
-    imageHint: getImage('deluxe-room').hint,
+    photoUrl: deluxeRoomPhoto.url,
+    imageHint: deluxeRoomPhoto.hint,
+    gallery: [
+        deluxeRoomPhoto,
+        getImage('deluxe-room-2'),
+        getImage('gallery-2')
+    ]
   },
   {
     id: 'suite',
@@ -37,8 +52,13 @@ export const roomCategories: RoomCategory[] = [
     basePrice: 4500,
     maxOccupancy: 4,
     amenities: ['Free WiFi', 'Flat-screen TV', 'Air Conditioning'],
-    photoUrl: getImage('suite-room').url,
-    imageHint: getImage('suite-room').hint,
+    photoUrl: suiteRoomPhoto.url,
+    imageHint: suiteRoomPhoto.hint,
+    gallery: [
+        suiteRoomPhoto,
+        getImage('suite-room-2'),
+        getImage('gallery-3')
+    ]
   },
   {
     id: 'executive',
@@ -47,7 +67,12 @@ export const roomCategories: RoomCategory[] = [
     basePrice: 6500,
     maxOccupancy: 2,
     amenities: ['Free WiFi', 'Flat-screen TV', 'Air Conditioning'],
-    photoUrl: getImage('executive-room').url,
-    imageHint: getImage('executive-room').hint,
+    photoUrl: executiveRoomPhoto.url,
+    imageHint: executiveRoomPhoto.hint,
+    gallery: [
+        executiveRoomPhoto,
+        getImage('executive-room-2'),
+        getImage('gallery-1')
+    ]
   },
 ];
