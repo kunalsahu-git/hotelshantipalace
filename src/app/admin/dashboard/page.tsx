@@ -70,7 +70,34 @@ export default function DashboardPage() {
 
   const { data: todaysWebsiteBookings, isLoading: isLoadingBookings } = useCollection<Booking>(todaysBookingsQuery);
 
+
   const isLoading = isLoadingEnquiries || isLoadingRooms || isLoadingBookings || isStaffLoading;
+
+  if (isStaffLoading) {
+    return (
+       <div className="p-6">
+        <Skeleton className="h-9 w-64 mb-6" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-4 w-4" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-1/3" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+  
+  if (!role) {
+    // This can happen briefly during redirect or if the user has no role.
+    return null; 
+  }
 
   return (
     <div className="p-6">
@@ -98,7 +125,7 @@ export default function DashboardPage() {
             <Building className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {isLoading ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{rooms?.length || 0}</div>}
+            {isLoadingRooms ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{rooms?.length || 0}</div>}
           </CardContent>
         </Card>
         <Card>
@@ -117,7 +144,7 @@ export default function DashboardPage() {
             <Globe className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {isLoading ? <Skeleton className="h-8 w-16" /> : (
+            {isLoadingBookings ? <Skeleton className="h-8 w-16" /> : (
               <div className="text-2xl font-bold flex items-center gap-2">
                 {todaysWebsiteBookings?.length || 0}
                 {todaysWebsiteBookings && todaysWebsiteBookings.length > 0 && <Badge>New</Badge>}
@@ -142,10 +169,10 @@ export default function DashboardPage() {
       <div className="mt-8">
         <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Button size="lg" variant="outline"><PlusCircle className="mr-2"/> New Booking</Button>
-          <Button size="lg" variant="outline"><LogIn className="mr-2"/> Check-In Guest</Button>
-          <Button size="lg" variant="outline"><LogOut className="mr-2"/> Check-Out Guest</Button>
-          <Button size="lg" variant="outline"><Wrench className="mr-2"/> New Maintenance Request</Button>
+          <Button asChild size="lg" variant="outline"><Link href="/admin/bookings"><PlusCircle className="mr-2"/> New Booking</Link></Button>
+          <Button asChild size="lg" variant="outline"><Link href="/admin/checkin"><LogIn className="mr-2"/> Check-In Guest</Link></Button>
+          <Button asChild size="lg" variant="outline"><Link href="/admin/checkin"><LogOut className="mr-2"/> Check-Out Guest</Link></Button>
+          <Button asChild size="lg" variant="outline"><Link href="/admin/maintenance"><Wrench className="mr-2"/> New Maintenance Request</Link></Button>
         </div>
       </div>
       
