@@ -1,9 +1,10 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUser } from '@/firebase';
 import type { User as StaffUser, StaffRole } from '@/lib/types';
+import { Skeleton } from '../ui/skeleton';
 
 interface AdminContextType {
   user: StaffUser | null;
@@ -21,27 +22,28 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
   const pathname = usePathname();
-  const [staffInfo, setStaffInfo] = useState<{ user: StaffUser | null; role: StaffRole | null }>({ user: null, role: null });
   
-  // isStaffLoading now directly reflects the authentication loading state from the core Firebase hook.
-  const isStaffLoading = isUserLoading;
+  const [staffInfo, setStaffInfo] = useState<{ user: StaffUser | null; role: StaffRole | null }>({ user: null, role: null });
+  const [isStaffLoading, setIsStaffLoading] = useState(true);
 
   useEffect(() => {
-    // Don't run logic until auth state is determined.
-    if (isStaffLoading) {
+    if (isUserLoading) {
+      // Keep loading true while the initial auth check is happening
+      setIsStaffLoading(true);
       return;
     }
 
     const isLoginPage = pathname === '/admin/login';
 
     if (!user) {
-      // Auth is done, but no user.
+      // Auth check is complete, but no user.
       if (!isLoginPage) {
         router.push('/admin/login');
       }
       setStaffInfo({ user: null, role: null });
+      setIsStaffLoading(false); // Auth is ready (no user)
     } else {
-      // Auth is done, and we have a user.
+      // Auth check is complete, and we have a user.
       if (isLoginPage) {
         router.push('/admin/dashboard');
       }
@@ -56,11 +58,36 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       };
       
       setStaffInfo({ user: pseudoStaffUser, role: 'admin' });
+      setIsStaffLoading(false); // Auth is ready (user found)
     }
-  }, [user, isStaffLoading, pathname, router]);
+  }, [user, isUserLoading, pathname, router]);
+  
+  const contextValue = useMemo(() => ({ ...staffInfo, isStaffLoading }), [staffInfo, isStaffLoading]);
+
+  // Gate the rendering of the children until authentication state is fully resolved.
+  // This prevents any child component from attempting to fetch data before auth is ready.
+  if (isStaffLoading && pathname !== '/admin/login') {
+     return (
+      <div className="flex min-h-screen items-center justify-center bg-muted/40">
+        <div className="p-8 w-full">
+          <h2 className="text-3xl font-bold tracking-tight mb-8">Dashboard</h2>
+          <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+                {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-28" />)}
+              </div>
+               <Skeleton className="h-48" />
+               <div className="grid gap-4 md:grid-cols-7">
+                  <Skeleton className="h-80 md:col-span-4" />
+                  <Skeleton className="h-80 md:col-span-3" />
+              </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <AdminContext.Provider value={{ ...staffInfo, isStaffLoading }}>
+    <AdminContext.Provider value={contextValue}>
       {children}
     </AdminContext.Provider>
   );
