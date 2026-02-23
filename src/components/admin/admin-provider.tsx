@@ -43,16 +43,18 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         return;
     }
 
+    setIsStaffLoading(true);
     const userDocRef = doc(firestore, 'users', user.uid);
     const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
       if (docSnap.exists()) {
         const userData = { id: docSnap.id, ...docSnap.data() } as StaffUser;
         setStaffInfo({ user: userData, role: userData.role });
+        setIsStaffLoading(false);
       } else {
-        // This user is authenticated but doesn't have a user role document
-        setStaffInfo({ user: null, role: null }); 
+        // Document might not exist yet during account creation race condition.
+        // We will keep `isStaffLoading` true and wait for the document to be created.
+        // The onSnapshot listener will fire again when it is.
       }
-      setIsStaffLoading(false);
     }, (error) => {
         console.error("Failed to fetch user role:", error);
         setIsStaffLoading(false);
