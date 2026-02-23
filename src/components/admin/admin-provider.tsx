@@ -22,46 +22,43 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [staffInfo, setStaffInfo] = useState<{ user: StaffUser | null; role: StaffRole | null }>({ user: null, role: null });
-  const [isStaffLoading, setIsStaffLoading] = useState(true);
+  
+  // isStaffLoading now directly reflects the authentication loading state from the core Firebase hook.
+  const isStaffLoading = isUserLoading;
 
   useEffect(() => {
-    const isLoginPage = pathname === '/admin/login';
-
-    if (isUserLoading) {
-      setIsStaffLoading(true);
+    // Don't run logic until auth state is determined.
+    if (isStaffLoading) {
       return;
     }
 
+    const isLoginPage = pathname === '/admin/login';
+
     if (!user) {
+      // Auth is done, but no user.
       if (!isLoginPage) {
         router.push('/admin/login');
       }
       setStaffInfo({ user: null, role: null });
-      setIsStaffLoading(false);
-      return;
+    } else {
+      // Auth is done, and we have a user.
+      if (isLoginPage) {
+        router.push('/admin/dashboard');
+      }
+      
+      const pseudoStaffUser: StaffUser = {
+        id: user.uid,
+        name: user.displayName || user.email?.split('@')[0] || 'Admin',
+        email: user.email || 'unknown',
+        role: 'admin',
+        isActive: true,
+        createdAt: user.metadata.creationTime,
+      };
+      
+      setStaffInfo({ user: pseudoStaffUser, role: 'admin' });
     }
+  }, [user, isStaffLoading, pathname, router]);
 
-    // User is logged in
-    if (isLoginPage) {
-      router.push('/admin/dashboard');
-      return;
-    }
-
-    const pseudoStaffUser: StaffUser = {
-      id: user.uid,
-      name: user.displayName || user.email?.split('@')[0] || 'Admin',
-      email: user.email || 'unknown',
-      role: 'admin',
-      isActive: true,
-      createdAt: user.metadata.creationTime,
-    };
-    
-    setStaffInfo({ user: pseudoStaffUser, role: 'admin' });
-    setIsStaffLoading(false);
-
-  }, [user, isUserLoading, pathname, router]);
-
-  // Always render the provider.
   return (
     <AdminContext.Provider value={{ ...staffInfo, isStaffLoading }}>
       {children}
