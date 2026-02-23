@@ -20,6 +20,7 @@ export function initializeFirebase() {
 // Export providers and hooks
 export * from './provider';
 export * from './client-provider';
+export * from './firestore/use-collection';
 
 // Export error handling utilities
 export * from './error-emitter';

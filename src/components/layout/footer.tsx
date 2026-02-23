@@ -12,8 +12,8 @@ export function Footer() {
   return (
     <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="flex flex-col items-center md:items-start">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="flex flex-col items-center md:items-start col-span-1 md:col-span-2">
             <Logo />
           </div>
           <div className="text-center">
@@ -26,6 +26,11 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+               <li>
+                  <Link href="/admin/bookings" className="text-muted-foreground hover:text-primary transition-colors">
+                    View Bookings
+                  </Link>
+                </li>
             </ul>
           </div>
           <div className="text-center md:text-right">

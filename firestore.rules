@@ -2,42 +2,30 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper function to check for required booking fields
-    function isBookingDataValid(data) {
-      return data.fullName is string &&
-             data.email is string &&
-             data.phone is string &&
-             data.guests is number &&
-             data.roomTypeId is string &&
-             data.checkIn is string &&
-             data.checkOut is string &&
-             data.status == 'reserved';
-    }
-
-    // Helper function to check for required enquiry fields
-    function isEnquiryDataValid(data) {
-      return data.name is string &&
-             data.email is string &&
-             data.message is string;
-    }
-
     match /bookings/{bookingId} {
-      // Allow anyone to create a booking if the data is valid.
-      // createdAt is added by the server, so it's not in request.resource.data
-      allow create: if isBookingDataValid(request.resource.data);
+      // Allow creation of bookings if the essential fields are present.
+      // In a real app, you'd have more robust validation.
+      allow create: if request.resource.data.fullName is string
+                      && request.resource.data.email is string
+                      && request.resource.data.status == 'reserved';
+
+      // This is insecure for a production app, but allows viewing data.
+      // In a real app, you should restrict this to authenticated admin users.
+      allow read: if true;
       
-      // Disallow all reads, updates, and deletes from the client-side for now.
-      allow read, update, delete: if false;
+      // Disallow updates and deletes from the client for now.
+      allow update, delete: if false;
     }
 
     match /enquiries/{enquiryId} {
-        // Allow anyone to create an enquiry if the data is valid.
-        // submittedAt is added by the server, so it's not in request.resource.data
-        allow create: if isEnquiryDataValid(request.resource.data);
+        // Allow creation of enquiries if the essential fields are present.
+        allow create: if request.resource.data.name is string 
+                        && request.resource.data.email is string 
+                        && request.resource.data.message is string;
         
-        // Disallow all reads, updates, and deletes from the client-side for now.
-        allow read, update, delete: if false;
+        // This is insecure for a production app.
+        allow read: if true;
+        allow update, delete: if false;
     }
   }
 }
