@@ -43,11 +43,12 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
 
 
   const handleConfirmBooking = async () => {
+    setIsSubmitting(true);
     if (!firestore) {
       toast({ variant: 'destructive', title: 'Error', description: 'Database connection not found.' });
+      setIsSubmitting(false);
       return;
     }
-    setIsSubmitting(true);
 
     const bookingPayload: Omit<Booking, 'id' | 'createdAt'> = {
       fullName: data.fullName,

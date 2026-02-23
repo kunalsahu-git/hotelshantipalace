@@ -18,7 +18,7 @@ service cloud.firestore {
              data.bookingType == 'advance' &&
              data.source == 'website' &&
              (data.specialRequests is string || !('specialRequests' in data)) &&
-             request.resource.data.keys().hasOnly(['fullName', 'email', 'phone', 'guests', 'roomTypeId', 'roomTypeName', 'checkIn', 'checkOut', 'numberOfNights', 'totalPrice', 'status', 'bookingType', 'source', 'specialRequests', 'createdAt']);
+             data.keys().hasOnly(['fullName', 'email', 'phone', 'guests', 'roomTypeId', 'roomTypeName', 'checkIn', 'checkOut', 'numberOfNights', 'totalPrice', 'status', 'bookingType', 'source', 'specialRequests', 'createdAt']);
     }
 
     function isEnquiry(data) {
@@ -26,7 +26,7 @@ service cloud.firestore {
                data.email is string && data.email.matches('.+@.+\..+') &&
                data.message is string && data.message.size() > 9 &&
                (('phone' in data && data.phone is string) || !('phone' in data)) &&
-               request.resource.data.keys().hasOnly(['name', 'email', 'phone', 'message', 'submittedAt']);
+               data.keys().hasOnly(['name', 'email', 'phone', 'message', 'submittedAt']);
     }
 
     match /bookings/{bookingId} {
