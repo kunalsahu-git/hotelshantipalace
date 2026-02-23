@@ -4,6 +4,7 @@ import { Wifi, Tv, Wind, Users, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { RoomCategory } from '@/lib/types';
 import { Badge } from './ui/badge';
+import { format } from 'date-fns';
 
 const amenityIcons: { [key: string]: React.ElementType } = {
   'Free WiFi': Wifi,
@@ -32,6 +33,15 @@ function checkAvailability(roomId: string, checkIn?: Date, checkOut?: Date): boo
 export function RoomResultCard({ category, checkInDate, checkOutDate }: RoomResultCardProps) {
   const isAvailable = checkAvailability(category.id, checkInDate, checkOutDate);
   const datesSelected = !!(checkInDate && checkOutDate);
+
+  const params = new URLSearchParams();
+  if (checkInDate) {
+    params.set('checkin', format(checkInDate, 'yyyy-MM-dd'));
+  }
+  if (checkOutDate) {
+    params.set('checkout', format(checkOutDate, 'yyyy-MM-dd'));
+  }
+
 
   return (
     <div className="bg-card text-card-foreground rounded-lg border shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-3 gap-0">
@@ -87,9 +97,9 @@ export function RoomResultCard({ category, checkInDate, checkOutDate }: RoomResu
                  ) : (
                     <p className="text-sm text-muted-foreground">Select dates for availability</p>
                  )}
-                 <Button asChild size="lg" className="w-full font-bold" disabled={datesSelected && !isAvailable}>
-                   <Link href={`/book?roomType=${category.id}`}>
-                    {datesSelected ? 'Book This Room' : 'Book Now'}
+                 <Button asChild size="lg" className="w-full font-bold">
+                   <Link href={`/rooms/${category.id}?${params.toString()}`}>
+                    View Details
                    </Link>
                  </Button>
             </div>

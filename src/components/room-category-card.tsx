@@ -51,7 +51,7 @@ export function RoomCategoryCard({ category }: { category: RoomCategory }) {
           <p className="text-2xl font-bold text-primary">₹{category.basePrice.toLocaleString()}<span className="text-sm font-normal text-muted-foreground">/night</span></p>
         </div>
         <Button asChild size="lg">
-          <Link href={`/book?roomType=${category.id}`}>View & Book</Link>
+          <Link href={`/rooms/${category.id}`}>View Details</Link>
         </Button>
       </CardFooter>
     </Card>
