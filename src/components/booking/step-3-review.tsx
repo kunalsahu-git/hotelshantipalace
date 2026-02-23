@@ -12,11 +12,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { BookingFormData } from '@/lib/schemas';
 import { roomCategories } from '@/lib/mock-data';
 import type { Booking } from '@/lib/types';
-import { useFirestore } from '@/firebase';
+import { useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
-import { ArrowLeft, PartyPopper, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, PartyPopper } from 'lucide-react';
 
 export function Step3Review({ prevStep }: { prevStep: () => void }) {
   const { getValues } = useFormContext<BookingFormData>();
@@ -72,19 +70,12 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
         router.push(redirectUrl);
     })
     .catch(async (serverError) => {
-        console.error("Error creating booking:", serverError);
         const permissionError = new FirestorePermissionError({
             path: 'bookings',
             operation: 'create',
             requestResourceData: bookingPayload,
           });
         errorEmitter.emit('permission-error', permissionError);
-
-        toast({
-            variant: "destructive",
-            title: "Booking Failed",
-            description: "We couldn't save your booking due to a permissions issue. Please contact support.",
-        });
     }).finally(() => {
         setIsSubmitting(false);
     });
