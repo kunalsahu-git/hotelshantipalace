@@ -17,3 +17,12 @@ export const BookingFormSchema = z.object({
 });
 
 export type BookingFormData = z.infer<typeof BookingFormSchema>;
+
+export const EnquiryFormSchema = z.object({
+  name: z.string().min(2, { message: "Full name must be at least 2 characters." }),
+  phone: z.string().optional(),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  message: z.string().min(10, { message: "Message must be at least 10 characters." }),
+});
+
+export type EnquiryFormData = z.infer<typeof EnquiryFormSchema>;

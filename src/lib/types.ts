@@ -31,3 +31,12 @@ export type Booking = {
   source: 'website';
   createdAt?: any;
 };
+
+export type Enquiry = {
+    id?: string;
+    name: string;
+    phone?: string;
+    email: string;
+    message: string;
+    submittedAt?: any;
+}

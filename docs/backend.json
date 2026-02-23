@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "booking": {
+      "title": "Booking",
+      "description": "Represents a guest's booking at the hotel.",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string", "description": "Guest's full name." },
+        "phone": { "type": "string", "description": "Guest's phone number." },
+        "email": { "type": "string", "format": "email", "description": "Guest's email address." },
+        "guests": { "type": "number", "description": "Number of guests." },
+        "specialRequests": { "type": "string", "description": "Any special requests from the guest." },
+        "roomTypeId": { "type": "string", "description": "ID of the booked room category." },
+        "roomTypeName": { "type": "string", "description": "Name of the booked room category." },
+        "checkIn": { "type": "string", "format": "date", "description": "Check-in date (YYYY-MM-DD)." },
+        "checkOut": { "type": "string", "format": "date", "description": "Check-out date (YYYY-MM-DD)." },
+        "numberOfNights": { "type": "number", "description": "Total number of nights for the stay." },
+        "totalPrice": { "type": "number", "description": "Estimated total price for the stay." },
+        "status": {
+          "type": "string",
+          "enum": ["reserved", "confirmed", "cancelled", "completed"],
+          "description": "The current status of the booking."
+        },
+        "bookingType": {
+            "type": "string",
+            "enum": ["advance", "walk-in"],
+            "description": "Type of booking."
+        },
+        "source": {
+            "type": "string",
+            "enum": ["website"],
+            "description": "Where the booking originated from."
+        },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the booking was created." }
+      },
+      "required": ["fullName", "email", "guests", "roomTypeId", "checkIn", "checkOut", "status"]
+    },
+    "enquiry": {
+      "title": "Enquiry",
+      "description": "Represents a guest's enquiry from the contact form.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Guest's name." },
+        "phone": { "type": "string", "description": "Guest's phone number." },
+        "email": { "type": "string", "format": "email", "description": "Guest's email address." },
+        "message": { "type": "string", "description": "The guest's message or query." },
+        "submittedAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the enquiry was submitted." }
+      },
+      "required": ["name", "email", "message", "submittedAt"]
+    }
+  },
+  "auth": {
+    "providers": []
+  },
+  "firestore": {
+    "/bookings/{bookingId}": {
+      "schema": { "$ref": "#/entities/booking" },
+      "description": "Stores individual booking documents."
+    },
+    "/enquiries/{enquiryId}": {
+        "schema": { "$ref": "#/entities/enquiry" },
+        "description": "Stores guest enquiries from the contact form."
+    }
+  }
+}
