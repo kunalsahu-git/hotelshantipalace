@@ -49,12 +49,17 @@ service cloud.firestore {
     // -------------------------------------------------------------------------
 
     match /users/{userId} {
-      // Any staff can read user profiles, and users can read their own.
-      allow get, list: if isAnyStaff() || isOwner(userId);
+      // An authenticated user can create their own user document.
+      allow create: if isOwner(userId);
       
-      // Users can create their own user document, or update it.
-      // Admins can write to any user document.
-      allow write: if isAdmin() || isOwner(userId);
+      // Users can read their own profile. Any staff can read any profile.
+      allow get, list: if isOwner(userId) || isAnyStaff();
+      
+      // Admins can update any user profile. Users can only update their own.
+      allow update: if isOwner(userId) || isAdmin();
+      
+      // Only admins can delete users.
+      allow delete: if isAdmin();
     }
 
     match /roomCategories/{categoryId} {
@@ -64,7 +69,7 @@ service cloud.firestore {
 
     match /rooms/{roomId} {
       allow read: if isAnyStaff();
-      allow write: if isAdminOrFrontDesk();
+      allow create, update, delete: if isAdminOrFrontDesk();
       allow update: if isHousekeeping() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['housekeepingStatus']);
     }
 
