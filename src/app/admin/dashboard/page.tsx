@@ -28,41 +28,28 @@ import { useAdmin } from '@/components/admin/admin-provider';
 
 export default function DashboardPage() {
   const { isStaffLoading } = useAdmin();
-  console.log('[DashboardPage] Rendering. isStaffLoading from useAdmin():', isStaffLoading);
-
-  const firestore = useFirestore();
 
   // --- Data Fetching ---
   // We can only fetch data once the staff loading is complete.
   const canFetch = !isStaffLoading;
-  console.log('[DashboardPage] canFetch is:', canFetch);
-
 
   const roomsQuery = useMemoFirebase(
-    () => {
-      console.log('[DashboardPage] roomsQuery memo running. Can fetch?', canFetch);
-      return (firestore && canFetch ? collection(firestore, 'rooms') : null)
-    },
+    () => (firestore && canFetch ? collection(firestore, 'rooms') : null),
     [firestore, canFetch]
   );
   const { data: roomsData, isLoading: roomsLoading } = useCollection(roomsQuery);
   const totalRooms = roomsData?.length ?? 0;
 
   const newEnquiriesQuery = useMemoFirebase(
-    () => {
-      console.log('[DashboardPage] newEnquiriesQuery memo running. Can fetch?', canFetch);
-      return (
-        firestore && canFetch
-          ? query(collection(firestore, 'enquiries'), where('status', '==', 'new'))
-          : null
-      )
-    },
+    () =>
+      firestore && canFetch
+        ? query(collection(firestore, 'enquiries'), where('status', '==', 'new'))
+        : null,
     [firestore, canFetch]
   );
   const { data: newEnquiries, isLoading: enquiriesLoading } = useCollection(newEnquiriesQuery);
 
   const websiteBookingsQuery = useMemoFirebase(() => {
-    console.log('[DashboardPage] websiteBookingsQuery memo running. Can fetch?', canFetch);
     if (!firestore || !canFetch) return null;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -79,8 +66,6 @@ export default function DashboardPage() {
   const { data: websiteBookings, isLoading: bookingsLoading } = useCollection(websiteBookingsQuery);
 
   const isLoading = roomsLoading || enquiriesLoading || bookingsLoading || isStaffLoading;
-  
-  console.log('[DashboardPage] Loading states:', { roomsLoading, enquiriesLoading, bookingsLoading, isStaffLoading, finalIsLoading: isLoading });
 
   const StatCard = ({ title, value, icon: Icon, description, loading }: any) => (
     <Card>
@@ -101,6 +86,7 @@ export default function DashboardPage() {
     </Card>
   );
 
+  const firestore = useFirestore();
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -218,4 +204,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-    

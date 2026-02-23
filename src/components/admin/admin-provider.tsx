@@ -25,31 +25,24 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [isStaffLoading, setIsStaffLoading] = useState(true);
 
   useEffect(() => {
-    console.log('[AdminProvider] Auth state change detected. isUserLoading:', isUserLoading, 'User UID:', user?.uid);
     const isLoginPage = pathname === '/admin/login';
 
     if (isUserLoading) {
-      console.log('[AdminProvider] Auth state is still loading, ensuring isStaffLoading is true.');
       setIsStaffLoading(true);
       return;
     }
 
     if (!user) {
-      console.log('[AdminProvider] User is confirmed to be logged out.');
       if (!isLoginPage) {
-        console.log('[AdminProvider] Not on login page, redirecting to /admin/login.');
         router.push('/admin/login');
       }
       setStaffInfo({ user: null, role: null });
       setIsStaffLoading(false);
-      console.log('[AdminProvider] Set isStaffLoading to false for logged-out user.');
       return;
     }
 
     // User is logged in
-    console.log('[AdminProvider] User is confirmed to be logged in:', user.uid);
     if (isLoginPage) {
-      console.log('[AdminProvider] User is on login page, redirecting to /admin/dashboard.');
       router.push('/admin/dashboard');
       return;
     }
@@ -65,7 +58,6 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     
     setStaffInfo({ user: pseudoStaffUser, role: 'admin' });
     setIsStaffLoading(false);
-    console.log('[AdminProvider] Set staff info and set isStaffLoading to false for logged-in user.');
 
   }, [user, isUserLoading, pathname, router]);
 
