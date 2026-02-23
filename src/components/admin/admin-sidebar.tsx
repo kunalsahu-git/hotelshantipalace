@@ -13,7 +13,7 @@ import {
   Settings,
   LogOut,
   ConciergeBell,
-  ArrowRight,
+  Sparkles,
 } from 'lucide-react';
 import { useAdmin } from './admin-provider';
 import { useAuth } from '@/firebase';
@@ -21,7 +21,6 @@ import { Logo } from '../logo';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
-import { LifeBuoy } from 'lucide-react';
 
 const navLinks = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, role: ['admin', 'frontdesk'] },
@@ -29,7 +28,7 @@ const navLinks = [
   { href: '/admin/checkin', label: 'Check-in/Out', icon: ConciergeBell, role: ['admin', 'frontdesk'] },
   { href: '/admin/rooms', label: 'Rooms', icon: BedDouble, role: ['admin', 'frontdesk', 'housekeeping'] },
   { href: '/admin/guests', label: 'Guests', icon: Users, role: ['admin', 'frontdesk'] },
-  { href: '/admin/housekeeping', label: 'Housekeeping', icon: LifeBuoy, role: ['admin', 'housekeeping'] },
+  { href: '/admin/housekeeping', label: 'Housekeeping', icon: Sparkles, role: ['admin', 'housekeeping'] },
   { href: '/admin/maintenance', label: 'Maintenance', icon: Wrench, role: ['admin', 'frontdesk', 'housekeeping'] },
   { href: '/admin/bills', label: 'Bills', icon: FileText, role: ['admin', 'frontdesk'] },
   { href: '/admin/enquiries', label: 'Enquiries', icon: MessageSquare, role: ['admin', 'frontdesk'] },
