@@ -17,29 +17,30 @@ service cloud.firestore {
              data.status == 'reserved' &&
              data.bookingType == 'advance' &&
              data.source == 'website' &&
-             (data.specialRequests is string) &&
-             data.keys().hasOnly(['fullName', 'email', 'phone', 'guests', 'roomTypeId', 'roomTypeName', 'checkIn', 'checkOut', 'numberOfNights', 'totalPrice', 'status', 'bookingType', 'source', 'specialRequests', 'createdAt']);
+             data.specialRequests is string &&
+             data.keys().hasOnly(['fullName', 'email', 'phone', 'guests', 'roomTypeId', 'roomTypeName', 'checkIn', 'checkOut', 'numberOfNights', 'totalPrice', 'status', 'bookingType', 'source', 'specialRequests']);
     }
 
     function isEnquiry(data) {
         return data.name is string && data.name.size() > 1 &&
                data.email is string && data.email.matches('.+@.+\..+') &&
                data.message is string && data.message.size() > 9 &&
-               (data.phone is string || !('phone' in data)) &&
-               data.keys().hasOnly(['name', 'email', 'phone', 'message', 'submittedAt']);
+               data.phone is string &&
+               data.keys().hasOnly(['name', 'email', 'phone', 'message']);
     }
 
     match /bookings/{bookingId} {
-      // Anyone can create a booking if the data is valid
+      // Anyone can create a booking if the data is valid.
+      // The `createdAt` field is handled by the server.
       allow create: if isBooking(request.resource.data);
       
       // No one can read, update, or delete bookings from the client-side.
-      // This should be handled by an admin panel with authenticated users.
       allow read, update, delete: if false;
     }
 
     match /enquiries/{enquiryId} {
-        // Anyone can create an enquiry if the data is valid
+        // Anyone can create an enquiry if the data is valid.
+        // The `submittedAt` field is handled by the server.
         allow create: if isEnquiry(request.resource.data);
         
         // No one can read, update or delete.
