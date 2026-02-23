@@ -1,9 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
 import { collection, query, orderBy } from 'firebase/firestore';
-import { useFirestore } from '@/firebase/provider';
-import { useCollection } from '@/firebase/firestore/use-collection';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import {
   Table,
   TableHeader,
@@ -21,7 +19,7 @@ import { format } from 'date-fns';
 export default function BookingsPage() {
   const firestore = useFirestore();
 
-  const bookingsQuery = useMemo(() => {
+  const bookingsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'bookings'), orderBy('createdAt', 'desc'));
   }, [firestore]);

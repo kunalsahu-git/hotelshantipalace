@@ -1,9 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
 import { collection, query, orderBy } from 'firebase/firestore';
-import { useFirestore } from '@/firebase/provider';
-import { useCollection } from '@/firebase/firestore/use-collection';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import {
   Table,
   TableHeader,
@@ -22,7 +20,7 @@ import { Button } from '@/components/ui/button';
 export default function EnquiriesPage() {
   const firestore = useFirestore();
 
-  const enquiriesQuery = useMemo(() => {
+  const enquiriesQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'enquiries'), orderBy('submittedAt', 'desc'));
   }, [firestore]);
