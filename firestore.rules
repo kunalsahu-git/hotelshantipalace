@@ -1,71 +1,83 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // --- Helper Functions ---
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // Rules for staff user profiles
+    // Safely get the user's role from their document
+    function getRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    // Check if the user is an admin
+    function isAdmin() {
+      return isSignedIn() && getRole() == 'admin';
+    }
+    
+    // Check if the user is a front desk staff (or an admin, who can do everything)
+    function isFrontdesk() {
+        return isSignedIn() && (getRole() == 'frontdesk' || isAdmin());
+    }
+
+    // --- Rules for each collection ---
+
+    // USERS: Admin can manage, users can create/read their own profile.
     match /users/{userId} {
-      // Allow a user to create their own profile document upon sign-up
       allow create: if request.auth.uid == userId;
-      
-      // Allow any signed-in staff member to read any user profile
-      allow read: if isSignedIn();
-      
-      // For now, prevent updates and deletes until we implement role-based logic
-      allow update, delete: if false;
+      allow read: if request.auth.uid == userId || isAdmin();
+      allow write: if isAdmin();
     }
-
-    // Rules for room categories - allow public read for the website
+    
+    // ROOM CATEGORIES: Public can read, admin/frontdesk can write
     match /roomCategories/{categoryId} {
-      allow read: if true;
-      allow write: if isSignedIn(); // Simplification: any staff can write for now
+        allow read: if true;
+        allow write: if isFrontdesk();
     }
 
-    // Rules for individual rooms
+    // ROOMS: admin/frontdesk can write, housekeeping can read & update status
     match /rooms/{roomId} {
-      allow read, write: if isSignedIn(); // Simplification: any staff can read/write for now
+        allow read: if isSignedIn(); // All staff can see rooms
+        allow write: if isFrontdesk();
+        // Housekeeping can only update the housekeeping status
+        allow update: if getRole() == 'housekeeping' && request.resource.data.keys().hasOnly(['housekeepingStatus']);
     }
-    
-    // Rules for guest profiles
+
+    // GUESTS: Admin/frontdesk can manage
     match /guests/{guestId} {
-      allow read, write: if isSignedIn(); // Simplification: any staff can read/write for now
+        allow read, write: if isFrontdesk();
     }
-    
-    // Rules for bookings
+
+    // BOOKINGS: Public can create, admin/frontdesk can manage.
     match /bookings/{bookingId} {
-      // Allow public to create new booking requests from the website
       allow create: if true;
-      // Allow any signed-in staff member to read/update/delete bookings
-      allow read, update, delete: if isSignedIn();
+      allow read, update, delete: if isFrontdesk();
     }
-    
-    // Rules for bills
+
+    // BILLS: Admin/frontdesk can manage.
     match /bills/{billId} {
-      allow read, write: if isSignedIn();
+      allow read, write: if isFrontdesk();
     }
-    
-    // Rules for maintenance tickets
+
+    // MAINTENANCE: All staff can create/read, admin/frontdesk can update.
     match /maintenanceTickets/{ticketId} {
-      allow read, write: if isSignedIn();
+        allow create, read: if isSignedIn();
+        allow update, delete: if isFrontdesk();
     }
-    
-    // Rules for website enquiries
+
+    // ENQUIRIES: Public can create, admin/frontdesk can manage.
     match /enquiries/{enquiryId} {
-       // Allow public to create new enquiries from the contact form
       allow create: if true;
-      // Allow any signed-in staff member to read/update/delete enquiries
-      allow read, update, delete: if isSignedIn();
+      allow read, update, delete: if isFrontdesk();
     }
-    
-    // Rules for hotel-wide settings
+
+    // SETTINGS: Public can read, admin can write.
     match /settings/{docId} {
-       // Allow public read for website info (e.g., check-in times)
-       allow read: if true;
-       // Allow any signed-in staff member to write for now
-       allow write: if isSignedIn();
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }
