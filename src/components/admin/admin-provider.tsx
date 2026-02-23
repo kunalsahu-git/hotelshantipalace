@@ -20,14 +20,13 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
   const pathname = usePathname();
-  const firestore = useFirestore();
   const [staffInfo, setStaffInfo] = useState<{ user: StaffUser | null, role: StaffRole | null }>({ user: null, role: null });
   const [isStaffLoading, setIsStaffLoading] = useState(true);
 
   useEffect(() => {
     const isLoginPage = pathname === '/admin/login';
     
-    if (isUserLoading) return; // Wait for firebase auth to resolve
+    if (isUserLoading) return;
 
     if (!user) {
       if (!isLoginPage) {
@@ -43,35 +42,23 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         return;
     }
 
-    setIsStaffLoading(true);
-    const userDocRef = doc(firestore, 'users', user.uid);
-    const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const userData = { id: docSnap.id, ...docSnap.data() } as StaffUser;
-        setStaffInfo({ user: userData, role: userData.role });
-        setIsStaffLoading(false);
-      } else {
-        // Document might not exist yet during account creation race condition.
-        // We will keep `isStaffLoading` true and wait for the document to be created.
-        // The onSnapshot listener will fire again when it is.
-      }
-    }, (error) => {
-        console.error("Failed to fetch user role:", error);
-        setIsStaffLoading(false);
-        setStaffInfo({ user: null, role: null }); 
-        const permissionError = new FirestorePermissionError({
-            path: userDocRef.path,
-            operation: 'get',
-        });
-        errorEmitter.emit('permission-error', permissionError);
-    });
+    // With simplified rules, any authenticated user is an admin.
+    // We no longer need to fetch a user document to determine the role.
+    const pseudoStaffUser: StaffUser = {
+      id: user.uid,
+      name: user.displayName || user.email?.split('@')[0] || 'Admin',
+      email: user.email || 'unknown',
+      role: 'admin',
+      isActive: true,
+      createdAt: user.metadata.creationTime,
+    };
+    
+    setStaffInfo({ user: pseudoStaffUser, role: 'admin' });
+    setIsStaffLoading(false);
 
-    return () => unsubscribe();
-  }, [user, isUserLoading, pathname, router, firestore]);
+  }, [user, isUserLoading, pathname, router]);
 
-  const finalIsLoading = isUserLoading || (isStaffLoading && pathname !== '/admin/login');
-
-  if (finalIsLoading) {
+  if (isUserLoading || (isStaffLoading && pathname !== '/admin/login')) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <div className="w-full max-w-md space-y-4 p-4">
@@ -81,19 +68,9 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-
-  // Only render children if we are not loading and not on the login page (or if user exists)
-  // This avoids rendering children that depend on the context before it's ready.
-  if (pathname === '/admin/login' && !user) {
-    return (
-        <AdminContext.Provider value={{ ...staffInfo, isStaffLoading: finalIsLoading }}>
-            {children}
-        </AdminContext.Provider>
-    );
-  }
   
   return (
-    <AdminContext.Provider value={{ ...staffInfo, isStaffLoading: finalIsLoading }}>
+    <AdminContext.Provider value={{ ...staffInfo, isStaffLoading }}>
         {children}
     </AdminContext.Provider>
   );
