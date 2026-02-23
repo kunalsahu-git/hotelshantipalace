@@ -39,6 +39,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
     if (user && isLoginPage) {
         router.push('/admin/dashboard');
+        return;
     }
 
     const userDocRef = doc(firestore, 'users', user.uid);
@@ -68,11 +69,6 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     );
-  }
-
-  // Allow login page to render without a valid staff user
-  if (pathname === '/admin/login') {
-    return children;
   }
   
   return (
