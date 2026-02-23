@@ -2,103 +2,70 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // -------------------------------------------------------------------------
-    // Helper Functions
-    // -------------------------------------------------------------------------
-
     function isSignedIn() {
       return request.auth != null;
     }
 
-    function getUserRole() {
-      let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
-      if (exists(userPath)) {
-        return get(userPath).data.role;
-      }
-      return null;
-    }
-
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    function isAdmin() {
-      return isSignedIn() && getUserRole() == 'admin';
-    }
-    
-    function isFrontDesk() {
-      return isSignedIn() && getUserRole() == 'frontdesk';
-    }
-
-    function isHousekeeping() {
-      return isSignedIn() && getUserRole() == 'housekeeping';
-    }
-
-    function isAdminOrFrontDesk() {
-      let role = getUserRole();
-      return isSignedIn() && (role == 'admin' || role == 'frontdesk');
-    }
-
-    function isAnyStaff() {
-      let role = getUserRole();
-      return isSignedIn() && (role == 'admin' || role == 'frontdesk' || role == 'housekeeping');
-    }
-
-    // -------------------------------------------------------------------------
-    // Collection Rules
-    // -------------------------------------------------------------------------
-
+    // Rules for staff user profiles
     match /users/{userId} {
-      // A user can create their own document
-      allow create: if isOwner(userId);
-      // A user can read their own doc, any staff can read any other doc
-      allow get: if isOwner(userId) || isAnyStaff(); 
-      // Any staff can list users
-      allow list: if isAnyStaff();
-      // Only admins can modify/delete users
-      allow update, delete: if isAdmin();
+      // Allow a user to create their own profile document upon sign-up
+      allow create: if request.auth.uid == userId;
+      
+      // Allow any signed-in staff member to read any user profile
+      allow read: if isSignedIn();
+      
+      // For now, prevent updates and deletes until we implement role-based logic
+      allow update, delete: if false;
     }
 
+    // Rules for room categories - allow public read for the website
     match /roomCategories/{categoryId} {
-      allow get, list: if true;
-      allow write: if isAdminOrFrontDesk();
+      allow read: if true;
+      allow write: if isSignedIn(); // Simplification: any staff can write for now
     }
 
+    // Rules for individual rooms
     match /rooms/{roomId} {
-      allow read: if isAnyStaff();
-      allow create, delete: if isAdminOrFrontDesk();
-      allow update: if (isHousekeeping() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['housekeepingStatus'])) || isAdminOrFrontDesk();
+      allow read, write: if isSignedIn(); // Simplification: any staff can read/write for now
     }
-
+    
+    // Rules for guest profiles
     match /guests/{guestId} {
-      allow read, write: if isAdminOrFrontDesk();
+      allow read, write: if isSignedIn(); // Simplification: any staff can read/write for now
     }
     
+    // Rules for bookings
     match /bookings/{bookingId} {
-      // Public can create bookings from the website
-      allow create: if true; 
-      allow read, update, delete: if isAdminOrFrontDesk();
-    }
-    
-    match /bills/{billId} {
-      allow read, write: if isAdminOrFrontDesk();
-    }
-
-    match /maintenanceTickets/{ticketId} {
-      allow create, read: if isAnyStaff();
-      allow update, delete: if isAdminOrFrontDesk();
-    }
-    
-    match /enquiries/{enquiryId} {
-      // Public can create enquiries from the website
+      // Allow public to create new booking requests from the website
       allow create: if true;
-      allow read, write: if isAdminOrFrontDesk();
+      // Allow any signed-in staff member to read/update/delete bookings
+      allow read, update, delete: if isSignedIn();
     }
     
+    // Rules for bills
+    match /bills/{billId} {
+      allow read, write: if isSignedIn();
+    }
+    
+    // Rules for maintenance tickets
+    match /maintenanceTickets/{ticketId} {
+      allow read, write: if isSignedIn();
+    }
+    
+    // Rules for website enquiries
+    match /enquiries/{enquiryId} {
+       // Allow public to create new enquiries from the contact form
+      allow create: if true;
+      // Allow any signed-in staff member to read/update/delete enquiries
+      allow read, update, delete: if isSignedIn();
+    }
+    
+    // Rules for hotel-wide settings
     match /settings/{docId} {
-       // Settings are public-read for the website
-       allow get, list: if true;
-       allow write: if isAdmin();
+       // Allow public read for website info (e.g., check-in times)
+       allow read: if true;
+       // Allow any signed-in staff member to write for now
+       allow write: if isSignedIn();
     }
   }
 }
