@@ -182,9 +182,7 @@ export default function AdminRoomsPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Rooms</h1>
-        {hasRooms && (
-             <Button>Add New Room</Button>
-        )}
+        <Button>Add New Room</Button>
       </div>
       <Card>
         <CardHeader>
