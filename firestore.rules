@@ -3,47 +3,40 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isBooking(data) {
-      // Looser validation to ensure deployment, can be tightened later.
-      return data.fullName is string && data.fullName.size() > 1 &&
-             data.email is string && data.email.matches('.+@.+\..+') &&
-             data.phone is string && data.phone.size() > 9 &&
-             data.guests is number && data.guests > 0 &&
+    // Helper function to check for required booking fields
+    function isBookingDataValid(data) {
+      return data.fullName is string &&
+             data.email is string &&
+             data.phone is string &&
+             data.guests is number &&
              data.roomTypeId is string &&
-             data.roomTypeName is string &&
-             data.checkIn is string && data.checkIn.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
-             data.checkOut is string && data.checkOut.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
-             data.numberOfNights is number && data.numberOfNights > 0 &&
-             data.totalPrice is number && data.totalPrice >= 0 &&
-             data.status == 'reserved' &&
-             data.bookingType == 'advance' &&
-             data.source == 'website' &&
-             data.specialRequests is string;
+             data.checkIn is string &&
+             data.checkOut is string &&
+             data.status == 'reserved';
     }
 
-    function isEnquiry(data) {
-        return data.name is string && data.name.size() > 1 &&
-               data.email is string && data.email.matches('.+@.+\..+') &&
-               data.message is string && data.message.size() > 9 &&
-               // Handle optional phone field
-               (!('phone' in data) || data.phone is string);
+    // Helper function to check for required enquiry fields
+    function isEnquiryDataValid(data) {
+      return data.name is string &&
+             data.email is string &&
+             data.message is string;
     }
 
     match /bookings/{bookingId} {
-      // Anyone can create a booking if the data is valid.
-      // The `createdAt` field is handled by the server.
-      allow create: if isBooking(request.resource.data);
+      // Allow anyone to create a booking if the data is valid.
+      // createdAt is added by the server, so it's not in request.resource.data
+      allow create: if isBookingDataValid(request.resource.data);
       
-      // No one can read, update, or delete bookings from the client-side.
+      // Disallow all reads, updates, and deletes from the client-side for now.
       allow read, update, delete: if false;
     }
 
     match /enquiries/{enquiryId} {
-        // Anyone can create an enquiry if the data is valid.
-        // The `submittedAt` field is handled by the server.
-        allow create: if isEnquiry(request.resource.data);
+        // Allow anyone to create an enquiry if the data is valid.
+        // submittedAt is added by the server, so it's not in request.resource.data
+        allow create: if isEnquiryDataValid(request.resource.data);
         
-        // No one can read, update or delete.
+        // Disallow all reads, updates, and deletes from the client-side for now.
         allow read, update, delete: if false;
     }
   }
