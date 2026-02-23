@@ -28,7 +28,6 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
   
   if (!room || !data.checkIn || !data.checkOut) {
     // This should not happen if steps are followed correctly.
-    // Maybe show a more user-friendly message or redirect.
     return (
       <div className="text-center">
         <p className="text-destructive mb-4">Something went wrong. Please go back and fill out the form correctly.</p>
@@ -44,10 +43,13 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
 
 
   const handleConfirmBooking = async () => {
+    console.log("Step 1: handleConfirmBooking called.");
     if (!firestore) {
+      console.error("Step 2: Firestore instance is not available.");
       toast({ variant: 'destructive', title: 'Error', description: 'Database connection not found.' });
       return;
     }
+    console.log("Step 2: Firestore instance is available.");
     setIsSubmitting(true);
 
     const bookingPayload: Omit<Booking, 'id' | 'createdAt'> = {
@@ -66,17 +68,21 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
       bookingType: 'advance',
       source: 'website',
     };
+    console.log("Step 3: Booking payload created:", bookingPayload);
 
     const bookingsCollection = collection(firestore, 'bookings');
+    console.log("Step 4: Attempting to add document to 'bookings' collection.");
     
     addDoc(bookingsCollection, {
         ...bookingPayload,
         createdAt: serverTimestamp(),
     })
     .then(docRef => {
+        console.log("Step 5 (Success): Document written with ID: ", docRef.id);
         router.push(`/booking-confirmed?id=${docRef.id}`);
     })
     .catch(async (serverError) => {
+        console.error("Step 5 (Error): Failed to add document.", serverError);
         const permissionError = new FirestorePermissionError({
             path: 'bookings',
             operation: 'create',
@@ -84,6 +90,7 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
           });
         errorEmitter.emit('permission-error', permissionError);
     }).finally(() => {
+        console.log("Step 6: addDoc promise finished (finally block).");
         setIsSubmitting(false);
     });
   };
