@@ -23,16 +23,16 @@ import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
-  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, role: ['admin', 'frontdesk'] },
-  { href: '/admin/bookings', label: 'Bookings', icon: Calendar, role: ['admin', 'frontdesk'] },
-  { href: '/admin/checkin', label: 'Check-in/Out', icon: ConciergeBell, role: ['admin', 'frontdesk'] },
-  { href: '/admin/rooms', label: 'Rooms', icon: BedDouble, role: ['admin', 'frontdesk', 'housekeeping'] },
-  { href: '/admin/guests', label: 'Guests', icon: Users, role: ['admin', 'frontdesk'] },
-  { href: '/admin/housekeeping', label: 'Housekeeping', icon: Sparkles, role: ['admin', 'housekeeping'] },
-  { href: '/admin/maintenance', label: 'Maintenance', icon: Wrench, role: ['admin', 'frontdesk', 'housekeeping'] },
-  { href: '/admin/bills', label: 'Bills', icon: FileText, role: ['admin', 'frontdesk'] },
-  { href: '/admin/enquiries', label: 'Enquiries', icon: MessageSquare, role: ['admin', 'frontdesk'] },
-  { href: '/admin/settings', label: 'Settings', icon: Settings, role: ['admin'] },
+  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/bookings', label: 'Bookings', icon: Calendar },
+  { href: '/admin/checkin', label: 'Check-in/Out', icon: ConciergeBell },
+  { href: '/admin/rooms', label: 'Rooms', icon: BedDouble },
+  { href: '/admin/guests', label: 'Guests', icon: Users },
+  { href: '/admin/housekeeping', label: 'Housekeeping', icon: Sparkles },
+  { href: '/admin/maintenance', label: 'Maintenance', icon: Wrench },
+  { href: '/admin/bills', label: 'Bills', icon: FileText },
+  { href: '/admin/enquiries', label: 'Enquiries', icon: MessageSquare },
+  { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 
 export function AdminSidebar() {
@@ -60,8 +60,6 @@ export function AdminSidebar() {
       </div>
       <nav className="flex-1 px-4 py-6 space-y-2">
         {navLinks.map((link) => {
-          if (!link.role.includes(role)) return null;
-
           const isActive = pathname.startsWith(link.href);
           return (
             <Link key={link.href} href={link.href}>

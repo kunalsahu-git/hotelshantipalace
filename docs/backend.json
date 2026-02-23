@@ -4,7 +4,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a staff member with access to the admin panel, including their role and activity status.",
+      "description": "Represents a staff member with access to the admin panel.",
       "properties": {
         "name": {
           "type": "string",
@@ -17,8 +17,7 @@
         },
         "role": {
           "type": "string",
-          "description": "The assigned role of the staff member, determining their access permissions.",
-          "enum": ["admin", "frontdesk", "housekeeping"]
+          "description": "The assigned role of the staff member. The default and only role is 'admin'."
         },
         "createdAt": {
           "type": "string",

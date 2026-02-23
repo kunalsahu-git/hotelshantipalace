@@ -21,12 +21,6 @@ service cloud.firestore {
     function isAdmin() {
       return isStaff() && getRole(request.auth.uid) == 'admin';
     }
-    function isFrontDesk() {
-      return isStaff() && (getRole(request.auth.uid) == 'admin' || getRole(request.auth.uid) == 'frontdesk');
-    }
-    function isHousekeeping() {
-      return isStaff() && (getRole(request.auth.uid) == 'admin' || getRole(request.auth.uid) == 'housekeeping');
-    }
 
     // --- User Profiles ---
     match /users/{userId} {
@@ -44,64 +38,46 @@ service cloud.firestore {
     match /enquiries/{enquiryId} {
       // Anyone can submit an enquiry form from the website.
       allow create: if true;
-      // Frontdesk and admin can read, list, and update enquiries.
-      allow read, list, update: if isFrontDesk();
-      // Only admin can delete enquiries
-      allow delete: if isAdmin();
+      // Admins can manage enquiries.
+      allow read, list, update, delete: if isAdmin();
     }
 
     match /bookings/{bookingId} {
       // Anyone can create a booking from the website. Staff can create bookings from the admin panel.
       allow create: if true;
-      // Frontdesk and admin can manage (read, list, update) bookings.
-      allow read, list, update: if isFrontDesk();
-      // Only admins can delete bookings.
-      allow delete: if isAdmin();
+      // Admins can manage bookings.
+      allow read, list, update, delete: if isAdmin();
     }
 
-    // --- Hotel Management Collections (Staff Only) ---
+    // --- Hotel Management Collections (Admin Only) ---
     match /roomCategories/{categoryId} {
-      // All staff can view room categories.
-      allow read, list: if isStaff();
-      // Only admin can create, update, or delete categories.
-      allow write: if isAdmin();
+      // Admins can manage room categories.
+      allow read, list, write: if isAdmin();
     }
 
     match /rooms/{roomId} {
-      // All staff can view room details.
-      allow read, list: if isStaff();
-      // Admin/Frontdesk can update room status. Housekeeping can update housekeeping status.
-      allow update: if isFrontDesk() || isHousekeeping();
-      // Only admin can create or delete rooms.
-      allow create, delete: if isAdmin();
+      // Admins can manage rooms.
+      allow read, list, write: if isAdmin();
     }
 
     match /guests/{guestId} {
-      // Frontdesk and admin can manage guests.
-      allow read, list, write: if isFrontDesk();
+      // Admins can manage guests.
+      allow read, list, write: if isAdmin();
     }
 
     match /bills/{billId} {
-      // Frontdesk and admin can manage bills.
-      allow read, list, write: if isFrontDesk();
+      // Admins can manage bills.
+      allow read, list, write: if isAdmin();
     }
 
     match /maintenanceTickets/{ticketId} {
-      // All staff can view tickets.
-      allow read, list: if isStaff();
-      // Any staff member can create a ticket.
-      allow create: if isStaff();
-      // Admin, frontdesk and housekeeping can update/resolve tickets.
-      allow update: if isStaff();
-      // Only admin can delete tickets.
-      allow delete: if isAdmin();
+       // Admins can manage maintenance tickets.
+      allow read, list, write: if isAdmin();
     }
 
     match /settings/{docId} {
-      // All staff can read settings.
-      allow read, list: if isStaff();
-      // Only admin can change settings.
-      allow write: if isAdmin();
+      // Admins can manage settings.
+      allow read, list, write: if isAdmin();
     }
   }
 }

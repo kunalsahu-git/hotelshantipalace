@@ -133,7 +133,7 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>Email Address</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="staff@shantipalace.com" {...field} />
+                      <Input type="email" placeholder="admin@shantipalace.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -185,7 +185,6 @@ export default function LoginPage() {
           <AlertTitle>Test Credentials</AlertTitle>
           <AlertDescription>
             <p>Admin: admin@shantipalace.com / Admin@123</p>
-            <p>Front Desk: frontdesk@shantipalace.com / Desk@123</p>
           </AlertDescription>
         </Alert>
 
