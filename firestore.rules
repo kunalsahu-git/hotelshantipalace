@@ -34,7 +34,11 @@ service cloud.firestore {
     // - Authenticated users can read, update, or delete bookings (from the admin panel).
     match /bookings/{bookingId} {
       allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow get, update, delete: if request.auth != null;
+    }
+    // Authenticated users can list bookings.
+    match /bookings {
+      allow list: if request.auth != null;
     }
 
     // Enquiries:
