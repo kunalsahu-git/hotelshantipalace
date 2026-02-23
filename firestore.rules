@@ -1,0 +1,49 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isBooking(data) {
+      return data.fullName is string && data.fullName.size() > 1 &&
+             data.email is string && data.email.matches('.+@.+\..+') &&
+             data.phone is string && data.phone.size() > 9 &&
+             data.guests is number && data.guests > 0 &&
+             data.roomTypeId is string &&
+             data.roomTypeName is string &&
+             data.checkIn is string &&
+             data.checkOut is string &&
+             data.numberOfNights is number && data.numberOfNights > 0 &&
+             data.totalPrice is number && data.totalPrice >= 0 &&
+             data.status == 'reserved' &&
+             data.bookingType == 'advance' &&
+             data.source == 'website' &&
+             (data.specialRequests is string || !('specialRequests' in data)) &&
+             request.resource.data.keys().hasOnly(['fullName', 'email', 'phone', 'guests', 'roomTypeId', 'roomTypeName', 'checkIn', 'checkOut', 'numberOfNights', 'totalPrice', 'status', 'bookingType', 'source', 'specialRequests', 'createdAt']);
+    }
+
+    function isEnquiry(data) {
+        return data.name is string && data.name.size() > 1 &&
+               data.email is string && data.email.matches('.+@.+\..+') &&
+               data.message is string && data.message.size() > 9 &&
+               (('phone' in data && data.phone is string) || !('phone' in data)) &&
+               request.resource.data.keys().hasOnly(['name', 'email', 'phone', 'message', 'submittedAt']);
+    }
+
+    match /bookings/{bookingId} {
+      // Anyone can create a booking if the data is valid
+      allow create: if isBooking(request.resource.data);
+      
+      // No one can read, update, or delete bookings from the client-side.
+      // This should be handled by an admin panel with authenticated users.
+      allow read, update, delete: if false;
+    }
+
+    match /enquiries/{enquiryId} {
+        // Anyone can create an enquiry if the data is valid
+        allow create: if isEnquiry(request.resource.data);
+        
+        // No one can read, update or delete.
+        allow read, update, delete: if false;
+    }
+  }
+}
