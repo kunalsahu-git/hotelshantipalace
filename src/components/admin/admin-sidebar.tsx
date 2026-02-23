@@ -46,8 +46,11 @@ export function AdminSidebar() {
     }
   };
 
+  // The check for user and role is handled by the AdminProvider,
+  // which shows a loading skeleton or redirects to login.
+  // So, if this component renders, we can assume user and role are available.
   if (!user || !role) {
-    return null; // Don't render sidebar on login page or if user/role is not available
+    return null;
   }
 
   return (
