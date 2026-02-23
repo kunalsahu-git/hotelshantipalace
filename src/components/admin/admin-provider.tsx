@@ -2,9 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useUser, errorEmitter, FirestorePermissionError } from '@/firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { useFirestore } from '@/firebase/provider';
+import { useUser } from '@/firebase';
 import type { User as StaffUser, StaffRole } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
 
@@ -14,36 +12,45 @@ interface AdminContextType {
   isStaffLoading: boolean;
 }
 
-const AdminContext = createContext<AdminContextType | null>(null);
+const AdminContext = createContext<AdminContextType>({
+  user: null,
+  role: null,
+  isStaffLoading: true,
+});
 
 export function AdminProvider({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
   const pathname = usePathname();
-  const [staffInfo, setStaffInfo] = useState<{ user: StaffUser | null, role: StaffRole | null }>({ user: null, role: null });
+  const [staffInfo, setStaffInfo] = useState<{ user: StaffUser | null; role: StaffRole | null }>({ user: null, role: null });
   const [isStaffLoading, setIsStaffLoading] = useState(true);
 
   useEffect(() => {
     const isLoginPage = pathname === '/admin/login';
-    
-    if (isUserLoading) return;
 
-    if (!user) {
-      if (!isLoginPage) {
-        router.push('/admin/login');
-      }
-      setIsStaffLoading(false);
-      setStaffInfo({ user: null, role: null });
+    if (isUserLoading) {
+      // Still waiting for Firebase to determine auth state
+      setIsStaffLoading(true);
       return;
     }
 
-    if (user && isLoginPage) {
-        router.push('/admin/dashboard');
-        return;
+    if (!user) {
+      // User is not logged in
+      if (!isLoginPage) {
+        router.push('/admin/login');
+      }
+      setStaffInfo({ user: null, role: null });
+      setIsStaffLoading(false);
+      return;
     }
 
-    // With simplified rules, any authenticated user is an admin.
-    // We no longer need to fetch a user document to determine the role.
+    // User is logged in
+    if (isLoginPage) {
+      router.push('/admin/dashboard');
+      return;
+    }
+
+    // Since rules are simplified, any logged-in user is an admin.
     const pseudoStaffUser: StaffUser = {
       id: user.uid,
       name: user.displayName || user.email?.split('@')[0] || 'Admin',
@@ -58,27 +65,27 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
   }, [user, isUserLoading, pathname, router]);
 
-  if (isUserLoading || (isStaffLoading && pathname !== '/admin/login')) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <div className="w-full max-w-md space-y-4 p-4">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-48 w-full" />
-        </div>
-      </div>
-    );
-  }
-  
+  // Always render the provider. The children will decide what to do based on the context values.
+  // This prevents the race condition where children don't see the initial loading state.
   return (
     <AdminContext.Provider value={{ ...staffInfo, isStaffLoading }}>
-        {children}
+      {isStaffLoading && pathname !== '/admin/login' ? (
+        <div className="flex h-screen w-full items-center justify-center">
+          <div className="w-full max-w-md space-y-4 p-4">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-48 w-full" />
+          </div>
+        </div>
+      ) : (
+        children
+      )}
     </AdminContext.Provider>
   );
 }
 
 export const useAdmin = () => {
   const context = useContext(AdminContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAdmin must be used within an AdminProvider');
   }
   return context;
