@@ -27,29 +27,31 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAdmin } from '@/components/admin/admin-provider';
 
 export default function DashboardPage() {
-  const { isStaffLoading, role } = useAdmin();
+  const { isStaffLoading } = useAdmin();
   const firestore = useFirestore();
 
   // --- Data Fetching ---
+  // We can only fetch data once the staff loading is complete.
+  const canFetch = !isStaffLoading;
 
   const roomsQuery = useMemoFirebase(
-    () => (firestore && role ? collection(firestore, 'rooms') : null),
-    [firestore, role]
+    () => (firestore && canFetch ? collection(firestore, 'rooms') : null),
+    [firestore, canFetch]
   );
   const { data: roomsData, isLoading: roomsLoading } = useCollection(roomsQuery);
   const totalRooms = roomsData?.length ?? 0;
 
   const newEnquiriesQuery = useMemoFirebase(
     () =>
-      firestore && role
+      firestore && canFetch
         ? query(collection(firestore, 'enquiries'), where('status', '==', 'new'))
         : null,
-    [firestore, role]
+    [firestore, canFetch]
   );
   const { data: newEnquiries, isLoading: enquiriesLoading } = useCollection(newEnquiriesQuery);
 
   const websiteBookingsQuery = useMemoFirebase(() => {
-    if (!firestore || !role) return null;
+    if (!firestore || !canFetch) return null;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -61,7 +63,7 @@ export default function DashboardPage() {
       where('createdAt', '>=', Timestamp.fromDate(today)),
       where('createdAt', '<', Timestamp.fromDate(tomorrow))
     );
-  }, [firestore, role]);
+  }, [firestore, canFetch]);
   const { data: websiteBookings, isLoading: bookingsLoading } = useCollection(websiteBookingsQuery);
 
   const isLoading = roomsLoading || enquiriesLoading || bookingsLoading || isStaffLoading;
@@ -202,3 +204,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+    
