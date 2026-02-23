@@ -69,16 +69,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   // This prevents the race condition where children don't see the initial loading state.
   return (
     <AdminContext.Provider value={{ ...staffInfo, isStaffLoading }}>
-      {isStaffLoading && pathname !== '/admin/login' ? (
-        <div className="flex h-screen w-full items-center justify-center">
-          <div className="w-full max-w-md space-y-4 p-4">
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-48 w-full" />
-          </div>
-        </div>
-      ) : (
-        children
-      )}
+      {children}
     </AdminContext.Provider>
   );
 }
