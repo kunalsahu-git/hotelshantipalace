@@ -46,44 +46,44 @@ service cloud.firestore {
     
     // ROOM CATEGORIES: Public can read, admin/frontdesk can write
     match /roomCategories/{categoryId} {
-      allow read: if true;
+      allow read, list: if true;
       allow write: if isFrontdesk();
     }
 
     // ROOMS: admin/frontdesk can write, housekeeping can read & update status
     match /rooms/{roomId} {
-      allow read: if isSignedIn(); // All staff can see rooms
+      allow read, list: if isSignedIn(); // All staff can see rooms
       allow write: if isFrontdesk();
       // Housekeeping can only update the housekeeping status
-      allow update: if getRole() == 'housekeeping' && request.resource.data.keys().hasOnly(['housekeepingStatus']);
+      allow update: if isHousekeeping() && request.resource.data.keys().hasOnly(['housekeepingStatus']);
     }
 
     // GUESTS: Admin/frontdesk can manage
     match /guests/{guestId} {
-      allow read, write: if isFrontdesk();
+      allow read, write, list: if isFrontdesk();
     }
 
     // BOOKINGS: Public can create, admin/frontdesk can manage.
     match /bookings/{bookingId} {
       allow create: if true; // Allows website bookings
-      allow read, update, delete: if isFrontdesk();
+      allow read, update, delete, list: if isFrontdesk();
     }
 
     // BILLS: Admin/frontdesk can manage.
     match /bills/{billId} {
-      allow read, write: if isFrontdesk();
+      allow read, write, list: if isFrontdesk();
     }
 
     // MAINTENANCE: All staff can create/read, admin/frontdesk can update.
     match /maintenanceTickets/{ticketId} {
-      allow create, read: if isSignedIn();
+      allow create, read, list: if isSignedIn();
       allow update, delete: if isFrontdesk();
     }
 
     // ENQUIRIES: Public can create, admin/frontdesk can manage.
     match /enquiries/{enquiryId} {
       allow create: if true; // Allows website contact form
-      allow read, update, delete: if isFrontdesk();
+      allow read, update, delete, list: if isFrontdesk();
     }
 
     // SETTINGS: Public can read, admin can write.

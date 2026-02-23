@@ -31,6 +31,7 @@ import {
   MessageSquareWarning,
   BedDouble,
   CalendarCheck,
+  ArrowRight,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format, addDays, startOfDay } from 'date-fns';
@@ -218,7 +219,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex justify-between items-center">
+          <CardHeader className="flex flex-row justify-between items-center">
             <CardTitle>Upcoming Bookings (7 days)</CardTitle>
             <Button variant="ghost" size="sm" asChild>
                 <Link href="/admin/bookings">View All <ArrowRight className="ml-2 h-4 w-4" /></Link>
