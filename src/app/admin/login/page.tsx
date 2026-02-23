@@ -2,7 +2,11 @@
 import { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -17,7 +21,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/firebase';
+import { useAuth, useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { LoginFormSchema, type LoginFormData } from '@/lib/schemas';
 import { Logo } from '@/components/logo';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -26,6 +30,7 @@ import { Terminal } from 'lucide-react';
 export default function LoginPage() {
   const router = useRouter();
   const auth = useAuth();
+  const firestore = useFirestore();
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,21 +40,72 @@ export default function LoginPage() {
     defaultValues: { email: '', password: '', rememberMe: false },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = (data: LoginFormData) => {
     setIsSubmitting(true);
     setError(null);
-    try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
-      toast({ title: 'Login Successful', description: "Welcome back!" });
-      router.push('/admin/dashboard');
-    } catch (e: any) {
-      const errorMessage = e.code === 'auth/invalid-credential'
-        ? 'Invalid email or password. Please try again.'
-        : 'An unexpected error occurred. Please try again later.';
-      setError(errorMessage);
-    } finally {
+    if (!auth || !firestore) {
+      setError("Firebase is not initialized correctly.");
       setIsSubmitting(false);
+      return;
     }
+
+    signInWithEmailAndPassword(auth, data.email, data.password)
+      .then((userCredential) => {
+        toast({ title: 'Login Successful', description: 'Welcome back!' });
+        router.push('/admin/dashboard');
+      })
+      .catch((signInError) => {
+        if (signInError.code === 'auth/invalid-credential' || signInError.code === 'auth/user-not-found') {
+          // If login fails, try to create an account. This bootstraps the first user.
+          createUserWithEmailAndPassword(auth, data.email, data.password)
+            .then((userCredential) => {
+              const user = userCredential.user;
+              const userDocRef = doc(firestore, 'users', user.uid);
+              const name = data.email.split('@')[0];
+              const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
+              
+              const newUserPayload = {
+                name: capitalizedName,
+                email: user.email,
+                role: 'admin', // First user is an admin
+                isActive: true,
+                createdAt: serverTimestamp(),
+              };
+
+              setDoc(userDocRef, newUserPayload)
+                .then(() => {
+                  toast({
+                    title: 'Account Created',
+                    description: 'Welcome! Your admin account has been set up.',
+                  });
+                  router.push('/admin/dashboard');
+                })
+                .catch(async (dbError) => {
+                   const permissionError = new FirestorePermissionError({
+                      path: userDocRef.path,
+                      operation: 'create',
+                      requestResourceData: newUserPayload,
+                  });
+                  errorEmitter.emit('permission-error', permissionError);
+                  setError('Could not set up user profile. Check security rules.');
+                })
+                .finally(() => {
+                  setIsSubmitting(false);
+                });
+            })
+            .catch((creationError) => {
+              const errorMessage =
+                creationError.code === 'auth/email-already-in-use'
+                  ? 'Invalid email or password. Please try again.'
+                  : `An unexpected error occurred: ${creationError.message}`;
+              setError(errorMessage);
+              setIsSubmitting(false);
+            });
+        } else {
+          setError('An unexpected error occurred. Please try again later.');
+          setIsSubmitting(false);
+        }
+      });
   };
 
   return (
