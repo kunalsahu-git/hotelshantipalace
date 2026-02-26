@@ -132,7 +132,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative h-[90vh] w-full flex items-center pb-32">
+      <section className="relative h-[90vh] w-full flex items-center pb-48">
         {heroImage && (
           <Image
             src={heroImage.imageUrl}
@@ -192,7 +192,7 @@ export default function Home() {
             </div>
         </div>
 
-        <div className="absolute bottom-52 right-12 z-10 w-72 hidden lg:block">
+        <div className="absolute bottom-64 right-12 z-10 w-72 hidden lg:block">
           <Carousel
             opts={{
               loop: true,
@@ -236,7 +236,7 @@ export default function Home() {
       </section>
 
       {/* Quick Booking Bar */}
-      <div className="-mt-48 relative z-20 container px-4">
+      <div className="-mt-40 relative z-20 container px-4">
         <BookingBar />
       </div>
 
