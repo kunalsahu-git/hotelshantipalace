@@ -97,6 +97,78 @@
       "imageHint": "hotel entrance"
     },
     {
+      "id": "gallery-7",
+      "description": "Gallery image 7",
+      "imageUrl": "https://images.unsplash.com/photo-1628630468464-4168a51129f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxsb2JieSUyMGRldGFpbHxlbnwwfHx8fDE3NzIxMTcwNzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "lobby detail"
+    },
+    {
+      "id": "gallery-8",
+      "description": "Gallery image 8",
+      "imageUrl": "https://images.unsplash.com/photo-1495365200479-c4ed1d35e1aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxob3RlbCUyMGNvcnJpZG9yfGVufDB8fHx8MTc3MjExNzA3NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "hotel corridor"
+    },
+    {
+      "id": "gallery-9",
+      "description": "Gallery image 9",
+      "imageUrl": "https://images.unsplash.com/photo-1768434118991-667871772318?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxicmVha2Zhc3QlMjBhcmVhfGVufDB8fHx8MTc3MjExNzA3NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "breakfast area"
+    },
+    {
+      "id": "gallery-10",
+      "description": "Gallery image 10",
+      "imageUrl": "https://images.unsplash.com/photo-1768554630751-6448593749eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxneW0lMjBmYWNpbGl0eXxlbnwwfHx8fDE3NzIxMTcwNzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gym facility"
+    },
+    {
+      "id": "gallery-11",
+      "description": "Gallery image 11",
+      "imageUrl": "https://images.unsplash.com/photo-1614034509976-5f9dfab6e363?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiYXIlMjBsb3VuZ2V8ZW58MHx8fHwxNzcyMTE3MDc1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bar lounge"
+    },
+    {
+      "id": "gallery-12",
+      "description": "Gallery image 12",
+      "imageUrl": "https://images.unsplash.com/photo-1626279484248-59d4cc4ab19f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxyb29mdG9wJTIwdGVycmFjZXxlbnwwfHx8fDE3NzIwNjY1NTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "rooftop terrace"
+    },
+    {
+      "id": "gallery-13",
+      "description": "Gallery image 13",
+      "imageUrl": "https://images.unsplash.com/photo-1582653547187-2bb73b2d7b67?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxyZWNlcHRpb24lMjBkZXNrfGVufDB8fHx8MTc3MjExNzA3NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "reception desk"
+    },
+    {
+      "id": "gallery-14",
+      "description": "Gallery image 14",
+      "imageUrl": "https://images.unsplash.com/photo-1758632031161-b6d7e913c2b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyb29tJTIwYW1lbml0eXxlbnwwfHx8fDE3NzIxMTcwNzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "room amenity"
+    },
+    {
+      "id": "gallery-15",
+      "description": "Gallery image 15",
+      "imageUrl": "https://images.unsplash.com/photo-1682621212714-a9d929037465?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YmF0aHJvb20lMjBkZXRhaWx8ZW58MHx8fHwxNzcyMTE3MDc1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bathroom detail"
+    },
+    {
+      "id": "gallery-16",
+      "description": "Gallery image 16",
+      "imageUrl": "https://images.unsplash.com/photo-1761479344889-704fd47409db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxleHRlcmlvciUyMHZpZXclMjBuaWdodHxlbnwwfHx8fDE3NzIxMTcwNzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "exterior view night"
+    },
+    {
+      "id": "gallery-17",
+      "description": "Gallery image 17",
+      "imageUrl": "https://images.unsplash.com/photo-1517502884422-41eaead166d4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb25mZXJlbmNlJTIwcm9vbXxlbnwwfHx8fDE3NzIwNjY0NzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "conference room"
+    },
+    {
+      "id": "gallery-18",
+      "description": "Gallery image 18",
+      "imageUrl": "https://images.unsplash.com/photo-1616671285410-2a676a9a433d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmaW5lJTIwZGluaW5nfGVufDB8fHx8MTc3MjEwNjU5OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fine dining"
+    },
+    {
       "id": "testimonial-1",
       "description": "Avatar for testimonial 1",
       "imageUrl": "https://images.unsplash.com/photo-1508002366005-75a695ee2d17?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxoYXBweSUyMHBlcnNvbnxlbnwwfHx8fDE3NzE4NjQ1NjR8MA&ixlib.rb-4.1.0&q=80&w=1080",

@@ -5,14 +5,10 @@ import { LotusIcon } from '@/components/icons/lotus-icon';
 import { ImageGallery } from '@/components/about/image-gallery';
 
 const heroImage = PlaceHolderImages.find(p => p.id === 'about-hero');
-const galleryImages = [
-  PlaceHolderImages.find(p => p.id === 'gallery-1'),
-  PlaceHolderImages.find(p => p.id === 'gallery-2'),
-  PlaceHolderImages.find(p => p.id === 'gallery-3'),
-  PlaceHolderImages.find(p => p.id === 'gallery-4'),
-  PlaceHolderImages.find(p => p.id === 'gallery-5'),
-  PlaceHolderImages.find(p => p.id === 'gallery-6'),
-];
+
+const galleryImages = Array.from({ length: 18 }, (_, i) =>
+  PlaceHolderImages.find(p => p.id === `gallery-${i + 1}`)
+);
 
 const features = [
   {

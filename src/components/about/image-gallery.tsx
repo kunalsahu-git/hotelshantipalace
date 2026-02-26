@@ -19,7 +19,7 @@ interface ImageGalleryProps {
 
 export function ImageGallery({ images }: ImageGalleryProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [api, setApi] = useState<CarouselApi>();
+  const [modalApi, setModalApi] = useState<CarouselApi>();
   
   const validImages = images.filter((img): img is ImagePlaceholder => !!img);
 
@@ -28,35 +28,60 @@ export function ImageGallery({ images }: ImageGalleryProps) {
     // Embla carousel API might not be ready instantly.
     // We use a timeout to ensure it is, then scroll to the selected image.
     setTimeout(() => {
-      api?.scrollTo(index, true);
+      modalApi?.scrollTo(index, true);
     }, 0);
   };
+  
+  const chunk = <T,>(arr: T[], size: number): T[][] =>
+    Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+      arr.slice(i * size, i * size + size)
+    );
+
+  const chunkedImages = chunk(validImages, 6);
 
   return (
     <div>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {validImages.map((image, index) => (
-          <div
-            key={image.id}
-            className="relative aspect-square rounded-lg overflow-hidden shadow-lg cursor-pointer group"
-            onClick={() => openGallery(index)}
-          >
-            <Image
-              src={image.imageUrl}
-              alt={image.description}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 50vw, 33vw"
-              data-ai-hint={image.imageHint}
-            />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors" />
-          </div>
-        ))}
-      </div>
+      <Carousel
+        opts={{
+          align: 'start',
+        }}
+        className="w-full"
+      >
+        <CarouselContent>
+          {chunkedImages.map((chunk, chunkIndex) => (
+            <CarouselItem key={chunkIndex}>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {chunk.map((image, imageIndex) => {
+                  const overallIndex = chunkIndex * 6 + imageIndex;
+                  return (
+                    <div
+                      key={image.id}
+                      className="relative aspect-square rounded-lg overflow-hidden shadow-lg cursor-pointer group"
+                      onClick={() => openGallery(overallIndex)}
+                    >
+                      <Image
+                        src={image.imageUrl}
+                        alt={image.description}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                        data-ai-hint={image.imageHint}
+                      />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors" />
+                    </div>
+                  );
+                })}
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 hidden md:flex" />
+        <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 hidden md:flex" />
+      </Carousel>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-5xl w-full p-0 border-0 bg-transparent">
-          <Carousel setApi={setApi} className="w-full">
+          <Carousel setApi={setModalApi} className="w-full">
             <CarouselContent>
               {validImages.map((image) => (
                 <CarouselItem key={image.id}>
