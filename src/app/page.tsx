@@ -25,6 +25,12 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { LotusIcon } from '@/components/icons/lotus-icon';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ImageGallery } from '@/components/about/image-gallery';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 
 const heroImage = PlaceHolderImages.find((img) => img.id === 'hero');
 const testimonialImages = {
@@ -84,6 +90,27 @@ export default function Home() {
   const galleryImages = Array.from({ length: 18 }, (_, i) =>
     PlaceHolderImages.find(p => p.id === `gallery-${i + 1}`)
   );
+  const faqImage = PlaceHolderImages.find((img) => img.id === 'faq-image');
+
+  const faqs = [
+    {
+      question: "What makes your hotel unique?",
+      answer: "Hotel Shanti Palace is crafted with a focus on tranquility and personalized service. Our serene design, elite craftsmanship, and location in a peaceful area ensure a luxurious and restful experience away from the city's hustle.",
+    },
+    {
+      question: "Do you offer customization options for stays?",
+      answer: "Yes, we are happy to help you customize your stay for special occasions like anniversaries or birthdays. We can arrange for decorations, cakes, or other special requests. Please contact our concierge service to learn more.",
+    },
+    {
+      question: "What amenities are included with the rooms?",
+      answer: "All our rooms include complimentary high-speed Wi-Fi, a flat-screen TV, premium toiletries, and daily housekeeping. Deluxe rooms and suites offer additional amenities such as a mini-bar, a coffee machine, and access to our exclusive lounge.",
+    },
+    {
+      question: "How can I book a stay or schedule a visit?",
+      answer: "You can book your stay directly through our website using the 'Book Your Stay' button. If you would like to visit the hotel before booking, please contact us via the form on our contact page to schedule a tour with our staff.",
+    },
+  ];
+
 
   return (
     <div className="flex flex-col">
@@ -221,6 +248,49 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+            <div className="space-y-6 lg:sticky lg:top-28">
+              <p className="font-bold text-primary text-sm uppercase tracking-wider">FAQ</p>
+              <h2 className="text-4xl md:text-5xl font-bold text-foreground">
+                Everything you need to know right now
+              </h2>
+              {faqImage && (
+                <div className="relative rounded-2xl overflow-hidden shadow-lg aspect-[4/3] mt-8">
+                  <Image
+                    src={faqImage.imageUrl}
+                    alt={faqImage.description}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    data-ai-hint={faqImage.imageHint}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <h3 className="absolute bottom-8 left-8 text-5xl font-bold text-white font-headline">FAQ</h3>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <Accordion type="single" collapsible defaultValue="item-0" className="w-full space-y-4">
+                {faqs.map((faq, index) => (
+                  <AccordionItem key={index} value={`item-${index}`} className="bg-card rounded-lg px-6 border-b-0 shadow-sm">
+                    <AccordionTrigger className="text-lg font-semibold text-left hover:no-underline py-6">
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground text-base pt-0 pb-6">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Contact Strip */}
       <section className="bg-muted-foreground text-background/90 py-12">
         <div className="container mx-auto px-4 text-center">
@@ -245,3 +315,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
