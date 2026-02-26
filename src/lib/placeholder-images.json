@@ -81,19 +81,19 @@
     {
       "id": "gallery-4",
       "description": "Gallery image 4 - Spa",
-      "imageUrl": "https://images.unsplash.com/photo-1544161515-cfd636ee4844?q=80&w=2070&auto=format&fit=crop",
+      "imageUrl": "https://images.unsplash.com/photo-1603077864615-538e955d1ad1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxob3RlbCUyMHNwYXxlbnwwfHx8fDE3NzIxMTczMTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "hotel spa"
     },
     {
       "id": "gallery-5",
       "description": "Gallery image 5 - Room View",
-      "imageUrl": "https://images.unsplash.com/photo-1598013589634-9460295321f6?q=80&w=1974&auto=format&fit=crop",
-      "imageHint": "hotel room view"
+      "imageUrl": "https://images.unsplash.com/photo-1712649160801-da5674a0fe9a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyb29tJTIwdmlld3xlbnwwfHx8fDE3NzIxMTczMTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "room view"
     },
     {
       "id": "gallery-6",
       "description": "Gallery image 6 - Entrance",
-      "imageUrl": "https://images.unsplash.com/photo-1542314831-068cd1dbb5ed?q=80&w=2070&auto=format&fit=crop",
+      "imageUrl": "https://images.unsplash.com/photo-1760538047929-fb8b00adb18b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxob3RlbCUyMGVudHJhbmNlfGVufDB8fHx8MTc3MjExNzMxOHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "hotel entrance"
     },
     {
@@ -129,43 +129,43 @@
     {
       "id": "gallery-12",
       "description": "Gallery image 12",
-      "imageUrl": "https://images.unsplash.com/photo-1626279484248-59d4cc4ab19f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxyb29mdG9wJTIwdGVycmFjZXxlbnwwfHx8fDE3NzIwNjY1NTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1626279484248-59d4cc4ab19f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxyb29mdG9wJTIwdGVycmFjZXxlbnwwfHx8fDE3NzIwNjY1NTV8MA&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "rooftop terrace"
     },
     {
       "id": "gallery-13",
       "description": "Gallery image 13",
-      "imageUrl": "https://images.unsplash.com/photo-1582653547187-2bb73b2d7b67?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxyZWNlcHRpb24lMjBkZXNrfGVufDB8fHx8MTc3MjExNzA3NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1582653547187-2bb73b2d7b67?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxyZWNlcHRpb24lMjBkZXNrfGVufDB8fHx8MTc3MjExNzA3NXww&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "reception desk"
     },
     {
       "id": "gallery-14",
       "description": "Gallery image 14",
-      "imageUrl": "https://images.unsplash.com/photo-1758632031161-b6d7e913c2b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyb29tJTIwYW1lbml0eXxlbnwwfHx8fDE3NzIxMTcwNzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1758632031161-b6d7e913c2b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyb29tJTIwYW1lbml0eXxlbnwwfHx8fDE3NzIxMTcwNzV8MA&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "room amenity"
     },
     {
       "id": "gallery-15",
       "description": "Gallery image 15",
-      "imageUrl": "https://images.unsplash.com/photo-1682621212714-a9d929037465?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YmF0aHJvb20lMjBkZXRhaWx8ZW58MHx8fHwxNzcyMTE3MDc1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1682621212714-a9d929037465?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YmF0aHJvb20lMjBkZXRhaWx8ZW58MHx8fHwxNzcyMTE3MDc1fDA&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "bathroom detail"
     },
     {
       "id": "gallery-16",
       "description": "Gallery image 16",
-      "imageUrl": "https://images.unsplash.com/photo-1761479344889-704fd47409db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxleHRlcmlvciUyMHZpZXclMjBuaWdodHxlbnwwfHx8fDE3NzIxMTcwNzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1761479344889-704fd47409db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxleHRlcmlvciUyMHZpZXclMjBuaWdodHxlbnwwfHx8fDE3NzIxMTcwNzV8MA&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "exterior view night"
     },
     {
       "id": "gallery-17",
       "description": "Gallery image 17",
-      "imageUrl": "https://images.unsplash.com/photo-1517502884422-41eaead166d4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb25mZXJlbmNlJTIwcm9vbXxlbnwwfHx8fDE3NzIwNjY0NzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1517502884422-41eaead166d4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb25mZXJlbmNlJTIwcm9vbXxlbnwwfHx8fDE3NzIwNjY0NzV8MA&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "conference room"
     },
     {
       "id": "gallery-18",
       "description": "Gallery image 18",
-      "imageUrl": "https://images.unsplash.com/photo-1616671285410-2a676a9a433d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmaW5lJTIwZGluaW5nfGVufDB8fHx8MTc3MjEwNjU5OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1616671285410-2a676a9a433d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmaW5lJTIwZGluaW5nfGVufDB8fHx8MTc3MjEwNjU5OHww&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "fine dining"
     },
     {

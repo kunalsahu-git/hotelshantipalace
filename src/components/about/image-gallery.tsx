@@ -9,7 +9,6 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-  type CarouselApi,
 } from '@/components/ui/carousel';
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
 
@@ -19,17 +18,13 @@ interface ImageGalleryProps {
 
 export function ImageGallery({ images }: ImageGalleryProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [modalApi, setModalApi] = useState<CarouselApi>();
+  const [startIndex, setStartIndex] = useState(0);
   
   const validImages = images.filter((img): img is ImagePlaceholder => !!img);
 
   const openGallery = (index: number) => {
+    setStartIndex(index);
     setIsOpen(true);
-    // Embla carousel API might not be ready instantly.
-    // We use a timeout to ensure it is, then scroll to the selected image.
-    setTimeout(() => {
-      modalApi?.scrollTo(index, true);
-    }, 0);
   };
   
   const chunk = <T,>(arr: T[], size: number): T[][] =>
@@ -81,7 +76,10 @@ export function ImageGallery({ images }: ImageGalleryProps) {
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-5xl w-full p-0 border-0 bg-transparent">
-          <Carousel setApi={setModalApi} className="w-full">
+          <Carousel 
+            opts={{ startIndex, loop: true }} 
+            className="w-full"
+          >
             <CarouselContent>
               {validImages.map((image) => (
                 <CarouselItem key={image.id}>
