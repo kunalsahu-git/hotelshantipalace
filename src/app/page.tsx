@@ -117,7 +117,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative h-[90vh] w-full flex items-center text-white">
+      <section className="relative h-[90vh] w-full flex items-center">
         {heroImage && (
           <Image
             src={heroImage.imageUrl}

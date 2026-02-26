@@ -26,25 +26,28 @@ export function Header() {
       setIsScrolled(window.scrollY > 10);
     };
     
-    // Check if on homepage to set initial transparent state
     setIsTransparent(pathname === '/');
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [pathname]);
 
+  const isHeaderTransparent = isTransparent && !isScrolled;
+
   const headerClasses = cn(
     "sticky top-0 z-50 w-full transition-all duration-300",
-    isTransparent && !isScrolled ? 'bg-transparent text-white' : 'bg-background/80 backdrop-blur-sm shadow-md text-foreground'
+    isHeaderTransparent ? 'bg-transparent' : 'bg-background/80 backdrop-blur-sm shadow-md'
   );
+  
+  const navTextColor = isHeaderTransparent ? 'text-white' : 'text-foreground';
 
   const NavLink = ({ href, label, isMobile = false }: { href: string; label: string; isMobile?: boolean }) => (
     <Link href={href}>
       <span
         className={cn(
           "transition-colors hover:text-primary font-medium",
-          pathname === href && "text-primary",
-          isMobile ? "text-2xl p-4 text-foreground" : "text-base"
+          pathname === href ? "text-primary" : (isMobile ? "text-foreground" : navTextColor),
+          isMobile ? "text-2xl p-4" : "text-base"
         )}
       >
         {label}
@@ -56,14 +59,14 @@ export function Header() {
     <header className={headerClasses}>
       <div className="container mx-auto px-4">
         <div className="flex h-20 items-center justify-between">
-          <Link href="/" className="font-bold text-2xl tracking-wider uppercase">
+          <Link href="/" className={cn("font-bold text-2xl tracking-wider uppercase", navTextColor)}>
             HILTON
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <NavLink key={link.href} {...link} />
+              <NavLink key={link.label} {...link} />
             ))}
           </nav>
 
@@ -76,7 +79,7 @@ export function Header() {
             <div className="md:hidden">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className={cn("hover:bg-white/10 focus:bg-white/10", navTextColor)}>
                     <Menu className="h-6 w-6" />
                     <span className="sr-only">Open menu</span>
                   </Button>
@@ -99,7 +102,7 @@ export function Header() {
                     </div>
                     <nav className="flex flex-col items-center justify-center flex-grow gap-6">
                       {navLinks.map((link) => (
-                         <SheetClose asChild key={link.href}>
+                         <SheetClose asChild key={link.label}>
                            <NavLink {...link} isMobile />
                          </SheetClose>
                       ))}
