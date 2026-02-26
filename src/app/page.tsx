@@ -127,7 +127,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative h-[90vh] w-full flex items-center">
+      <section className="relative h-[90vh] w-full flex items-center pb-32">
         {heroImage && (
           <Image
             src={heroImage.imageUrl}
@@ -212,7 +212,7 @@ export default function Home() {
       </section>
 
       {/* Quick Booking Bar */}
-      <div className="-mt-24 relative z-20 container px-4">
+      <div className="-mt-40 relative z-20 container px-4">
         <BookingBar />
       </div>
 
