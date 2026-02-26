@@ -147,7 +147,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
         
         <div className="relative z-10 container mx-auto px-4">
-            <div className="max-w-xl text-left">
+            <div className="max-w-xl text-left mt-16">
                 <h1 className="text-5xl md:text-7xl font-headline font-bold text-white">
                     A Sanctuary Of Elegance And Comfort.
                 </h1>
@@ -192,7 +192,7 @@ export default function Home() {
             </div>
         </div>
 
-        <div className="absolute bottom-48 right-12 z-10 w-72 hidden lg:block">
+        <div className="absolute bottom-52 right-12 z-10 w-72 hidden lg:block">
           <Carousel
             opts={{
               loop: true,
@@ -236,7 +236,7 @@ export default function Home() {
       </section>
 
       {/* Quick Booking Bar */}
-      <div className="-mt-40 relative z-20 container px-4">
+      <div className="-mt-48 relative z-20 container px-4">
         <BookingBar />
       </div>
 
@@ -333,12 +333,12 @@ export default function Home() {
 
       {/* Gallery Section */}
       <section className="py-20 bg-card">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground mb-12">
-            A Glimpse of Shanti
-          </h2>
-          <ImageGallery images={galleryImages} />
-        </div>
+         <div className="container mx-auto px-4">
+           <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground mb-12">
+             A Glimpse of Shanti
+           </h2>
+            <ImageGallery images={galleryImages} />
+         </div>
       </section>
 
       {/* FAQ Section */}
@@ -381,28 +381,6 @@ export default function Home() {
               </Accordion>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Contact Strip */}
-      <section className="bg-muted-foreground text-background/90 py-12">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-primary">Get In Touch</h2>
-          <p className="mt-4 text-lg">
-            Have questions or need assistance? Our team is here to help.
-          </p>
-          <div className="mt-6 flex flex-col md:flex-row justify-center items-center gap-8 text-lg">
-            <a href="tel:+911234567890" className="hover:text-primary transition-colors">
-              +91 123 456 7890
-            </a>
-            <span className="hidden md:block text-background/50">|</span>
-            <a href="mailto:reservations@shantipalace.com" className="hover:text-primary transition-colors">
-              reservations@shantipalace.com
-            </a>
-          </div>
-          <p className="mt-4 text-background/70">
-            123 Peace Avenue, Serenity City, India
-          </p>
         </div>
       </section>
     </div>

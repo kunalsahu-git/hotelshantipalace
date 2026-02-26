@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Instagram, Twitter, Facebook, MessageSquare, Music } from 'lucide-react';
+import { Instagram, Twitter, Facebook, MessageSquare, Music, Phone, Mail } from 'lucide-react';
 import { LotusIcon } from '@/components/icons/lotus-icon';
 
 function FooterLogo() {
@@ -19,70 +19,50 @@ function FooterLogo() {
   );
 }
 
-const socialLinks = [
-  { icon: Instagram, href: '#', name: 'Instagram' },
-  { icon: Twitter, href: '#', name: 'X' },
-  { icon: Facebook, href: '#', name: 'Facebook' },
-  { icon: MessageSquare, href: '#', name: 'Discord' },
-  { icon: Music, href: '#', name: 'TikTok' },
-];
-
 export function Footer() {
   return (
     <footer className="bg-gray-950 text-gray-400">
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Column 1: Logo & Mission */}
-          <div className="md:col-span-2 lg:col-span-1">
+          <div className="lg:col-span-2">
              <FooterLogo/>
-             <p className="mt-6 text-base">
+             <p className="mt-6 text-base max-w-sm">
                 Our mission is to provide a sanctuary of peace, comfort, and heartfelt hospitality for every guest.
              </p>
           </div>
 
-          {/* Column 2: About */}
+          {/* Column 2: Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">About</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
             <ul className="space-y-3">
               <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Blog</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Careers</Link></li>
+              <li><Link href="/rooms" className="hover:text-white transition-colors">Rooms & Suites</Link></li>
+              <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+              <li><Link href="/book" className="hover:text-white transition-colors">Book Now</Link></li>
             </ul>
           </div>
 
-          {/* Column 3: Support */}
+          {/* Column 3: Contact */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Support</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
             <ul className="space-y-3">
-              <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Returns</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">FAQ</Link></li>
+              <li className="flex items-center gap-3">
+                <Phone className="w-5 h-5 text-gray-500" />
+                <a href="tel:+911234567890" className="hover:text-white transition-colors">
+                  +91 123 456 7890
+                </a>
+              </li>
+              <li className="flex items-center gap-3">
+                 <Mail className="w-5 h-5 text-gray-500" />
+                <a href="mailto:reservations@shantipalace.com" className="hover:text-white transition-colors">
+                  reservations@shantipalace.com
+                </a>
+              </li>
+              <li className="text-gray-400 pt-2">
+                123 Peace Avenue, Serenity City, India
+              </li>
             </ul>
-          </div>
-
-          {/* Column 4: Get Updates */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Get Updates</h3>
-            <form className="flex gap-2">
-              <Input 
-                type="email" 
-                placeholder="Enter your email" 
-                className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:ring-primary"
-                aria-label="Email for newsletter"
-              />
-              <Button type="submit" variant="secondary" className="bg-white text-black hover:bg-gray-200">
-                Subscribe
-              </Button>
-            </form>
-            <div className="flex gap-3 mt-6">
-              {socialLinks.map((social, index) => (
-                <Link key={index} href={social.href} aria-label={social.name} target="_blank" rel="noopener noreferrer">
-                  <span className="bg-gray-800 hover:bg-gray-700 p-3 rounded-full inline-block transition-colors">
-                    <social.icon className="w-5 h-5" />
-                  </span>
-                </Link>
-              ))}
-            </div>
           </div>
         </div>
 
@@ -97,5 +77,3 @@ export function Footer() {
     </footer>
   );
 }
-
-    
