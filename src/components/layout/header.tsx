@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '../ui/sheet';
@@ -18,37 +17,15 @@ const navLinks = [
 
 export function Header() {
   const pathname = usePathname();
-  const [isScrolled, setIsScrolled] = useState(false);
 
-  const isTransparentPage = pathname === '/';
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    // Run on mount to check initial scroll position
-    handleScroll();
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const isHeaderTransparent = isTransparentPage && !isScrolled;
-
-  const headerClasses = cn(
-    "sticky top-0 z-50 w-full transition-all duration-300",
-    isHeaderTransparent ? 'bg-transparent' : 'bg-background/80 backdrop-blur-sm shadow-md'
-  );
+  const headerClasses = "sticky top-0 z-50 w-full transition-all duration-300 bg-background shadow-md";
   
-  const navTextColor = isHeaderTransparent ? 'text-white' : 'text-foreground';
-
   const NavLink = ({ href, label, isMobile = false }: { href: string; label: string; isMobile?: boolean }) => (
     <Link href={href}>
       <span
         className={cn(
           "transition-colors hover:text-primary font-medium",
-          pathname === href ? "text-primary" : (isMobile ? "text-foreground" : navTextColor),
+          pathname === href ? "text-primary" : "text-foreground",
           isMobile ? "text-2xl p-4" : "text-base"
         )}
       >
@@ -61,7 +38,7 @@ export function Header() {
     <header className={headerClasses}>
       <div className="container mx-auto px-4">
         <div className="flex h-20 items-center justify-between">
-          <Link href="/" className={cn("font-bold text-2xl tracking-wider uppercase", navTextColor)}>
+          <Link href="/" className={cn("font-bold text-2xl tracking-wider uppercase text-foreground")}>
             HILTON
           </Link>
 
@@ -81,7 +58,7 @@ export function Header() {
             <div className="md:hidden">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className={cn("hover:bg-white/10 focus:bg-white/10", navTextColor)}>
+                  <Button variant="ghost" size="icon" className={cn("hover:bg-accent/10 text-foreground")}>
                     <Menu className="h-6 w-6" />
                     <span className="sr-only">Open menu</span>
                   </Button>
