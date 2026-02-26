@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { PreFooter } from '@/components/layout/pre-footer';
 
 export const metadata: Metadata = {
   title: 'Hotel Shanti Palace | Discover The Peace',
@@ -34,6 +35,7 @@ export default function RootLayout({
         <FirebaseClientProvider>
           <Header />
           <main className="flex-grow">{children}</main>
+          <PreFooter />
           <Footer />
           <Toaster />
         </FirebaseClientProvider>
@@ -41,3 +43,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+    
