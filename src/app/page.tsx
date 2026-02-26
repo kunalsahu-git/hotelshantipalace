@@ -194,6 +194,9 @@ export default function Home() {
 
         <div className="absolute bottom-48 right-12 z-10 w-72 hidden lg:block">
           <Carousel
+            opts={{
+              loop: true,
+            }}
             plugins={[plugin.current]}
             className="w-full"
             onMouseEnter={plugin.current.stop}
