@@ -11,28 +11,30 @@ import { cn } from '@/lib/utils';
 const navLinks = [
   { href: '/about', label: 'Hotel insights' },
   { href: '/rooms', label: 'Services' },
-  { href: '#', label: 'Wellness & spa' },
-  { href: '#', label: 'Reviews' },
-  { href: '#', label: 'Summer offers' },
+  { href: '#wellness', label: 'Wellness & spa' },
+  { href: '#reviews', label: 'Reviews' },
+  { href: '#offers', label: 'Summer offers' },
 ];
 
 export function Header() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isTransparent, setIsTransparent] = useState(true);
+
+  const isTransparentPage = pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-    
-    setIsTransparent(pathname === '/');
-    
+
+    // Run on mount to check initial scroll position
+    handleScroll();
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [pathname]);
+  }, []);
 
-  const isHeaderTransparent = isTransparent && !isScrolled;
+  const isHeaderTransparent = isTransparentPage && !isScrolled;
 
   const headerClasses = cn(
     "sticky top-0 z-50 w-full transition-all duration-300",
@@ -66,7 +68,7 @@ export function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <NavLink key={link.label} {...link} />
+              <NavLink key={link.href} {...link} />
             ))}
           </nav>
 
@@ -102,7 +104,7 @@ export function Header() {
                     </div>
                     <nav className="flex flex-col items-center justify-center flex-grow gap-6">
                       {navLinks.map((link) => (
-                         <SheetClose asChild key={link.label}>
+                         <SheetClose asChild key={link.href}>
                            <NavLink {...link} isMobile />
                          </SheetClose>
                       ))}
