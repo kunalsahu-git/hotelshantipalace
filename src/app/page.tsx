@@ -24,6 +24,7 @@ import { roomCategories } from '@/lib/mock-data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { LotusIcon } from '@/components/icons/lotus-icon';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ImageGallery } from '@/components/about/image-gallery';
 
 const heroImage = PlaceHolderImages.find((img) => img.id === 'hero');
 const testimonialImages = {
@@ -80,6 +81,10 @@ const testimonials = [
 ];
 
 export default function Home() {
+  const galleryImages = Array.from({ length: 18 }, (_, i) =>
+    PlaceHolderImages.find(p => p.id === `gallery-${i + 1}`)
+  );
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -206,23 +211,33 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Gallery Section */}
+      <section className="py-20 bg-card">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground mb-12">
+            A Glimpse of Shanti
+          </h2>
+          <ImageGallery images={galleryImages} />
+        </div>
+      </section>
+
       {/* Contact Strip */}
-      <section className="bg-mid-brown text-off-white py-12">
+      <section className="bg-muted-foreground text-background/90 py-12">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-primary">Get In Touch</h2>
-          <p className="mt-4 text-lg text-gray-300">
+          <p className="mt-4 text-lg">
             Have questions or need assistance? Our team is here to help.
           </p>
           <div className="mt-6 flex flex-col md:flex-row justify-center items-center gap-8 text-lg">
             <a href="tel:+911234567890" className="hover:text-primary transition-colors">
               +91 123 456 7890
             </a>
-            <span className="hidden md:block">|</span>
+            <span className="hidden md:block text-background/50">|</span>
             <a href="mailto:reservations@shantipalace.com" className="hover:text-primary transition-colors">
               reservations@shantipalace.com
             </a>
           </div>
-          <p className="mt-4 text-gray-400">
+          <p className="mt-4 text-background/70">
             123 Peace Avenue, Serenity City, India
           </p>
         </div>
