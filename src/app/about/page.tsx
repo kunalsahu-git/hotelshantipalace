@@ -2,12 +2,16 @@ import Image from 'next/image';
 import { Bed, Users, ShieldCheck } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { LotusIcon } from '@/components/icons/lotus-icon';
+import { ImageGallery } from '@/components/about/image-gallery';
 
 const heroImage = PlaceHolderImages.find(p => p.id === 'about-hero');
 const galleryImages = [
   PlaceHolderImages.find(p => p.id === 'gallery-1'),
   PlaceHolderImages.find(p => p.id === 'gallery-2'),
   PlaceHolderImages.find(p => p.id === 'gallery-3'),
+  PlaceHolderImages.find(p => p.id === 'gallery-4'),
+  PlaceHolderImages.find(p => p.id === 'gallery-5'),
+  PlaceHolderImages.find(p => p.id === 'gallery-6'),
 ];
 
 const features = [
@@ -110,20 +114,7 @@ export default function AboutPage() {
            <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground mb-12">
              A Glimpse of Shanti
            </h2>
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-             {galleryImages.map((image, index) => image && (
-               <div key={index} className="relative aspect-square rounded-lg overflow-hidden shadow-lg">
-                 <Image
-                   src={image.imageUrl}
-                   alt={image.description}
-                   fill
-                   className="object-cover"
-                   sizes="(max-width: 768px) 100vw, 33vw"
-                   data-ai-hint={image.imageHint}
-                 />
-               </div>
-             ))}
-           </div>
+            <ImageGallery images={galleryImages} />
          </div>
       </section>
 

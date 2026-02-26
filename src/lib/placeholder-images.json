@@ -21,7 +21,7 @@
     {
       "id": "deluxe-room",
       "description": "Deluxe Room Photo",
-      "imageUrl": "https://images.unsplash.com/photo-1594130139005-3f0c0f0e7c5e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c3BhY2lvdXMlMjBob3RlbCUyMHJvb218ZW58MHx8fHwxNzcxODY0NTY0fDA&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1594130139005-3f0c0f0e7c5e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c3BhY2lvdXMlMjBob3RlbCUyMHJvb218ZW58MHx8fHwxNzcxODY0NTY0fDA&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "spacious hotel room"
     },
     {
@@ -33,7 +33,7 @@
     {
       "id": "suite-room",
       "description": "Suite Photo",
-      "imageUrl": "https://images.unsplash.com/photo-1675494051271-f4a99814de27?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxsdXh1cnklMjBob3RlbCUyMHN1aXRlfGVufDB8fHx8MTc3MTg2NDU2NHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1675494051271-f4a99814de27?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxsdXh1cnklMjBob3RlbCUyMHN1aXRlfGVufDB8fHx8MTc3MTg2NDU2NHww&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "luxury hotel suite"
     },
     {
@@ -45,7 +45,7 @@
     {
       "id": "executive-room",
       "description": "Executive Room Photo",
-      "imageUrl": "https://images.unsplash.com/photo-1553365857-9cc1a715084f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBidXNpbmVzcyUyMGhvdGVsJTIwcm9vbXxlbnwwfHx8fDE3NzE4NjQ1NjR8MA&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1553365857-9cc1a715084f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBidXNpbmVzcyUyMGhvdGVsJTIwcm9vbXxlbnwwfHx8fDE3NzE4NjQ1NjR8MA&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "modern business hotel room"
     },
     {
@@ -77,6 +77,24 @@
       "description": "Gallery image 3",
       "imageUrl": "https://images.unsplash.com/photo-1758364301801-4940b38170c6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzZXJlbmUlMjBob3RlbCUyMGdhcmRlbnxlbnwwfHx8fDE3NzE4NjQ1NjR8MA&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "serene hotel garden"
+    },
+    {
+      "id": "gallery-4",
+      "description": "Gallery image 4 - Spa",
+      "imageUrl": "https://images.unsplash.com/photo-1544161515-cfd636ee4844?q=80&w=2070&auto=format&fit=crop",
+      "imageHint": "hotel spa"
+    },
+    {
+      "id": "gallery-5",
+      "description": "Gallery image 5 - Room View",
+      "imageUrl": "https://images.unsplash.com/photo-1598013589634-9460295321f6?q=80&w=1974&auto=format&fit=crop",
+      "imageHint": "hotel room view"
+    },
+    {
+      "id": "gallery-6",
+      "description": "Gallery image 6 - Entrance",
+      "imageUrl": "https://images.unsplash.com/photo-1542314831-068cd1dbb5ed?q=80&w=2070&auto=format&fit=crop",
+      "imageHint": "hotel entrance"
     },
     {
       "id": "testimonial-1",
