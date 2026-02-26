@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -21,6 +22,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RoomCategoryCard } from '@/components/room-category-card';
 import { roomCategories } from '@/lib/mock-data';
@@ -44,7 +46,6 @@ import {
 } from '@/components/ui/dialog';
 
 const heroImage = PlaceHolderImages.find((img) => img.id === 'hilton-hero');
-const cardImage = PlaceHolderImages.find((img) => img.id === 'hilton-card');
 const testimonialImages = {
   t1: PlaceHolderImages.find((img) => img.id === 'testimonial-1'),
   t2: PlaceHolderImages.find((img) => img.id === 'testimonial-2'),
@@ -99,6 +100,10 @@ const testimonials = [
 ];
 
 export default function Home() {
+  const plugin = React.useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: true })
+  );
+
   const galleryImages = Array.from({ length: 18 }, (_, i) =>
     PlaceHolderImages.find(p => p.id === `gallery-${i + 1}`)
   );
@@ -187,28 +192,44 @@ export default function Home() {
             </div>
         </div>
 
-        {cardImage && (
-          <Card className="absolute bottom-12 right-12 z-10 w-72 rounded-2xl overflow-hidden backdrop-blur-sm bg-black/20 border-white/20 hidden lg:block">
-            <div className="relative h-40 w-full">
-              <Image 
-                src={cardImage.imageUrl} 
-                alt={cardImage.description}
-                fill
-                className="object-cover"
-                data-ai-hint={cardImage.imageHint}
-              />
-            </div>
-            <CardContent className="p-4 flex justify-between items-center text-white">
-              <div>
-                <p className="text-sm">Enjoy your moment in sea beach with family.</p>
-              </div>
-              <div className="text-right flex-shrink-0 pl-2">
-                <p className="text-2xl font-bold">₹8000</p>
-                <p className="text-xs">per day</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        <div className="absolute bottom-48 right-12 z-10 w-72 hidden lg:block">
+          <Carousel
+            plugins={[plugin.current]}
+            className="w-full"
+            onMouseEnter={plugin.current.stop}
+            onMouseLeave={plugin.current.reset}
+          >
+            <CarouselContent>
+              {roomCategories.map((category) => (
+                <CarouselItem key={category.id}>
+                  <Link href={`/rooms/${category.id}`}>
+                    <Card className="rounded-2xl overflow-hidden backdrop-blur-sm bg-black/20 border-white/20">
+                      <div className="relative h-40 w-full">
+                        <Image
+                          src={category.photoUrl}
+                          alt={category.name}
+                          fill
+                          className="object-cover"
+                          data-ai-hint={category.imageHint}
+                        />
+                      </div>
+                      <CardContent className="p-4 flex justify-between items-center text-white">
+                        <div>
+                          <p className="font-bold">{category.name}</p>
+                          <p className="text-sm">View Details</p>
+                        </div>
+                        <div className="text-right flex-shrink-0 pl-2">
+                          <p className="text-2xl font-bold">₹{category.basePrice}</p>
+                          <p className="text-xs">per night</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+        </div>
       </section>
 
       {/* Quick Booking Bar */}
