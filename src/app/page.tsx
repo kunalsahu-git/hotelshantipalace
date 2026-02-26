@@ -37,6 +37,9 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
 
@@ -158,6 +161,10 @@ export default function Home() {
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-4xl w-full p-0 border-0 bg-black/80 backdrop-blur-sm">
+                        <DialogHeader className="sr-only">
+                          <DialogTitle>Hotel Promotional Video</DialogTitle>
+                          <DialogDescription>A short video showcasing the hotel's amenities and atmosphere.</DialogDescription>
+                        </DialogHeader>
                         <div className="aspect-video">
                           <iframe
                             className="w-full h-full"
