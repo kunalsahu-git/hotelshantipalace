@@ -3,52 +3,61 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Home, BedDouble, Info, Mail, Menu, X } from 'lucide-react';
-import { Logo } from '../logo';
+import { Menu, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '../ui/sheet';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/rooms', label: 'Rooms', icon: BedDouble },
-  { href: '/about', label: 'About', icon: Info },
-  { href: '/contact', label: 'Contact', icon: Mail },
+  { href: '/about', label: 'Hotel insights' },
+  { href: '/rooms', label: 'Services' },
+  { href: '#', label: 'Wellness & spa' },
+  { href: '#', label: 'Reviews' },
+  { href: '#', label: 'Summer offers' },
 ];
 
 export function Header() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isTransparent, setIsTransparent] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
+    
+    // Check if on homepage to set initial transparent state
+    setIsTransparent(pathname === '/');
+    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [pathname]);
 
-  const NavLink = ({ href, label, icon: Icon, isMobile = false }: { href: string; label: string; icon: React.ElementType; isMobile?: boolean }) => (
+  const headerClasses = cn(
+    "sticky top-0 z-50 w-full transition-all duration-300",
+    isTransparent && !isScrolled ? 'bg-transparent text-white' : 'bg-background/80 backdrop-blur-sm shadow-md text-foreground'
+  );
+
+  const NavLink = ({ href, label, isMobile = false }: { href: string; label: string; isMobile?: boolean }) => (
     <Link href={href}>
       <span
         className={cn(
-          "flex items-center gap-2 transition-colors hover:text-primary",
-          pathname === href ? "text-primary font-semibold" : "text-foreground/80",
-          isMobile ? "text-2xl p-4" : "text-base"
+          "transition-colors hover:text-primary font-medium",
+          pathname === href && "text-primary",
+          isMobile ? "text-2xl p-4 text-foreground" : "text-base"
         )}
       >
-        <Icon className="w-5 h-5" />
         {label}
       </span>
     </Link>
   );
 
   return (
-    <header className={cn("sticky top-0 z-50 w-full transition-all duration-300", isScrolled ? 'bg-background/80 backdrop-blur-sm shadow-md' : 'bg-transparent')}>
+    <header className={headerClasses}>
       <div className="container mx-auto px-4">
         <div className="flex h-20 items-center justify-between">
-          <Link href="/">
-            <Logo />
+          <Link href="/" className="font-bold text-2xl tracking-wider uppercase">
+            HILTON
           </Link>
 
           {/* Desktop Navigation */}
@@ -59,8 +68,8 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Button asChild className="hidden md:flex bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
-              <Link href="/book">Book Now</Link>
+            <Button asChild className="hidden md:flex bg-white text-black hover:bg-gray-200 rounded-full font-bold">
+              <Link href="/contact">Contact Hilton</Link>
             </Button>
             
             {/* Mobile Navigation */}
@@ -75,11 +84,13 @@ export function Header() {
                 <SheetContent side="right" className="w-full bg-background p-0">
                   <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
                   <SheetDescription className="sr-only">
-                    Main navigation links for Hotel Shanti Palace.
+                    Main navigation links for the Hotel.
                   </SheetDescription>
                   <div className="flex flex-col h-full">
                     <div className="flex justify-between items-center p-4 border-b">
-                       <Logo />
+                       <Link href="/" className="font-bold text-2xl tracking-wider uppercase text-foreground">
+                         HILTON
+                       </Link>
                       <SheetClose asChild>
                          <Button variant="ghost" size="icon">
                            <X className="h-6 w-6" />
@@ -96,7 +107,7 @@ export function Header() {
                     <div className="p-4 border-t">
                       <SheetClose asChild>
                         <Button asChild size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
-                          <Link href="/book">Book Now</Link>
+                          <Link href="/contact">Contact Hilton</Link>
                         </Button>
                       </SheetClose>
                     </div>

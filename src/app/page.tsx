@@ -8,6 +8,7 @@ import {
   Wifi,
   Tv,
   Star,
+  Play,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BookingBar } from '@/components/booking-bar';
@@ -32,7 +33,8 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
-const heroImage = PlaceHolderImages.find((img) => img.id === 'hero');
+const heroImage = PlaceHolderImages.find((img) => img.id === 'hilton-hero');
+const cardImage = PlaceHolderImages.find((img) => img.id === 'hilton-card');
 const testimonialImages = {
   t1: PlaceHolderImages.find((img) => img.id === 'testimonial-1'),
   t2: PlaceHolderImages.find((img) => img.id === 'testimonial-2'),
@@ -115,11 +117,11 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative h-[60vh] md:h-[80vh] w-full flex items-center justify-center text-white">
+      <section className="relative h-[90vh] w-full flex items-center text-white">
         {heroImage && (
           <Image
             src={heroImage.imageUrl}
-            alt="Luxurious and peaceful hotel lobby"
+            alt="Luxurious and peaceful hotel with a pool"
             fill
             className="object-cover"
             priority
@@ -127,23 +129,60 @@ export default function Home() {
             data-ai-hint={heroImage.imageHint}
           />
         )}
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="relative z-10 text-center p-4 flex flex-col items-center">
-          <LotusIcon className="w-20 h-20 text-white mb-4" />
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white">
-            Hotel Shanti Palace
-          </h1>
-          <p className="mt-4 text-xl md:text-2xl font-body text-gray-200">
-            Discover The Peace
-          </p>
-          <Button asChild size="lg" className="mt-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg py-7 px-10">
-            <Link href="/book">Book Your Stay</Link>
-          </Button>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+        
+        <div className="relative z-10 container mx-auto px-4">
+            <div className="max-w-xl text-left">
+                <h1 className="text-5xl md:text-7xl font-headline font-bold text-white">
+                    A Sanctuary Of Elegance And Comfort.
+                </h1>
+                <p className="mt-4 text-lg text-gray-200">
+                    Nestled in the heart of the city, our hotel offers an exquisite retreat where timeless elegance meets modern sophistication.
+                </p>
+                <div className="flex items-center gap-6 mt-8">
+                    <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg py-7 px-10 rounded-full">
+                        <Link href="/book">Book Now</Link>
+                    </Button>
+                    <Button variant="link" className="text-white text-lg font-semibold">
+                        <Play className="mr-2 h-5 w-5 fill-white" />
+                        Watch video
+                    </Button>
+                </div>
+                 <div className="flex gap-2 items-center mt-12">
+                    <span className="h-1.5 w-1.5 rounded-full bg-white"></span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-white/50"></span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-white/50"></span>
+                    <span className="h-1.5 w-6 rounded-full bg-white"></span>
+                 </div>
+            </div>
         </div>
+
+        {cardImage && (
+          <Card className="absolute bottom-12 right-12 z-10 w-72 rounded-2xl overflow-hidden backdrop-blur-sm bg-black/20 border-white/20 hidden lg:block">
+            <div className="relative h-40 w-full">
+              <Image 
+                src={cardImage.imageUrl} 
+                alt={cardImage.description}
+                fill
+                className="object-cover"
+                data-ai-hint={cardImage.imageHint}
+              />
+            </div>
+            <CardContent className="p-4 flex justify-between items-center text-white">
+              <div>
+                <p className="text-sm">Enjoy your moment in sea beach with family.</p>
+              </div>
+              <div className="text-right flex-shrink-0 pl-2">
+                <p className="text-2xl font-bold">₹8000</p>
+                <p className="text-xs">per day</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </section>
 
       {/* Quick Booking Bar */}
-      <div className="-mt-16 relative z-20 container px-4">
+      <div className="-mt-24 relative z-20 container px-4">
         <BookingBar />
       </div>
 
@@ -315,5 +354,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

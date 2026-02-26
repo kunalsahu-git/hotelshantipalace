@@ -1,9 +1,21 @@
 {
   "placeholderImages": [
     {
+      "id": "hilton-hero",
+      "description": "Hero image for the homepage, luxurious hotel with a pool at night",
+      "imageUrl": "https://images.unsplash.com/photo-1564501049412-61c2a3083791?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxob3RlbCUyMHBvb2wlMjBuaWdodHxlbnwwfHx8fDE3NzIzMDIwNTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "hotel pool night"
+    },
+    {
+      "id": "hilton-card",
+      "description": "Floating card image of a beachside dining setup",
+      "imageUrl": "https://images.unsplash.com/photo-1559029676-c56a5a40b957?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiZWFjaCUyMGRpbmluZ3xlbnwwfHx8fDE3NzIzMDIwNTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "beach dining"
+    },
+    {
       "id": "hero",
       "description": "Hero image for the homepage",
-      "imageUrl": "https://images.unsplash.com/photo-1702814160779-4a88cfb330c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxsdXh1cnklMjBob3RlbCUyMGxvYmJ5fGVufDB8fHx8MTc3MTc3ODY2MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1702814160779-4a88cfb330c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxsdXh1cnklMjBob3RlbCUyMGxvYmJ5fGVufDB8fHx8MTc3MTc3ODY2MHww&ixlib.rb-4.1.0&q=80&w=1080",
       "imageHint": "luxury hotel lobby"
     },
     {
@@ -63,8 +75,8 @@
     {
       "id": "gallery-1",
       "description": "Gallery image 1",
-      "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxob3RlbCUyMHJlc3RhdXJhbnR8ZW58MHx8fHwxNzcxODY0NTY0fDA&ixlib.rb-4.1.0&q=80&w=1080",
-      "imageHint": "hotel restaurant"
+      "imageUrl": "https://images.unsplash.com/photo-1614034509976-5f9dfab6e363?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiYXIlMjBsb3VuZ2V8ZW58MHx8fHwxNzcyMTE3MDc1fDA&ixlib.rb-4.1.0&q=80&w=1080",
+      "imageHint": "bar lounge"
     },
     {
       "id": "gallery-2",
@@ -111,8 +123,8 @@
     {
       "id": "gallery-9",
       "description": "Gallery image 9",
-      "imageUrl": "https://images.unsplash.com/photo-1620963338572-5b9e4a8ea944?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxicmVha2Zhc3QlMjBhcmVhfGVufDB8fHx8MTc3MjExNzA3NXww&ixlib.rb-4.1.0&q=80&w=1080",
-      "imageHint": "breakfast area"
+      "imageUrl": "https://images.unsplash.com/photo-1620963338572-5b9e4a8ea944?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50fGVufDB8fHx8MTc3MjExNzA3NXww&ixlib.rb-4.1.0&q=80&w=1080",
+      "imageHint": "restaurant"
     },
     {
       "id": "gallery-10",
@@ -123,8 +135,8 @@
     {
       "id": "gallery-11",
       "description": "Gallery image 11",
-      "imageUrl": "https://images.unsplash.com/photo-1614034509976-5f9dfab6e363?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiYXIlMjBsb3VuZ2V8ZW58MHx8fHwxNzcyMTE3MDc1fDA&ixlib.rb-4.1.0&q=80&w=1080",
-      "imageHint": "bar lounge"
+      "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxob3RlbCUyMHJlc3RhdXJhbnR8ZW58MHx8fHwxNzcxODY0NTY0fDA&ixlib.rb-4.1.0&q=80&w=1080",
+      "imageHint": "hotel restaurant"
     },
     {
       "id": "gallery-12",
