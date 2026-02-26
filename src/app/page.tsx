@@ -104,6 +104,10 @@ export default function Home() {
     Autoplay({ delay: 5000, stopOnInteraction: true })
   );
 
+  const testimonialPlugin = React.useRef(
+    Autoplay({ delay: 7000, stopOnInteraction: true })
+  );
+
   const galleryImages = Array.from({ length: 18 }, (_, i) =>
     PlaceHolderImages.find(p => p.id === `gallery-${i + 1}`)
   );
@@ -192,7 +196,7 @@ export default function Home() {
             </div>
         </div>
 
-        <div className="absolute bottom-64 right-12 z-10 w-72 hidden lg:block">
+        <div className="absolute bottom-48 right-12 z-10 w-72 hidden lg:block">
           <Carousel
             opts={{
               loop: true,
@@ -236,7 +240,7 @@ export default function Home() {
       </section>
 
       {/* Quick Booking Bar */}
-      <div className="-mt-40 relative z-20 container px-4">
+      <div className="-mt-32 relative z-20 container px-4">
         <BookingBar />
       </div>
 
@@ -298,36 +302,53 @@ export default function Home() {
       {/* Testimonials Section */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground">
+          <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground mb-12">
             What Our Guests Say
           </h2>
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="bg-card border-border shadow-lg">
-                <CardHeader>
-                  <div className="flex items-center gap-4">
-                    {testimonial.avatar && (
-                      <Avatar className="h-16 w-16">
-                        <AvatarImage src={testimonial.avatar} alt={testimonial.name} data-ai-hint={testimonial.avatarHint} />
-                        <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                    )}
-                    <div>
-                      <CardTitle className="text-xl">{testimonial.name}</CardTitle>
-                      <div className="flex text-primary mt-1">
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star key={i} className="w-5 h-5 fill-current" />
-                        ))}
-                      </div>
-                    </div>
+          <Carousel
+            opts={{
+              align: 'start',
+              loop: true,
+            }}
+            plugins={[testimonialPlugin.current]}
+            onMouseEnter={testimonialPlugin.current.stop}
+            onMouseLeave={testimonialPlugin.current.reset}
+            className="w-full"
+          >
+            <CarouselContent>
+              {testimonials.map((testimonial, index) => (
+                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                  <div className="p-2 h-full">
+                    <Card className="bg-card border-border shadow-lg h-full flex flex-col">
+                      <CardHeader>
+                        <div className="flex items-center gap-4">
+                          {testimonial.avatar && (
+                            <Avatar className="h-16 w-16">
+                              <AvatarImage src={testimonial.avatar} alt={testimonial.name} data-ai-hint={testimonial.avatarHint} />
+                              <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                          )}
+                          <div>
+                            <CardTitle className="text-xl">{testimonial.name}</CardTitle>
+                            <div className="flex text-primary mt-1">
+                              {[...Array(testimonial.rating)].map((_, i) => (
+                                <Star key={i} className="w-5 h-5 fill-current" />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="flex-grow">
+                        <p className="text-muted-foreground italic">"{testimonial.review}"</p>
+                      </CardContent>
+                    </Card>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground italic">"{testimonial.review}"</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 hidden lg:flex" />
+            <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 hidden lg:flex" />
+          </Carousel>
         </div>
       </section>
 
