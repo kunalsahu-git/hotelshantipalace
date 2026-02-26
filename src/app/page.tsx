@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -32,6 +34,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 const heroImage = PlaceHolderImages.find((img) => img.id === 'hilton-hero');
 const cardImage = PlaceHolderImages.find((img) => img.id === 'hilton-card');
@@ -143,10 +150,26 @@ export default function Home() {
                     <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg py-7 px-10 rounded-full">
                         <Link href="/book">Book Now</Link>
                     </Button>
-                    <Button variant="link" className="text-white text-lg font-semibold">
-                        <Play className="mr-2 h-5 w-5 fill-white" />
-                        Watch video
-                    </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="link" className="text-white text-lg font-semibold">
+                            <Play className="mr-2 h-5 w-5 fill-white" />
+                            Watch video
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl w-full p-0 border-0 bg-black/80 backdrop-blur-sm">
+                        <div className="aspect-video">
+                          <iframe
+                            className="w-full h-full"
+                            src="https://www.youtube.com/embed/1-iA5d1sA-s?autoplay=1&rel=0"
+                            title="YouTube video player"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                 </div>
                  <div className="flex gap-2 items-center mt-12">
                     <span className="h-1.5 w-1.5 rounded-full bg-white"></span>
