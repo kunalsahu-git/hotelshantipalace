@@ -54,7 +54,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         email: user.email || 'unknown',
         role: 'admin',
         isActive: true,
-        createdAt: user.metadata.creationTime,
+        createdAt: user.metadata.creationTime ?? null,
       };
       
       setStaffInfo({ user: pseudoStaffUser, role: 'admin' });

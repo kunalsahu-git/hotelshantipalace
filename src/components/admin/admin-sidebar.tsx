@@ -14,6 +14,8 @@ import {
   LogOut,
   ConciergeBell,
   Sparkles,
+  LayoutGrid,
+  BarChart3,
 } from 'lucide-react';
 import { useAdmin } from './admin-provider';
 import { useAuth } from '@/firebase';
@@ -27,10 +29,12 @@ const navLinks = [
   { href: '/admin/bookings', label: 'Bookings', icon: Calendar },
   { href: '/admin/checkin', label: 'Check-in/Out', icon: ConciergeBell },
   { href: '/admin/rooms', label: 'Rooms', icon: BedDouble },
+  { href: '/admin/categories', label: 'Room Categories', icon: LayoutGrid },
   { href: '/admin/guests', label: 'Guests', icon: Users },
   { href: '/admin/housekeeping', label: 'Housekeeping', icon: Sparkles },
   { href: '/admin/maintenance', label: 'Maintenance', icon: Wrench },
   { href: '/admin/bills', label: 'Bills', icon: FileText },
+  { href: '/admin/reports', label: 'Reports', icon: BarChart3 },
   { href: '/admin/enquiries', label: 'Enquiries', icon: MessageSquare },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];

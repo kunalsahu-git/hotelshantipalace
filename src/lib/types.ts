@@ -1,3 +1,7 @@
+import type { Timestamp } from 'firebase/firestore';
+
+type FirestoreTimestamp = Timestamp | string | null;
+
 export type StaffRole = 'admin';
 
 export type User = {
@@ -6,7 +10,7 @@ export type User = {
   email: string;
   role: StaffRole;
   isActive: boolean;
-  createdAt: any;
+  createdAt: FirestoreTimestamp;
 };
 
 export type RoomCategory = {
@@ -49,7 +53,7 @@ export type Guest = {
   nationality?: string;
   notes?: string;
   tags?: string[];
-  createdAt: any;
+  createdAt: FirestoreTimestamp;
   totalStays: number;
   source: 'walkin' | 'website';
 };
@@ -68,11 +72,11 @@ export type Booking = {
   checkOut: string; // YYYY-MM-DD
   numberOfNights: number;
   numberOfGuests: number;
-  status: 'reserved' | 'checked_in' | 'checked_out' | 'cancelled';
+  status: 'reserved' | 'checked_in' | 'checked_out' | 'cancelled' | 'no_show';
   bookingType: 'advance' | 'walkin';
   source: 'website' | 'admin';
   specialRequests?: string;
-  createdAt?: any;
+  createdAt?: FirestoreTimestamp;
   createdBy?: string;
   earlyCheckIn?: boolean;
   lateCheckOut?: boolean;
@@ -92,14 +96,17 @@ export type Bill = {
   extraCharges?: { name: string; amount: number }[];
   taxRate: number;
   taxAmount: number;
+  serviceChargeRate?: number;
+  serviceChargeAmount?: number;
   discountType?: 'percentage' | 'fixed';
   discountValue?: number;
   discountAmount?: number;
   subtotal: number;
   totalAmount: number;
-  paymentStatus: 'unpaid' | 'paid' | 'partial';
+  paymentStatus: 'unpaid' | 'paid' | 'partial' | 'void';
   paymentMethod?: 'cash' | 'card' | 'upi' | 'other';
-  generatedAt: any;
+  paidAmount?: number;
+  generatedAt: FirestoreTimestamp;
   generatedBy?: string;
 };
 
@@ -112,8 +119,8 @@ export type MaintenanceTicket = {
   status: 'open' | 'in_progress' | 'resolved';
   priority: 'low' | 'medium' | 'high';
   raisedBy: string;
-  raisedAt: any;
-  resolvedAt?: any;
+  raisedAt: FirestoreTimestamp;
+  resolvedAt?: FirestoreTimestamp;
   resolvedBy?: string;
   notes?: string;
 };
@@ -124,7 +131,7 @@ export type Enquiry = {
   phone?: string;
   email: string;
   message: string;
-  submittedAt?: any;
+  submittedAt?: FirestoreTimestamp;
   status: 'new' | 'read' | 'responded';
 };
 

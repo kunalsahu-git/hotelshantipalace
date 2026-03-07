@@ -10,9 +10,10 @@ service cloud.firestore {
     }
 
     // --- Room Categories ---
-    // Allow authenticated users to read and write room categories.
+    // Public read so guests can browse rooms. Write requires auth.
     match /roomCategories/{categoryId} {
-      allow read, write: if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null;
     }
 
     // --- Rooms ---
@@ -22,29 +23,27 @@ service cloud.firestore {
     }
 
     // --- Guests ---
-    // Allow authenticated users to read and write guest profiles.
+    // Allow website visitors to create a guest profile on booking.
+    // All other operations (read, list, update, delete) require auth.
     match /guests/{guestId} {
-      allow read, write: if request.auth != null;
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
     }
 
     // --- Bookings ---
-    // This block allows authenticated users to LIST the entire bookings collection.
-    // This is required for the dashboard.
-    match /bookings {
-      allow list: if request.auth != null;
-    }
-    // This block handles operations on INDIVIDUAL booking documents.
     match /bookings/{bookingId} {
       // Allow anyone to create a booking (for the public website).
       allow create: if true;
-      // Allow authenticated users to get, update, and delete specific bookings.
-      allow get, update, delete: if request.auth != null;
+      // Allow authenticated users to read (get + list) and modify bookings.
+      allow read, update, delete: if request.auth != null;
     }
 
     // --- Bills ---
-    // Allow authenticated users to read and write bills.
+    // Allow public get by ID (for shareable bill/invoice links).
+    // List and write require authentication.
     match /bills/{billId} {
-      allow read, write: if request.auth != null;
+      allow get: if true;
+      allow list, write: if request.auth != null;
     }
 
     // --- Maintenance Tickets ---
@@ -54,22 +53,19 @@ service cloud.firestore {
     }
 
     // --- Enquiries ---
-    // This block allows authenticated users to LIST the entire enquiries collection.
-    match /enquiries {
-      allow list: if request.auth != null;
-    }
-    // This block handles operations on INDIVIDUAL enquiry documents.
     match /enquiries/{enquiryId} {
       // Allow anyone to create an enquiry (for the public website).
       allow create: if true;
-      // Allow authenticated users to get, update, and delete specific enquiries.
-      allow get, update, delete: if request.auth != null;
+      // Allow authenticated users to read (get + list) and modify enquiries.
+      allow read, update, delete: if request.auth != null;
     }
 
     // --- Settings ---
-    // Allow authenticated users to read and write hotel settings.
+    // Allow public get (hotel name/address needed for public invoice pages).
+    // List and write require authentication.
     match /settings/{docId} {
-      allow read, write: if request.auth != null;
+      allow get: if true;
+      allow list, write: if request.auth != null;
     }
   }
 }

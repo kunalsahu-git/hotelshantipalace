@@ -2,11 +2,7 @@
 import { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -21,16 +17,14 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth, useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { useAuth } from '@/firebase';
 import { LoginFormSchema, type LoginFormData } from '@/lib/schemas';
 import { Logo } from '@/components/logo';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Terminal } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const auth = useAuth();
-  const firestore = useFirestore();
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,68 +37,28 @@ export default function LoginPage() {
   const onSubmit = (data: LoginFormData) => {
     setIsSubmitting(true);
     setError(null);
-    if (!auth || !firestore) {
+    if (!auth) {
       setError("Firebase is not initialized correctly.");
       setIsSubmitting(false);
       return;
     }
 
     signInWithEmailAndPassword(auth, data.email, data.password)
-      .then((userCredential) => {
+      .then(() => {
         toast({ title: 'Login Successful', description: 'Welcome back!' });
         router.push('/admin/dashboard');
       })
       .catch((signInError) => {
-        if (signInError.code === 'auth/invalid-credential' || signInError.code === 'auth/user-not-found') {
-          // If login fails, try to create an account. This bootstraps the first user.
-          createUserWithEmailAndPassword(auth, data.email, data.password)
-            .then((userCredential) => {
-              const user = userCredential.user;
-              const userDocRef = doc(firestore, 'users', user.uid);
-              const name = data.email.split('@')[0];
-              const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
-              
-              const newUserPayload = {
-                name: capitalizedName,
-                email: user.email,
-                role: 'admin', // First user is an admin
-                isActive: true,
-                createdAt: serverTimestamp(),
-              };
-
-              setDoc(userDocRef, newUserPayload)
-                .then(() => {
-                  toast({
-                    title: 'Account Created',
-                    description: 'Welcome! Your admin account has been set up.',
-                  });
-                  router.push('/admin/dashboard');
-                })
-                .catch(async (dbError) => {
-                   const permissionError = new FirestorePermissionError({
-                      path: userDocRef.path,
-                      operation: 'create',
-                      requestResourceData: newUserPayload,
-                  });
-                  errorEmitter.emit('permission-error', permissionError);
-                  setError('Could not set up user profile. Check security rules.');
-                })
-                .finally(() => {
-                  setIsSubmitting(false);
-                });
-            })
-            .catch((creationError) => {
-              const errorMessage =
-                creationError.code === 'auth/email-already-in-use'
-                  ? 'Invalid email or password. Please try again.'
-                  : `An unexpected error occurred: ${creationError.message}`;
-              setError(errorMessage);
-              setIsSubmitting(false);
-            });
+        if (
+          signInError.code === 'auth/invalid-credential' ||
+          signInError.code === 'auth/user-not-found' ||
+          signInError.code === 'auth/wrong-password'
+        ) {
+          setError('Invalid email or password. Please try again.');
         } else {
           setError('An unexpected error occurred. Please try again later.');
-          setIsSubmitting(false);
         }
+        setIsSubmitting(false);
       });
   };
 
@@ -179,14 +133,6 @@ export default function LoginPage() {
             </div>
           </form>
         </FormProvider>
-
-        <Alert>
-          <Terminal className="h-4 w-4" />
-          <AlertTitle>Test Credentials</AlertTitle>
-          <AlertDescription>
-            <p>You can use any email/password to sign in. The first account created will be an admin.</p>
-          </AlertDescription>
-        </Alert>
 
       </div>
     </div>
