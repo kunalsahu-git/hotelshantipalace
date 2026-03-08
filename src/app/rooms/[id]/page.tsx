@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RoomBookingWidget } from './_components/room-booking-widget';
 import Link from 'next/link';
-import type { RoomCategory } from '@/lib/types';
+import type { RoomCategory } from '../../../lib/types';
 import { RoomGallery } from './_components/room-gallery';
 
 const amenityIcons: { [key: string]: React.ElementType } = {
