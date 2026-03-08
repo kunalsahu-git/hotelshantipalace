@@ -75,6 +75,7 @@ export type Booking = {
   checkOut: string; // YYYY-MM-DD
   numberOfNights: number;
   numberOfGuests: number;
+  numberOfRooms: number;
   status: 'reserved' | 'checked_in' | 'checked_out' | 'cancelled' | 'no_show';
   bookingType: 'advance' | 'walkin';
   source: 'website' | 'admin';

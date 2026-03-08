@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import type { BookingFormData } from '@/lib/schemas';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, BedDouble } from 'lucide-react';
 
 export function Step1Details({ nextStep }: { nextStep: () => void }) {
   const form = useFormContext<BookingFormData>();
@@ -84,8 +84,31 @@ export function Step1Details({ nextStep }: { nextStep: () => void }) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {[1,2,3,4,5].map(g => (
+                  {[1,2,3,4,5,6,7,8].map(g => (
                     <SelectItem key={g} value={String(g)}>{g} Guest{g > 1 ? 's' : ''}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="numberOfRooms"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Number of Rooms</FormLabel>
+              <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} defaultValue={String(field.value ?? 1)}>
+                <FormControl>
+                  <SelectTrigger>
+                    <BedDouble className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <SelectValue placeholder="Select rooms" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {[1,2,3,4,5].map(r => (
+                    <SelectItem key={r} value={String(r)}>{r} Room{r > 1 ? 's' : ''}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

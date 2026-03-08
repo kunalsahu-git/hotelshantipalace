@@ -38,7 +38,8 @@ export function Step3Review({ prevStep, allRooms }: { prevStep: () => void; allR
   }
   
   const numberOfNights = differenceInDays(data.checkOut, data.checkIn);
-  const totalPrice = numberOfNights * room.basePrice;
+  const numberOfRooms = data.numberOfRooms || 1;
+  const totalPrice = numberOfNights * room.basePrice * numberOfRooms;
 
 
   const handleConfirmBooking = async () => {
@@ -70,6 +71,7 @@ export function Step3Review({ prevStep, allRooms }: { prevStep: () => void; allR
       guestEmail: data.guestEmail,
       guestPhone: data.guestPhone,
       numberOfGuests: data.numberOfGuests,
+      numberOfRooms: numberOfRooms,
       specialRequests: data.specialRequests || '',
       categoryId: room.id,
       categoryName: room.name,
@@ -121,11 +123,12 @@ export function Step3Review({ prevStep, allRooms }: { prevStep: () => void; allR
                 <div><strong className="block text-muted-foreground">Phone</strong> {data.guestPhone}</div>
                 <div><strong className="block text-muted-foreground">Email</strong> {data.guestEmail}</div>
                 <div><strong className="block text-muted-foreground">Guests</strong> {data.numberOfGuests}</div>
+                <div><strong className="block text-muted-foreground">Rooms</strong> {numberOfRooms}</div>
             </div>
             <hr />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
                  <div><strong className="block text-muted-foreground">Room Type</strong> {room.name}</div>
-                 <div><strong className="block text-muted-foreground">Stay</strong> {numberOfNights} night{numberOfNights > 1 ? 's' : ''}</div>
+                 <div><strong className="block text-muted-foreground">Stay</strong> {numberOfNights} night{numberOfNights > 1 ? 's' : ''} · {numberOfRooms} room{numberOfRooms > 1 ? 's' : ''}</div>
                  <div><strong className="block text-muted-foreground">Check-in</strong> {format(data.checkIn, "EEE, dd MMM yyyy")}</div>
                  <div><strong className="block text-muted-foreground">Check-out</strong> {format(data.checkOut, "EEE, dd MMM yyyy")}</div>
             </div>

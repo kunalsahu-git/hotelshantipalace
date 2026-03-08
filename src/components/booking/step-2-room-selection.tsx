@@ -33,10 +33,11 @@ export function Step2RoomSelection({ prevStep, nextStep, allRooms }: { prevStep:
   const checkIn = watch('checkIn');
   const checkOut = watch('checkOut');
   const selectedRoomId = watch('categoryId');
+  const numberOfRooms = watch('numberOfRooms') || 1;
 
   const selectedRoom = allRooms.find(r => r.id === selectedRoomId);
   const numberOfNights = checkIn && checkOut && checkOut > checkIn ? differenceInDays(checkOut, checkIn) : 0;
-  const totalPrice = selectedRoom && numberOfNights > 0 ? selectedRoom.basePrice * numberOfNights : 0;
+  const totalPrice = selectedRoom && numberOfNights > 0 ? selectedRoom.basePrice * numberOfNights * numberOfRooms : 0;
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); nextStep(); }} className="space-y-8">
@@ -145,7 +146,9 @@ export function Step2RoomSelection({ prevStep, nextStep, allRooms }: { prevStep:
             <p className="font-semibold text-lg">Price Breakdown</p>
             <p className="text-right">
               <span className="font-bold text-xl">₹{totalPrice.toLocaleString()}</span><br/>
-              <span className="text-muted-foreground text-sm">{numberOfNights} night{numberOfNights > 1 ? 's' : ''} × ₹{selectedRoom?.basePrice.toLocaleString()}</span>
+              <span className="text-muted-foreground text-sm">
+                {numberOfRooms} room{numberOfRooms > 1 ? 's' : ''} × {numberOfNights} night{numberOfNights > 1 ? 's' : ''} × ₹{selectedRoom?.basePrice.toLocaleString()}
+              </span>
             </p>
           </CardContent>
         </Card>

@@ -54,7 +54,7 @@ function BookingRow({
         )}
       </TableCell>
       <TableCell className="text-sm">{booking.numberOfNights} night{booking.numberOfNights > 1 ? 's' : ''}</TableCell>
-      <TableCell className="text-sm">{booking.numberOfGuests} guest{booking.numberOfGuests > 1 ? 's' : ''}</TableCell>
+      <TableCell className="text-sm">{booking.numberOfGuests} guest{booking.numberOfGuests > 1 ? 's' : ''} · {booking.numberOfRooms ?? 1} room{(booking.numberOfRooms ?? 1) > 1 ? 's' : ''}</TableCell>
       <TableCell className="text-right">
         <Button
           size="sm"
@@ -138,6 +138,7 @@ function WalkInDialog({
         checkOut,
         numberOfNights,
         numberOfGuests,
+        numberOfRooms: 1,
         status: 'reserved',
         bookingType: 'walkin',
         source: 'admin',

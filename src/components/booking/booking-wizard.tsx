@@ -30,6 +30,7 @@ export function BookingWizard({ allRooms }: { allRooms: RoomCategory[] }) {
       checkIn: getInitialDate(searchParams.get('checkin')),
       checkOut: getInitialDate(searchParams.get('checkout')),
       numberOfGuests: parseInt(searchParams.get('guests') || '2', 10),
+      numberOfRooms: parseInt(searchParams.get('rooms') || '1', 10),
       categoryId: searchParams.get('roomType') || undefined,
       guestName: '',
       guestEmail: '',
@@ -45,6 +46,7 @@ export function BookingWizard({ allRooms }: { allRooms: RoomCategory[] }) {
       guestEmail: 'rohan.sharma@example.com',
       guestPhone: '9876543210',
       numberOfGuests: 2,
+      numberOfRooms: 1,
       specialRequests: 'Testing the booking system with autofilled data.',
       checkIn: addDays(today, 2),
       checkOut: addDays(today, 5),
@@ -54,7 +56,7 @@ export function BookingWizard({ allRooms }: { allRooms: RoomCategory[] }) {
 
   const nextStep = async () => {
     const fieldsToValidate: (keyof BookingFormData)[] = 
-      currentStep === 1 ? ["guestName", "guestEmail", "guestPhone", "numberOfGuests"] : 
+      currentStep === 1 ? ["guestName", "guestEmail", "guestPhone", "numberOfGuests", "numberOfRooms"] :
       currentStep === 2 ? ["checkIn", "checkOut", "categoryId"] : [];
       
     const isStepValid = await methods.trigger(fieldsToValidate);

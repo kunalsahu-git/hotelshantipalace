@@ -5,8 +5,9 @@ export const BookingFormSchema = z.object({
   guestPhone: z.string().min(10, { message: "Please enter a valid phone number." }),
   guestEmail: z.string().email({ message: "Please enter a valid email address." }),
   numberOfGuests: z.coerce.number().min(1, { message: "At least one guest is required." }),
+  numberOfRooms: z.coerce.number().min(1).max(10).default(1),
   specialRequests: z.string().optional(),
-  
+
   checkIn: z.date({ required_error: "Check-in date is required." }),
   checkOut: z.date({ required_error: "Check-out date is required." }),
 
@@ -41,6 +42,7 @@ export const AdminBookingFormSchema = z.object({
   guestPhone: z.string().min(10, { message: "Please enter a valid phone number." }),
   guestEmail: z.string().email({ message: "Please enter a valid email address." }),
   numberOfGuests: z.coerce.number().min(1, { message: "At least one guest is required." }),
+  numberOfRooms: z.coerce.number().min(1).max(10).default(1),
   categoryId: z.string({ required_error: "Please select a room category." }).min(1),
   checkIn: z.date({ required_error: "Check-in date is required." }),
   checkOut: z.date({ required_error: "Check-out date is required." }),

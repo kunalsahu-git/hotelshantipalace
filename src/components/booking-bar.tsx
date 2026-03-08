@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Users, BedDouble, Search } from "lucide-react";
+import { Calendar as CalendarIcon, Users, BedDouble, Search, Hotel } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -27,6 +27,7 @@ export function BookingBar() {
   const [checkInDate, setCheckInDate] = useState<Date | undefined>();
   const [checkOutDate, setCheckOutDate] = useState<Date | undefined>();
   const [guests, setGuests] = useState<string>("2");
+  const [rooms, setRooms] = useState<string>("1");
   const [roomType, setRoomType] = useState<string>("any");
 
   const handleSearch = () => {
@@ -34,6 +35,7 @@ export function BookingBar() {
     if (checkInDate) params.append("checkin", format(checkInDate, "yyyy-MM-dd"));
     if (checkOutDate) params.append("checkout", format(checkOutDate, "yyyy-MM-dd"));
     params.append("guests", guests);
+    params.append("rooms", rooms);
     if (roomType !== "any") params.append("roomType", roomType);
 
     router.push(`/rooms?${params.toString()}`);
@@ -41,7 +43,7 @@ export function BookingBar() {
 
   return (
     <Card className="p-4 md:p-6 shadow-2xl bg-card">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
         <div className="space-y-2">
           <label htmlFor="check-in" className="text-sm font-medium text-muted-foreground">Check-in Date</label>
           <Popover>
@@ -112,6 +114,21 @@ export function BookingBar() {
               <SelectItem value="2">2 Guests</SelectItem>
               <SelectItem value="3">3 Guests</SelectItem>
               <SelectItem value="4">4+ Guests</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="rooms" className="text-sm font-medium text-muted-foreground">Rooms</label>
+          <Select value={rooms} onValueChange={setRooms}>
+            <SelectTrigger id="rooms" className="h-12 text-base">
+              <Hotel className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Rooms" />
+            </SelectTrigger>
+            <SelectContent>
+              {[1,2,3,4,5].map(r => (
+                <SelectItem key={r} value={String(r)}>{r} Room{r > 1 ? 's' : ''}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
