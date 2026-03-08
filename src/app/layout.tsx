@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { PublicShell } from '@/components/layout/public-shell';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata: Metadata = {
   title: 'Hotel Shanti Palace | Discover The Peace',
@@ -34,6 +35,7 @@ export default function RootLayout({
           <PublicShell>{children}</PublicShell>
           <Toaster />
         </FirebaseClientProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
