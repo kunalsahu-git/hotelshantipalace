@@ -18,7 +18,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['"DM Sans"', 'sans-serif'],
-        headline: ['"Cormorant Garamond"', 'serif'],
+        headline: ['"Fraunces"', 'serif'],
         code: ['monospace'],
       },
       colors: {

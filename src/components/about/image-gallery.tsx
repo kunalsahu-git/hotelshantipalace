@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import {
   Carousel,
@@ -9,24 +10,28 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  CarouselApi,
 } from '@/components/ui/carousel';
+import { Button } from '@/components/ui/button';
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
 
 interface ImageGalleryProps {
   images: (ImagePlaceholder | undefined)[];
+  onApiReady?: (api: CarouselApi) => void;
 }
 
-export function ImageGallery({ images }: ImageGalleryProps) {
+export function ImageGallery({ images, onApiReady }: ImageGalleryProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [startIndex, setStartIndex] = useState(0);
-  
+  const [api, setApi] = useState<CarouselApi>();
+
   const validImages = images.filter((img): img is ImagePlaceholder => !!img);
 
   const openGallery = (index: number) => {
     setStartIndex(index);
     setIsOpen(true);
   };
-  
+
   const chunk = <T,>(arr: T[], size: number): T[][] =>
     Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
       arr.slice(i * size, i * size + size)
@@ -37,9 +42,8 @@ export function ImageGallery({ images }: ImageGalleryProps) {
   return (
     <div>
       <Carousel
-        opts={{
-          align: 'start',
-        }}
+        opts={{ align: 'start', loop: true }}
+        setApi={(a) => { setApi(a); onApiReady?.(a); }}
         className="w-full"
       >
         <CarouselContent>
@@ -70,8 +74,6 @@ export function ImageGallery({ images }: ImageGalleryProps) {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 hidden md:flex" />
-        <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 hidden md:flex" />
       </Carousel>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

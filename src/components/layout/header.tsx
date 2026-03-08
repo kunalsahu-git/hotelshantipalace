@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, ChevronDown } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '../ui/sheet';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,7 @@ import { roomCategories } from '@/lib/mock-data';
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
 ];
 
 export function Header() {
@@ -48,6 +49,8 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-8">
             <NavLink href="/" label="Home" />
             <NavLink href="/about" label="About" />
+
+            <NavLink href="/contact" label="Contact" />
 
             {/* Rooms dropdown */}
             <div
@@ -94,8 +97,8 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Button asChild className="hidden md:flex bg-white text-black hover:bg-gray-200 rounded-full font-bold">
-              <Link href="/contact">Contact Us</Link>
+            <Button asChild className="hidden md:flex bg-primary text-primary-foreground hover:bg-primary/90 rounded-full font-bold">
+              <Link href="/book">Book Now</Link>
             </Button>
 
             {/* Mobile Navigation */}
@@ -113,38 +116,42 @@ export function Header() {
                     Main navigation links for the Hotel.
                   </SheetDescription>
                   <div className="flex flex-col h-full">
-                    <div className="flex justify-between items-center p-4 border-b">
+                    <div className="flex items-center px-6 py-4 border-b">
                       <Link href="/">
                         <Logo />
                       </Link>
-                      <SheetClose asChild>
-                        <Button variant="ghost" size="icon">
-                          <X className="h-6 w-6" />
-                        </Button>
-                      </SheetClose>
                     </div>
-                    <nav className="flex flex-col items-center justify-center flex-grow gap-6">
+                    <nav className="flex flex-col flex-grow px-6 py-8 gap-1">
                       {navLinks.map((link) => (
                         <SheetClose asChild key={link.href}>
-                          <NavLink {...link} isMobile />
+                          <Link
+                            href={link.href}
+                            className={cn(
+                              "text-lg font-medium py-3 px-2 rounded-lg transition-colors hover:text-primary hover:bg-muted",
+                              pathname === link.href ? "text-primary bg-muted" : "text-foreground"
+                            )}
+                          >
+                            {link.label}
+                          </Link>
                         </SheetClose>
                       ))}
 
                       {/* Mobile Rooms accordion */}
-                      <div className="flex flex-col items-center gap-2">
+                      <div className="flex flex-col">
                         <button
                           onClick={() => setMobileRoomsOpen(v => !v)}
                           className={cn(
-                            "flex items-center gap-1 text-2xl p-4 font-medium transition-colors hover:text-primary",
-                            pathname.startsWith('/rooms') ? "text-primary" : "text-foreground"
+                            "flex items-center justify-between text-lg font-medium py-3 px-2 rounded-lg transition-colors hover:text-primary hover:bg-muted",
+                            pathname.startsWith('/rooms') ? "text-primary bg-muted" : "text-foreground"
                           )}
                         >
-                          Rooms <ChevronDown className={cn("h-5 w-5 transition-transform", mobileRoomsOpen && "rotate-180")} />
+                          Rooms
+                          <ChevronDown className={cn("h-5 w-5 transition-transform", mobileRoomsOpen && "rotate-180")} />
                         </button>
                         {mobileRoomsOpen && (
-                          <div className="flex flex-col items-center gap-2">
+                          <div className="flex flex-col ml-4 border-l pl-4 mt-1 gap-1">
                             <SheetClose asChild>
-                              <Link href="/rooms" className="text-base text-muted-foreground hover:text-primary transition-colors">
+                              <Link href="/rooms" className="text-base py-2 text-muted-foreground hover:text-primary transition-colors font-medium">
                                 All Rooms
                               </Link>
                             </SheetClose>
@@ -152,7 +159,7 @@ export function Header() {
                               <SheetClose asChild key={cat.id}>
                                 <Link
                                   href={`/rooms?category=${cat.id}`}
-                                  className="text-base text-muted-foreground hover:text-primary transition-colors"
+                                  className="text-base py-2 text-muted-foreground hover:text-primary transition-colors"
                                 >
                                   {cat.name}
                                 </Link>
@@ -162,10 +169,10 @@ export function Header() {
                         )}
                       </div>
                     </nav>
-                    <div className="p-4 border-t">
+                    <div className="px-6 py-4 border-t">
                       <SheetClose asChild>
                         <Button asChild size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
-                          <Link href="/contact">Contact Us</Link>
+                          <Link href="/book">Book Now</Link>
                         </Button>
                       </SheetClose>
                     </div>

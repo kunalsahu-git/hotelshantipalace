@@ -12,6 +12,8 @@ import {
   Tv,
   Star,
   Play,
+  ArrowLeft,
+  ArrowRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BookingBar } from '@/components/booking-bar';
@@ -21,6 +23,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  CarouselDots,
 } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,6 +48,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { AnimateIn } from '@/components/animate-in';
+import { type CarouselApi } from '@/components/ui/carousel';
 
 const heroImage = PlaceHolderImages.find((img) => img.id === 'hilton-hero');
 const testimonialImages = {
@@ -105,9 +109,15 @@ export default function Home() {
     Autoplay({ delay: 5000, stopOnInteraction: true })
   );
 
+  const roomsPlugin = React.useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: true })
+  );
+
   const testimonialPlugin = React.useRef(
     Autoplay({ delay: 7000, stopOnInteraction: true })
   );
+
+  const [galleryApi, setGalleryApi] = React.useState<CarouselApi>();
 
   const galleryImages = Array.from({ length: 18 }, (_, i) =>
     PlaceHolderImages.find(p => p.id === `gallery-${i + 1}`)
@@ -178,7 +188,7 @@ export default function Home() {
                         <div className="aspect-video">
                           <iframe
                             className="w-full h-full"
-                            src="https://www.youtube.com/embed/1-iA5d1sA-s?autoplay=1&rel=0"
+                            src="https://www.youtube.com/embed/uSJy222xhpw?autoplay=1&rel=0"
                             title="YouTube video player"
                             frameBorder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -279,22 +289,24 @@ export default function Home() {
           </p>
           <div className="mt-12 relative">
             <Carousel
-              opts={{
-                align: 'start',
-              }}
+              opts={{ align: 'start', loop: true }}
+              plugins={[roomsPlugin.current]}
+              onMouseEnter={roomsPlugin.current.stop}
+              onMouseLeave={roomsPlugin.current.reset}
               className="w-full"
             >
-              <CarouselContent>
+              <CarouselContent className="-ml-4">
                 {roomCategories.map((category) => (
-                  <CarouselItem key={category.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                    <div className="p-1 h-full">
+                  <CarouselItem key={category.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/3">
+                    <div className="h-full">
                       <RoomCategoryCard category={category} />
                     </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 hidden lg:flex" />
-              <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 hidden lg:flex" />
+              <CarouselPrevious className="-left-5 shadow-md" />
+              <CarouselNext className="-right-5 shadow-md" />
+              <CarouselDots />
             </Carousel>
           </div>
         </div>
@@ -306,61 +318,81 @@ export default function Home() {
           <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground mb-12">
             What Our Guests Say
           </h2>
-          <Carousel
-            opts={{
-              align: 'start',
-              loop: true,
-            }}
-            plugins={[testimonialPlugin.current]}
-            onMouseEnter={testimonialPlugin.current.stop}
-            onMouseLeave={testimonialPlugin.current.reset}
-            className="w-full"
-          >
-            <CarouselContent>
-              {testimonials.map((testimonial, index) => (
-                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                  <div className="p-2 h-full">
-                    <Card className="bg-card border-border shadow-lg h-full flex flex-col">
-                      <CardHeader>
-                        <div className="flex items-center gap-4">
-                          {testimonial.avatar && (
-                            <Avatar className="h-16 w-16">
-                              <AvatarImage src={testimonial.avatar} alt={testimonial.name} data-ai-hint={testimonial.avatarHint} />
-                              <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                          )}
-                          <div>
-                            <CardTitle className="text-xl">{testimonial.name}</CardTitle>
-                            <div className="flex text-primary mt-1">
-                              {[...Array(testimonial.rating)].map((_, i) => (
-                                <Star key={i} className="w-5 h-5 fill-current" />
-                              ))}
+          <div className="relative">
+            <Carousel
+              opts={{ align: 'start', loop: true }}
+              plugins={[testimonialPlugin.current]}
+              onMouseEnter={testimonialPlugin.current.stop}
+              onMouseLeave={testimonialPlugin.current.reset}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4">
+                {testimonials.map((testimonial, index) => (
+                  <CarouselItem key={index} className="pl-4 basis-[85%] md:basis-1/2 lg:basis-1/3">
+                    <div className="p-2 h-full">
+                      <Card className="bg-card border-border shadow-lg h-full flex flex-col">
+                        <CardHeader>
+                          <div className="flex items-center gap-4">
+                            {testimonial.avatar && (
+                              <Avatar className="h-16 w-16">
+                                <AvatarImage src={testimonial.avatar} alt={testimonial.name} data-ai-hint={testimonial.avatarHint} />
+                                <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+                              </Avatar>
+                            )}
+                            <div>
+                              <CardTitle className="text-xl">{testimonial.name}</CardTitle>
+                              <div className="flex text-primary mt-1">
+                                {[...Array(testimonial.rating)].map((_, i) => (
+                                  <Star key={i} className="w-5 h-5 fill-current" />
+                                ))}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="flex-grow">
-                        <p className="text-muted-foreground italic">&ldquo;{testimonial.review}&rdquo;</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 hidden lg:flex" />
-            <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 hidden lg:flex" />
-          </Carousel>
+                        </CardHeader>
+                        <CardContent className="flex-grow">
+                          <p className="text-muted-foreground italic">&ldquo;{testimonial.review}&rdquo;</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="-left-5 shadow-md" />
+              <CarouselNext className="-right-5 shadow-md" />
+              <CarouselDots />
+            </Carousel>
+          </div>
         </div>
       </section>
 
       {/* Gallery Section */}
       <section className="py-20 bg-card">
-         <div className="container mx-auto px-4">
-           <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground mb-12">
-             A Glimpse of Shanti
-           </h2>
-            <ImageGallery images={galleryImages} />
-         </div>
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground">
+              A Glimpse of Shanti
+            </h2>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-10 w-10 rounded-full"
+                onClick={() => galleryApi?.scrollPrev()}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-10 w-10 rounded-full"
+                onClick={() => galleryApi?.scrollNext()}
+              >
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <ImageGallery images={galleryImages} onApiReady={setGalleryApi} />
+        </div>
       </section>
 
       {/* FAQ Section */}
@@ -368,7 +400,6 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <div className="space-y-6 lg:sticky lg:top-28">
-              <p className="font-bold text-primary text-sm uppercase tracking-wider">FAQ</p>
               <h2 className="text-4xl md:text-5xl font-bold text-foreground">
                 Everything you need to know right now
               </h2>
@@ -383,7 +414,6 @@ export default function Home() {
                     data-ai-hint={faqImage.imageHint}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <h3 className="absolute bottom-8 left-8 text-5xl font-bold text-white font-headline">FAQ</h3>
                 </div>
               )}
             </div>

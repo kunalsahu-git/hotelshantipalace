@@ -252,6 +252,47 @@ const CarouselNext = React.forwardRef<
 })
 CarouselNext.displayName = "CarouselNext"
 
+const CarouselDots = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => {
+  const { api } = useCarousel()
+  const [current, setCurrent] = React.useState(0)
+  const [count, setCount] = React.useState(0)
+
+  React.useEffect(() => {
+    if (!api) return
+    setCount(api.scrollSnapList().length)
+    setCurrent(api.selectedScrollSnap())
+    api.on("select", () => setCurrent(api.selectedScrollSnap()))
+  }, [api])
+
+  if (count <= 1) return null
+
+  return (
+    <div
+      ref={ref}
+      className={cn("flex justify-center gap-1.5 mt-4", className)}
+      {...props}
+    >
+      {Array.from({ length: count }).map((_, i) => (
+        <button
+          key={i}
+          onClick={() => api?.scrollTo(i)}
+          className={cn(
+            "rounded-full transition-all",
+            i === current
+              ? "bg-primary w-4 h-2"
+              : "bg-primary/30 w-2 h-2 hover:bg-primary/60"
+          )}
+          aria-label={`Go to slide ${i + 1}`}
+        />
+      ))}
+    </div>
+  )
+})
+CarouselDots.displayName = "CarouselDots"
+
 export {
   type CarouselApi,
   Carousel,
@@ -259,4 +300,5 @@ export {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
+  CarouselDots,
 }
