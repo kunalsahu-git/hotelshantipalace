@@ -849,7 +849,7 @@ export default function BookingsPage() {
                     </TableCell>
                     <TableCell className="text-center text-sm">{booking.numberOfNights}</TableCell>
                     <TableCell className="text-right text-sm hidden sm:table-cell">
-                      {booking.totalPrice ? `₹{booking.totalPrice.toLocaleString('en-IN')}` : '—'}
+                      {booking.totalPrice ? `₹${booking.totalPrice.toLocaleString('en-IN')}` : '—'}
                     </TableCell>
                     <TableCell><SourceBadge source={booking.source} /></TableCell>
                     <TableCell><StatusBadge status={booking.status} /></TableCell>
