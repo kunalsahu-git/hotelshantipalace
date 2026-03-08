@@ -552,7 +552,7 @@ export function CheckInWizard({
 
   // Load guest data when dialog opens
   useEffect(() => {
-    if (!open || !firestore) return;
+    if (!open || !firestore || !booking) return;
     if (booking.guestId) {
       getDoc(doc(firestore, 'guests', booking.guestId)).then(snap => {
         if (snap.exists()) {
@@ -560,7 +560,7 @@ export function CheckInWizard({
         }
       });
     }
-  }, [open, firestore, booking.guestId]);
+  }, [open, firestore, booking]);
 
   // Reset when closed
   useEffect(() => {
