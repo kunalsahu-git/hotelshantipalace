@@ -119,6 +119,10 @@ export default function Home() {
 
   const [galleryApi, setGalleryApi] = React.useState<CarouselApi>();
 
+  const adPlugin = React.useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: false })
+  );
+
   const galleryImages = Array.from({ length: 18 }, (_, i) =>
     PlaceHolderImages.find(p => p.id === `gallery-${i + 1}`)
   );
@@ -253,6 +257,67 @@ export default function Home() {
       {/* Quick Booking Bar */}
       <div className="-mt-32 relative z-20 container px-4">
         <BookingBar />
+      </div>
+
+      {/* Ad Banner Section */}
+      <div className="container mx-auto px-4 pt-8">
+        <Carousel
+          opts={{ loop: true, align: 'center' }}
+          plugins={[adPlugin.current]}
+          className="w-full"
+        >
+          <CarouselContent>
+            {[
+              {
+                seed: 'pehnava-1',
+                tag: 'Exclusive Fashion Partner',
+                headline: 'Pehnava By Neha',
+                sub: 'Traditional & Modern Women\'s Wear · Boutique Collections · Accessories',
+                color: 'from-rose-950/90 via-rose-900/75 to-pink-800/50',
+              },
+              {
+                seed: 'pehnava-2',
+                tag: 'Now Available at Hotel Shanti Palace',
+                headline: 'Ethnic to Contemporary — All in One Boutique',
+                sub: 'Sarees · Suits · Kurtis · Jewellery & Accessories · Pehnava By Neha',
+                color: 'from-fuchsia-950/90 via-fuchsia-900/75 to-purple-800/50',
+              },
+              {
+                seed: 'pehnava-3',
+                tag: 'Women\'s Fashion Boutique',
+                headline: 'Dress to Impress with Pehnava By Neha',
+                sub: 'Curated collections for every occasion — weddings, festivals, everyday elegance',
+                color: 'from-amber-950/90 via-amber-900/75 to-orange-800/50',
+              },
+            ].map((ad, i) => (
+              <CarouselItem key={i}>
+                <div className="relative w-full overflow-hidden rounded-lg" style={{ height: '90px' }}>
+                  <Image
+                    src={`https://picsum.photos/seed/${ad.seed}/1440/180`}
+                    alt={ad.headline}
+                    fill
+                    className="object-cover"
+                    sizes="100vw"
+                  />
+                  <div className={`absolute inset-0 bg-gradient-to-r ${ad.color} flex items-center px-6 md:px-12 gap-4 md:gap-8`}>
+                    <div className="hidden sm:block shrink-0">
+                      <span className="text-[10px] uppercase tracking-widest text-rose-200 font-semibold">{ad.tag}</span>
+                      <p className="text-white font-headline font-bold text-lg md:text-2xl leading-tight">{ad.headline}</p>
+                    </div>
+                    <div className="sm:border-l sm:border-white/30 sm:pl-6 md:pl-8">
+                      <p className="text-white/90 text-xs md:text-sm leading-snug">{ad.sub}</p>
+                    </div>
+                    <div className="ml-auto shrink-0">
+                      <span className="inline-block border border-white/60 text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-white hover:text-rose-900 transition-colors cursor-pointer whitespace-nowrap">
+                        Explore Now →
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
       </div>
 
       {/* Why Choose Us Section */}
