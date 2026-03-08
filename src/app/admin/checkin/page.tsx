@@ -297,14 +297,16 @@ export default function CheckinPage() {
       </Card>
 
       {/* Check-in Wizard */}
-      <CheckInWizard
-        booking={checkInBooking!}
-        availableRooms={availableRooms}
-        open={!!checkInBooking}
-        onOpenChange={open => !open && setCheckInBooking(null)}
-        onConfirm={handleCheckInConfirm}
-        isLoading={!!loadingId}
-      />
+      {checkInBooking && (
+        <CheckInWizard
+          booking={checkInBooking}
+          availableRooms={availableRooms}
+          open={!!checkInBooking}
+          onOpenChange={open => !open && setCheckInBooking(null)}
+          onConfirm={handleCheckInConfirm}
+          isLoading={!!loadingId}
+        />
+      )}
 
       {/* Post-Checkout Bill Prompt */}
       <Dialog open={!!checkOutDone} onOpenChange={open => !open && setCheckOutDone(null)}>
