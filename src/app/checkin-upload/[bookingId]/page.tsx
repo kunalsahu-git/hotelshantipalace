@@ -429,7 +429,7 @@ export default function CheckinUploadPage() {
             <CheckCircle2 className="h-10 w-10 text-green-600" />
           </div>
           <div className="space-y-1">
-            <h2 className="text-2xl font-bold text-gray-900">You're all set!</h2>
+            <h2 className="text-2xl font-bold text-gray-900">You&apos;re all set!</h2>
             <p className="text-gray-500 text-sm">Your ID documents have been submitted.</p>
             <p className="text-gray-500 text-sm">Please head to the front desk to collect your key.</p>
           </div>
