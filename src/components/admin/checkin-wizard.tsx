@@ -66,7 +66,7 @@ interface CheckInWizardProps {
   availableRooms: RoomWithId[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (booking: BookingWithId, room: RoomWithId, paymentType: 'advance' | 'paylater') => void;
+  onConfirm: (booking: BookingWithId, room: RoomWithId, paymentType: 'advance' | 'paylater', advanceAmount?: number) => void;
   isLoading: boolean;
 }
 
@@ -586,9 +586,26 @@ function PaymentStep({
   booking: BookingWithId;
   room: RoomWithId;
   onBack: () => void;
-  onConfirm: (paymentType: 'advance' | 'paylater') => void;
+  onConfirm: (paymentType: 'advance' | 'paylater', advanceAmount?: number) => void;
 }) {
   const totalPrice = booking.totalPrice;
+  const [selectedType, setSelectedType] = useState<'advance' | 'paylater' | null>(null);
+  const [advanceAmount, setAdvanceAmount] = useState<string>('');
+
+  const handleConfirm = () => {
+    const amount = Number(advanceAmount);
+    if (selectedType === 'advance' && (!advanceAmount || amount <= 0)) {
+      return;  // Don't proceed if invalid
+    }
+    if (selectedType === 'advance') {
+      onConfirm('advance', amount);
+    } else if (selectedType === 'paylater') {
+      onConfirm('paylater', 0);
+    }
+  };
+
+  const advanceAmountNum = Number(advanceAmount) || 0;
+  const isAdvanceAmountValid = advanceAmount && advanceAmountNum > 0;
 
   return (
     <div className="space-y-4">
@@ -614,43 +631,98 @@ function PaymentStep({
         )}
       </div>
 
-      <p className="text-sm text-muted-foreground">How would the guest like to pay?</p>
+      {!selectedType ? (
+        <>
+          <p className="text-sm text-muted-foreground">How would the guest like to pay?</p>
 
-      <div className="grid gap-3">
-        <button
-          onClick={() => onConfirm('advance')}
-          className="flex items-center justify-between p-4 border rounded-lg hover:border-primary hover:bg-muted/50 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <CreditCard className="h-5 w-5 text-green-600" />
-            <div className="text-left">
-              <p className="font-medium">Pay Now</p>
-              <p className="text-xs text-muted-foreground">Collect advance payment at check-in</p>
-            </div>
+          <div className="grid gap-3">
+            <button
+              onClick={() => setSelectedType('advance')}
+              className="flex items-center justify-between p-4 border rounded-lg hover:border-primary hover:bg-muted/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <CreditCard className="h-5 w-5 text-green-600" />
+                <div className="text-left">
+                  <p className="font-medium">Pay Now</p>
+                  <p className="text-xs text-muted-foreground">Collect advance payment at check-in</p>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            </button>
+
+            <button
+              onClick={() => setSelectedType('paylater')}
+              className="flex items-center justify-between p-4 border rounded-lg hover:border-primary hover:bg-muted/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <User className="h-5 w-5 text-orange-600" />
+                <div className="text-left">
+                  <p className="font-medium">Pay at Checkout</p>
+                  <p className="text-xs text-muted-foreground">Guest pays full amount when checking out</p>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            </button>
           </div>
-          <ArrowRight className="h-4 w-4 text-muted-foreground" />
-        </button>
-
-        <button
-          onClick={() => onConfirm('paylater')}
-          className="flex items-center justify-between p-4 border rounded-lg hover:border-primary hover:bg-muted/50 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <User className="h-5 w-5 text-orange-600" />
-            <div className="text-left">
-              <p className="font-medium">Pay at Checkout</p>
-              <p className="text-xs text-muted-foreground">Guest pays full amount when checking out</p>
-            </div>
+        </>
+      ) : selectedType === 'advance' ? (
+        <div className="space-y-4">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <p className="text-sm text-green-800 font-medium">Pay Now Selected</p>
+            <p className="text-xs text-green-600">Enter the advance amount collected from the guest.</p>
           </div>
-          <ArrowRight className="h-4 w-4 text-muted-foreground" />
-        </button>
-      </div>
 
-      <div className="flex justify-start">
-        <Button variant="ghost" onClick={onBack}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back
-        </Button>
-      </div>
+          <div>
+            <Label>Advance Amount Collected (₹)</Label>
+            <Input
+              type="number"
+              min={0}
+              max={totalPrice || undefined}
+              value={advanceAmount}
+              onChange={e => setAdvanceAmount(e.target.value)}
+              placeholder="Enter amount"
+            />
+            {totalPrice && advanceAmountNum < totalPrice && advanceAmountNum > 0 && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Balance to pay at checkout: ₹{(totalPrice - advanceAmountNum).toLocaleString('en-IN')}
+              </p>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setSelectedType(null)}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back
+            </Button>
+            <Button onClick={handleConfirm} disabled={!isAdvanceAmountValid}>
+              Confirm Check-in <CheckCircle2 className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+            <p className="text-sm text-orange-800 font-medium">Pay at Checkout Selected</p>
+            <p className="text-xs text-orange-600">Guest will pay the full amount when checking out.</p>
+          </div>
+
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setSelectedType(null)}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back
+            </Button>
+            <Button onClick={handleConfirm}>
+              Confirm Check-in <CheckCircle2 className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {selectedType === null && (
+        <div className="flex justify-start">
+          <Button variant="ghost" onClick={onBack}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -733,8 +805,8 @@ export function CheckInWizard({
     goNext();
   };
 
-  const handlePaymentConfirm = (paymentType: 'advance' | 'paylater') => {
-    if (selectedRoom) onConfirm(currentBooking, selectedRoom, paymentType);
+  const handlePaymentConfirm = (paymentType: 'advance' | 'paylater', advanceAmount?: number) => {
+    if (selectedRoom) onConfirm(currentBooking, selectedRoom, paymentType, advanceAmount);
   };
 
   const handleGuestCreated = (guestId: string) => {

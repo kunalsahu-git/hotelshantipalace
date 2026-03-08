@@ -5,9 +5,14 @@ import {
   collection,
   query,
   orderBy,
+  where,
   doc,
+  getDoc,
+  addDoc,
   updateDoc,
   runTransaction,
+  getDocs,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { format, parseISO, differenceInDays, isValid } from 'date-fns';
 import {
@@ -368,10 +373,51 @@ function ExtendStayDialog({
     setIsSubmitting(true);
     try {
       const totalNights = differenceInDays(parseISO(newCheckOut), parseISO(booking.checkIn));
+      
+      // Update booking
       await updateDoc(doc(firestore, 'bookings', booking.id), {
         checkOut: newCheckOut,
         numberOfNights: totalNights,
       });
+      
+      // Check if a draft bill exists and update it
+      const billQuery = query(collection(firestore, 'bills'), 
+        where('bookingId', '==', booking.id),
+        where('isFinal', '==', false)
+      );
+      const billSnap = await getDocs(billQuery);
+      
+      if (!billSnap.empty) {
+        const billId = billSnap.docs[0].id;
+        const currentBill = billSnap.docs[0].data();
+        
+        // Get room rate from category
+        const roomSnap = await getDoc(doc(firestore, 'rooms', booking.roomId || ''));
+        const roomData = roomSnap.data();
+        const categoryId = roomData?.categoryId;
+        
+        const { roomCategories } = await import('@/lib/mock-data');
+        const category = roomCategories.find(c => c.id === categoryId);
+        const roomCharges = category ? totalNights * category.basePrice : 0;
+        
+        // Recalculate totals
+        const taxRate = 12;
+        const extraCharges = (currentBill.extraCharges || []).reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
+        const discountAmount = currentBill.discountAmount || 0;
+        const subtotal = roomCharges + extraCharges - discountAmount;
+        const taxAmount = Math.round((subtotal * taxRate) / 100);
+        const totalAmount = subtotal + taxAmount;
+        
+        await updateDoc(doc(firestore, 'bills', billId), {
+          checkOut: newCheckOut,
+          numberOfNights: totalNights,
+          roomCharges,
+          taxAmount,
+          subtotal,
+          totalAmount,
+        });
+      }
+      
       toast({ title: 'Stay Extended', description: `Check-out updated to ${format(parseISO(newCheckOut), 'dd MMM yyyy')}.` });
       onOpenChange(false);
     } catch {
@@ -520,25 +566,64 @@ export default function BookingsPage() {
     setCheckInBooking(booking);
   };
 
-  const handleCheckInConfirm = async (booking: BookingWithId, room: RoomWithId, paymentType: 'advance' | 'paylater') => {
+  const handleCheckInConfirm = async (booking: BookingWithId, room: RoomWithId, paymentType: 'advance' | 'paylater', advanceAmount?: number) => {
     if (!firestore) return;
     setLoadingId(booking.id);
     try {
+      // First: Update booking and room status in transaction
       await runTransaction(firestore, async tx => {
         tx.update(doc(firestore, 'bookings', booking.id), {
           status: 'checked_in',
           roomId: room.id,
           roomNumber: room.roomNumber,
           paymentType,
+          advancePaid: paymentType === 'advance' && advanceAmount ? advanceAmount : 0,
         });
         tx.update(doc(firestore, 'rooms', room.id), {
           status: 'occupied',
           currentBookingId: booking.id,
         });
       });
+
+      // Second: Create draft bill if advance payment collected (outside transaction)
+      if (paymentType === 'advance' && advanceAmount && advanceAmount > 0) {
+        const { roomCategories } = await import('@/lib/mock-data');
+        const category = roomCategories.find(c => c.id === room.categoryId);
+        const roomCharges = category ? booking.numberOfNights * category.basePrice : 0;
+
+        const taxRate = 12;
+        const subtotal = roomCharges;
+        const taxAmount = Math.round((subtotal * taxRate) / 100);
+        const totalAmount = subtotal + taxAmount;
+
+        const billData = {
+          bookingId: booking.id,
+          guestId: booking.guestId || '',
+          guestName: booking.guestName,
+          roomNumber: room.roomNumber,
+          checkIn: booking.checkIn,
+          checkOut: booking.checkOut,
+          numberOfNights: booking.numberOfNights,
+          roomCharges,
+          taxRate,
+          taxAmount,
+          subtotal,
+          totalAmount,
+          paymentStatus: 'partial' as const,
+          paidAmount: advanceAmount,
+          advancePaid: advanceAmount,
+          isFinal: false,
+          generatedAt: serverTimestamp(),
+        };
+
+        await addDoc(collection(firestore, 'bills'), billData);
+      }
+
       toast({
         title: 'Checked In',
-        description: `${booking.guestName} → Room ${room.roomNumber}. Payment: ${paymentType === 'advance' ? 'Advance Paid' : 'Pay at Checkout'}.`
+        description: paymentType === 'advance' && advanceAmount
+          ? `${booking.guestName} → Room ${room.roomNumber}. Advance ₹${advanceAmount} collected. Draft bill created.`
+          : `${booking.guestName} → Room ${room.roomNumber}. Payment: Pay at Checkout.`
       });
       setCheckInBooking(null);
     } catch {
@@ -577,7 +662,21 @@ export default function BookingsPage() {
           tx.update(guestRef, { totalStays: currentTotalStays + 1 });
         }
       });
-      setCheckOutDone(booking);
+      
+      // Check if a draft bill exists for this booking
+      const billQuery = query(collection(firestore, 'bills'), 
+        where('bookingId', '==', booking.id),
+        where('isFinal', '==', false)
+      );
+      const billSnap = await getDocs(billQuery);
+      
+      if (!billSnap.empty) {
+        // Draft bill exists - redirect to bills page to finalize
+        window.location.href = `/admin/bills?bookingId=${booking.id}`;
+      } else {
+        // No draft bill - show dialog to generate one
+        setCheckOutDone(booking);
+      }
     } catch {
       toast({ variant: 'destructive', title: 'Error', description: 'Check-out failed. Try again.' });
     } finally {
@@ -988,12 +1087,12 @@ export default function BookingsPage() {
               <CheckCircle2 className="h-5 w-5 text-green-600" />
               Checked Out
             </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 text-sm text-muted-foreground">
-            <p>
+            <p className="text-sm text-muted-foreground">
               <strong className="text-foreground">{checkOutDone?.guestName}</strong> has been checked out
               {checkOutDone?.roomNumber ? ` from Room ${checkOutDone.roomNumber}` : ''}.
             </p>
+          </DialogHeader>
+          <div className="space-y-3 text-sm text-muted-foreground">
             <p>Would you like to generate a bill for this stay?</p>
           </div>
           <DialogFooter className="gap-2 sm:gap-0">

@@ -111,6 +111,10 @@ export type Bill = {
   paymentStatus: 'unpaid' | 'paid' | 'partial' | 'void';
   paymentMethod?: 'cash' | 'card' | 'upi' | 'other';
   paidAmount?: number;
+  advancePaid?: number;
+  finalPaymentAmount?: number;  // Amount paid at checkout (after advance)
+  checkoutPaidAt?: FirestoreTimestamp;  // Timestamp when finalized at checkout
+  isFinal?: boolean;  // false = draft, true = finalized at checkout
   generatedAt: FirestoreTimestamp;
   generatedBy?: string;
 };

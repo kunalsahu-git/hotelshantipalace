@@ -31,6 +31,8 @@ import {
   X,
   Ban,
   CalendarDays,
+  CheckCircle2,
+  ArrowLeft,
 } from 'lucide-react';
 
 import { useFirestore, useCollection, useMemoFirebase, useDoc } from '@/firebase';
@@ -64,6 +66,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/components/admin/admin-provider';
+import { Label } from '@/components/ui/label';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -96,7 +99,8 @@ type PaymentData = z.infer<typeof PaymentSchema>;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function PaymentBadge({ status }: { status: Bill['paymentStatus'] }) {
+function PaymentBadge({ status, isFinal }: { status: Bill['paymentStatus']; isFinal?: boolean }) {
+  if (isFinal === false) return <Badge variant="outline" className="border-blue-300 text-blue-700 bg-blue-50">Draft</Badge>;
   if (status === 'paid') return <Badge className="bg-green-600 hover:bg-green-600 text-white">Paid</Badge>;
   if (status === 'partial') return <Badge className="bg-yellow-500 hover:bg-yellow-500 text-white">Partial</Badge>;
   if (status === 'void') return <Badge variant="secondary" className="line-through opacity-60">Void</Badge>;
@@ -164,6 +168,7 @@ function BillRowActions({
   bill,
   hotelName,
   onView,
+  onEdit,
   onPay,
   onVoid,
   onDelete,
@@ -171,6 +176,7 @@ function BillRowActions({
   bill: BillWithId;
   hotelName: string;
   onView: () => void;
+  onEdit?: () => void;
   onPay: () => void;
   onVoid: () => void;
   onDelete: () => void;
@@ -193,6 +199,17 @@ function BillRowActions({
       <Button size="sm" variant="ghost" onClick={handlePrint} title="Print / Save as PDF">
         <Printer className="h-4 w-4" />
       </Button>
+      {bill.isFinal === false && onEdit && (
+        <Button 
+          size="sm" 
+          variant="outline" 
+          onClick={onEdit}
+          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+          title="Edit draft bill"
+        >
+          <FileText className="h-3.5 w-3.5 mr-1" /> Edit
+        </Button>
+      )}
       <Button
         size="sm"
         variant="ghost"
@@ -903,6 +920,436 @@ function MarkPaymentDialog({
   );
 }
 
+// ─── Edit Draft Bill Dialog ────────────────────────────────────────────────────
+
+function EditDraftBillDialog({
+  bill,
+  bookings,
+  open,
+  onOpenChange,
+  onUpdated,
+}: {
+  bill: BillWithId | null;
+  bookings: BookingWithId[];
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onUpdated: () => void;
+}) {
+  const firestore = useFirestore();
+  const { toast } = useToast();
+
+  const booking = bookings.find(b => b.id === bill?.bookingId);
+  const isCheckedOut = booking?.status === 'checked_out';
+
+  const form = useForm<{
+    extraCharges: { name: string; amount: number }[];
+    discountType: 'none' | 'percentage' | 'fixed';
+    discountValue: number;
+  }>({
+    defaultValues: {
+      extraCharges: [],
+      discountType: 'none',
+      discountValue: 0,
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'extraCharges',
+  });
+
+  // Reset form when bill opens
+  useEffect(() => {
+    if (!open || !bill) return;
+    form.reset({
+      extraCharges: bill.extraCharges?.map(e => ({ name: e.name, amount: e.amount })) || [],
+      discountType: bill.discountType || 'none',
+      discountValue: bill.discountValue || 0,
+    });
+  }, [open, bill, form]);
+
+  const watchedExtra = form.watch('extraCharges');
+  const watchedDiscountType = form.watch('discountType');
+  const watchedDiscountValue = form.watch('discountValue') || 0;
+
+  // Get room rate from category
+  const roomCharges = useMemo(() => {
+    if (!booking || !bill) return 0;
+    const cat = roomCategories.find(c => c.id === booking.categoryId);
+    return cat ? bill.numberOfNights * cat.basePrice : 0;
+  }, [booking, bill]);
+
+  // Recalculate totals
+  const extraTotal = watchedExtra.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  const subtotalBeforeDiscount = roomCharges + extraTotal;
+  const discountAmount = watchedDiscountType === 'percentage'
+    ? Math.round((subtotalBeforeDiscount * watchedDiscountValue) / 100)
+    : watchedDiscountType === 'fixed' ? watchedDiscountValue : 0;
+  const subtotal = subtotalBeforeDiscount - discountAmount;
+  const taxRate = 12;
+  const taxAmount = Math.round((subtotal * taxRate) / 100);
+  const totalAmount = subtotal + taxAmount;
+
+  const advancePaid = bill?.advancePaid || 0;
+  const balanceDue = Math.max(0, totalAmount - advancePaid);
+
+  const onSubmit = async () => {
+    if (!firestore || !bill) return;
+    try {
+      await updateDoc(doc(firestore, 'bills', bill.id), {
+        extraCharges: watchedExtra.filter(e => e.name && e.amount > 0),
+        discountType: watchedDiscountType !== 'none' ? watchedDiscountType : undefined,
+        discountValue: watchedDiscountType !== 'none' ? watchedDiscountValue : undefined,
+        discountAmount: discountAmount,
+        subtotal,
+        taxAmount,
+        totalAmount,
+        roomCharges,
+      });
+      toast({ title: 'Bill Updated', description: 'Draft bill has been updated.' });
+      onOpenChange(false);
+      onUpdated();
+    } catch {
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to update bill.' });
+    }
+  };
+
+  const onFinalize = async (paymentStatus: 'paid' | 'partial', paymentMethod: string, paidAmount: number) => {
+    if (!firestore || !bill) return;
+    try {
+      // Calculate total amount paid (advance + final payment)
+      const finalPaymentAmount = paymentStatus === 'paid' ? totalAmount : paidAmount;
+      const totalPaidAmount = advancePaid + finalPaymentAmount;
+
+      await updateDoc(doc(firestore, 'bills', bill.id), {
+        extraCharges: watchedExtra.filter(e => e.name && e.amount > 0),
+        discountType: watchedDiscountType !== 'none' ? watchedDiscountType : undefined,
+        discountValue: watchedDiscountType !== 'none' ? watchedDiscountValue : undefined,
+        discountAmount: discountAmount,
+        subtotal,
+        taxAmount,
+        totalAmount,
+        roomCharges,
+        isFinal: true,
+        paymentStatus,
+        paymentMethod,
+        paidAmount: totalPaidAmount,
+        finalPaymentAmount: finalPaymentAmount,
+        checkoutPaidAt: serverTimestamp(),
+      });
+      toast({ title: 'Bill Finalized', description: 'Bill has been finalized and marked as paid.' });
+      onOpenChange(false);
+      onUpdated();
+    } catch {
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to finalize bill.' });
+    }
+  };
+
+  if (!bill) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Receipt className="h-5 w-5" />
+            Edit Draft Bill — {bill.guestName}
+            <Badge variant="outline" className="ml-2">Draft</Badge>
+          </DialogTitle>
+          <p className="text-sm text-muted-foreground">Add extra charges, apply discounts, or finalize this bill.</p>
+        </DialogHeader>
+
+        <Form {...form}>
+          <div className="space-y-4">
+            {/* Booking Summary */}
+            <div className="bg-muted/50 rounded-lg p-3 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Room:</span>
+                <span className="font-medium">{bill.roomNumber || '—'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Stay:</span>
+                <span className="font-medium">
+                  {bill.checkIn} → {bill.checkOut} ({bill.numberOfNights} night{bill.numberOfNights > 1 ? 's' : ''})
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Status:</span>
+                <Badge>{isCheckedOut ? 'Checked Out' : 'Checked In'}</Badge>
+              </div>
+              {advancePaid > 0 && (
+                <div className="flex justify-between text-green-700">
+                  <span className="text-muted-foreground">Advance Paid:</span>
+                  <span className="font-medium">{formatCurrency(advancePaid)}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Extra Charges */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label className="text-sm font-medium">Extra Charges</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => append({ name: '', amount: 0 })}
+                >
+                  <Plus className="h-3 w-3 mr-1" /> Add
+                </Button>
+              </div>
+              {fields.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No extra charges added.</p>
+              ) : (
+                <div className="space-y-2">
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="flex gap-2 items-start">
+                      <FormField
+                        name={`extraCharges.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormControl>
+                              <Input placeholder="Description (e.g., Laundry)" {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name={`extraCharges.${index}.amount`}
+                        render={({ field }) => (
+                          <FormItem className="w-28">
+                            <FormControl>
+                              <Input type="number" min={0} placeholder="0" {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => remove(index)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Discount */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="discountType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Discount Type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="percentage">Percentage (%)</SelectItem>
+                        <SelectItem value="fixed">Fixed Amount (₹)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+              {watchedDiscountType !== 'none' && (
+                <FormField
+                  control={form.control}
+                  name="discountValue"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{watchedDiscountType === 'percentage' ? 'Discount %' : 'Discount Amount (₹)'}</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
+
+            {/* Totals */}
+            <div className="bg-muted/50 rounded-lg p-3 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Room Charges:</span>
+                <span>{formatCurrency(roomCharges)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Extra Charges:</span>
+                <span>{formatCurrency(extraTotal)}</span>
+              </div>
+              {discountAmount > 0 && (
+                <div className="flex justify-between text-green-700">
+                  <span>Discount:</span>
+                  <span>- {formatCurrency(discountAmount)}</span>
+                </div>
+              )}
+              <Separator />
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Subtotal:</span>
+                <span>{formatCurrency(subtotal)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Tax ({taxRate}%):</span>
+                <span>{formatCurrency(taxAmount)}</span>
+              </div>
+              <Separator />
+              <div className="flex justify-between font-bold text-lg">
+                <span>Total:</span>
+                <span className="text-primary">{formatCurrency(totalAmount)}</span>
+              </div>
+              {advancePaid > 0 && (
+                <div className="flex justify-between font-semibold text-green-700">
+                  <span>Paid:</span>
+                  <span>- {formatCurrency(advancePaid)}</span>
+                </div>
+              )}
+              {balanceDue > 0 && (
+                <div className="flex justify-between font-bold text-destructive">
+                  <span>Balance Due:</span>
+                  <span>{formatCurrency(balanceDue)}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2 justify-end">
+              <DialogClose asChild>
+                <Button variant="secondary">Cancel</Button>
+              </DialogClose>
+              <Button onClick={onSubmit}>
+                Save Changes
+              </Button>
+              {isCheckedOut && (
+                <FinalizeBillDialog
+                  totalAmount={totalAmount}
+                  advancePaid={advancePaid}
+                  onFinalize={onFinalize}
+                />
+              )}
+            </div>
+          </div>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Finalize Bill Dialog ───────────────────────────────────────────────────────
+
+function FinalizeBillDialog({
+  totalAmount,
+  advancePaid,
+  onFinalize,
+}: {
+  totalAmount: number;
+  advancePaid: number;
+  onFinalize: (paymentStatus: 'paid' | 'partial', paymentMethod: string, paidAmount: number) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<'paid' | 'partial'>('paid');
+  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [paidAmount, setPaidAmount] = useState(totalAmount);
+
+  const balanceDue = Math.max(0, totalAmount - advancePaid);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="bg-green-600 hover:bg-green-700">
+          <CheckCircle2 className="mr-2 h-4 w-4" /> Finalize Bill
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Finalize Bill</DialogTitle>
+          <p className="text-sm text-muted-foreground">Mark this bill as finalized. The guest has checked out.</p>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="bg-muted/50 rounded-lg p-3 space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span>Total Amount:</span>
+              <span className="font-semibold">{formatCurrency(totalAmount)}</span>
+            </div>
+            {advancePaid > 0 && (
+              <div className="flex justify-between text-green-700">
+                <span>Advance Paid:</span>
+                <span>- {formatCurrency(advancePaid)}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-bold border-t pt-2">
+              <span>Balance Due:</span>
+              <span className="text-destructive">{formatCurrency(balanceDue)}</span>
+            </div>
+          </div>
+
+          <div>
+            <Label className="text-sm">Payment Status</Label>
+            <Select value={paymentStatus} onValueChange={v => { setPaymentStatus(v as 'paid' | 'partial'); if (v === 'paid') setPaidAmount(totalAmount); }}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="paid">Paid in Full</SelectItem>
+                <SelectItem value="partial">Partial Payment</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {paymentStatus === 'partial' && (
+            <div>
+              <Label className="text-sm">Amount Now Paid (₹)</Label>
+              <Input
+                type="number"
+                min={0}
+                max={balanceDue}
+                value={paidAmount}
+                onChange={e => setPaidAmount(Number(e.target.value) || 0)}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Remaining balance: {formatCurrency(Math.max(0, balanceDue - paidAmount))}
+              </p>
+            </div>
+          )}
+
+          <div>
+            <Label className="text-sm">Payment Method</Label>
+            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="cash">Cash</SelectItem>
+                <SelectItem value="card">Card</SelectItem>
+                <SelectItem value="upi">UPI</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                onFinalize(paymentStatus, paymentMethod, paidAmount);
+                setOpen(false);
+              }}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Finalize & Close
+            </Button>
+          </DialogFooter>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function BillsPage() {
@@ -927,6 +1374,7 @@ export default function BillsPage() {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [viewBill, setViewBill] = useState<BillWithId | null>(null);
+  const [editDraftBill, setEditDraftBill] = useState<BillWithId | null>(null);
   const [payBill, setPayBill] = useState<BillWithId | null>(null);
   const [voidBill, setVoidBill] = useState<BillWithId | null>(null);
   const [deleteBill, setDeleteBill] = useState<BillWithId | null>(null);
@@ -1228,12 +1676,13 @@ export default function BillsPage() {
                     <TableCell className="text-right font-bold">
                       {formatCurrency(b.totalAmount)}
                     </TableCell>
-                    <TableCell><PaymentBadge status={b.paymentStatus} /></TableCell>
+                    <TableCell><PaymentBadge status={b.paymentStatus} isFinal={b.isFinal} /></TableCell>
                     <TableCell className="text-right">
                       <BillRowActions
                         bill={b}
                         hotelName={hotelName}
                         onView={() => setViewBill(b)}
+                        onEdit={() => setEditDraftBill(b)}
                         onPay={() => setPayBill(b)}
                         onVoid={() => setVoidBill(b)}
                         onDelete={() => setDeleteBill(b)}
@@ -1263,6 +1712,13 @@ export default function BillsPage() {
         open={!!viewBill}
         onOpenChange={open => !open && setViewBill(null)}
         hotelName={hotelName}
+      />
+      <EditDraftBillDialog
+        bill={editDraftBill}
+        bookings={bookings ? bookings.map((b, i) => ({ ...b, id: b.id || `booking-${i}` })) : []}
+        open={!!editDraftBill}
+        onOpenChange={open => !open && setEditDraftBill(null)}
+        onUpdated={() => setRefresh(r => r + 1)}
       />
       <MarkPaymentDialog
         bill={payBill}
