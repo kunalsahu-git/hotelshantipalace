@@ -24,10 +24,14 @@ service cloud.firestore {
 
     // --- Guests ---
     // Allow website visitors to create a guest profile on booking.
-    // All other operations (read, list, update, delete) require auth.
+    // The public QR check-in page (unauthenticated) can only update ID proof fields.
+    // All other operations require auth.
     match /guests/{guestId} {
       allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow read, delete: if request.auth != null;
+      allow update: if request.auth != null
+        || request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['idType', 'idNumber', 'idFrontUrl', 'idBackUrl', 'idUploadedAt']);
     }
 
     // --- Bookings ---
@@ -35,7 +39,10 @@ service cloud.firestore {
       // Allow anyone to create a booking (for the public website).
       allow create: if true;
       // Allow authenticated users to read (get + list) and modify bookings.
-      allow read, update, delete: if request.auth != null;
+      allow read, delete: if request.auth != null;
+      allow update: if request.auth != null
+        // The QR check-in page may set guestId on a booking that doesn't have one yet.
+        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['guestId']);
     }
 
     // --- Bills ---
