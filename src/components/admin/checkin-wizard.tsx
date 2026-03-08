@@ -177,7 +177,7 @@ function IdUploadStep({
       }, 3000);
       return () => clearInterval(interval);
     }
-  }, [uploadMode, idUploaded, firestore, booking.guestId]);
+  }, [uploadMode, idUploaded, firestore, booking.guestId, toast]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, side: 'front' | 'back') => {
     const file = e.target.files?.[0];
@@ -405,13 +405,11 @@ function IdUploadStep({
 function RoomSelectStep({
   booking,
   availableRooms,
-  onNext,
   onBack,
   onConfirm,
 }: {
   booking: BookingWithId;
   availableRooms: RoomWithId[];
-  onNext: () => void;
   onBack: () => void;
   onConfirm: (room: RoomWithId) => void;
 }) {
@@ -424,7 +422,12 @@ function RoomSelectStep({
       return (order[a.housekeepingStatus] ?? 4) - (order[b.housekeepingStatus] ?? 4);
     });
 
-  const selectedRoom = matchingRooms.find(r => r.id === selectedRoomId);
+  const handleConfirm = () => {
+    const room = matchingRooms.find(r => r.id === selectedRoomId);
+    if (room) {
+      onConfirm(room);
+    }
+  };
 
   const hkBadge = (status: Room['housekeepingStatus']) => {
     switch (status) {
@@ -470,7 +473,7 @@ function RoomSelectStep({
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
-        <Button onClick={onNext} disabled={!selectedRoomId}>
+        <Button onClick={handleConfirm} disabled={!selectedRoomId}>
           Continue to Payment <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
@@ -650,7 +653,6 @@ export function CheckInWizard({
             <RoomSelectStep
               booking={booking}
               availableRooms={availableRooms}
-              onNext={handleNext}
               onBack={handleBack}
               onConfirm={handleRoomSelect}
             />
