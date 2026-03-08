@@ -203,6 +203,7 @@ export function NewBookingDialog({
       guestPhone: data.guestPhone,
       guestEmail: data.guestEmail,
       numberOfGuests: data.numberOfGuests,
+      numberOfRooms: 1,
       categoryId: category.id,
       categoryName: category.name,
       checkIn: format(data.checkIn, 'yyyy-MM-dd'),
