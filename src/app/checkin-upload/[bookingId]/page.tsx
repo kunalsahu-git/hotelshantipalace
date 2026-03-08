@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, serverTimestamp, collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { initializeFirebase, useFirestore, useStorage } from '@/firebase';
+import { initializeFirebase } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,7 @@ interface BookingData {
   checkIn: string;
   checkOut: string;
   status: string;
+  source?: 'website' | 'admin';
 }
 
 export default function CheckinUploadPage() {
@@ -60,7 +61,8 @@ export default function CheckinUploadPage() {
 
     const fetchBooking = async () => {
       try {
-        const snap = await getDoc(doc(firestore, 'bookings', bookingId));
+        const bookingRef = doc(firestore, 'bookings', bookingId);
+        const snap = await getDoc(bookingRef);
         if (!snap.exists()) {
           toast({ variant: 'destructive', title: 'Error', description: 'Booking not found.' });
           router.push('/');
@@ -70,27 +72,49 @@ export default function CheckinUploadPage() {
         const data = snap.data() as BookingData;
         data.id = snap.id;
 
+        let currentGuestId = data.guestId;
+
+        // If booking doesn't have a guestId, create one
+        if (!currentGuestId) {
+          const guestRef = await addDoc(collection(firestore, 'guests'), {
+            name: data.guestName,
+            email: data.guestEmail,
+            phone: data.guestPhone,
+            totalStays: 0,
+            source: data.source || 'website',
+            createdAt: serverTimestamp(),
+          });
+          
+          currentGuestId = guestRef.id;
+          
+          // Atomically update the booking with the new guestId
+          await updateDoc(bookingRef, { guestId: currentGuestId });
+          
+          data.guestId = currentGuestId; // Update the local booking data as well
+        }
+
         setBooking(data);
 
-        // Check if already submitted
-        if (data.guestId) {
-          const guestSnap = await getDoc(doc(firestore, 'guests', data.guestId));
-          if (guestSnap.exists()) {
-            const guestData = guestSnap.data();
-            if (guestData.idFrontUrl && guestData.idUploadedAt) {
-              setAlreadySubmitted(true);
+        // Check if already submitted using the now-guaranteed guestId
+        if (currentGuestId) {
+            const guestSnap = await getDoc(doc(firestore, 'guests', currentGuestId));
+            if (guestSnap.exists()) {
+              const guestData = guestSnap.data();
+              if (guestData.idFrontUrl && guestData.idUploadedAt) {
+                setAlreadySubmitted(true);
+              }
             }
-          }
         }
       } catch (err) {
-        console.error('Error fetching booking:', err);
+        console.error('Error fetching or processing booking:', err);
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not prepare check-in. Please try again.' });
       } finally {
         setLoading(false);
       }
     };
 
     fetchBooking();
-  }, [initialized, firestore, bookingId]);
+  }, [initialized, firestore, bookingId, router, toast]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, side: 'front' | 'back') => {
     const file = e.target.files?.[0];
