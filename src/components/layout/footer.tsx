@@ -75,7 +75,7 @@ function TermsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
 
           <div>
             <h3 className="font-semibold text-foreground mb-1">3. Cancellation Policy</h3>
-            <p>Cancellations made more than 48 hours before the check-in date will receive a full refund. Cancellations within 48 hours of check-in will forfeit the first night's charge. No-shows will be charged the full booking amount.</p>
+            <p>Cancellations made more than 48 hours before the check-in date will receive a full refund. Cancellations within 48 hours of check-in will forfeit the first night&apos;s charge. No-shows will be charged the full booking amount.</p>
           </div>
 
           <div>
@@ -85,7 +85,7 @@ function TermsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
 
           <div>
             <h3 className="font-semibold text-foreground mb-1">5. Liability</h3>
-            <p>Hotel Shanti Palace is not responsible for loss or damage to guest property. Guests are advised to use the in-room safe for valuables. The hotel's liability is limited to the room tariff paid for the stay.</p>
+            <p>Hotel Shanti Palace is not responsible for loss or damage to guest property. Guests are advised to use the in-room safe for valuables. The hotel&apos;s liability is limited to the room tariff paid for the stay.</p>
           </div>
 
           <div>
