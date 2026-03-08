@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useUser } from '@/firebase';
 import type { User as StaffUser, StaffRole } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
+import { isAuthorizedAdmin } from '@/lib/admin-config';
 
 interface AdminContextType {
   user: StaffUser | null;
@@ -44,10 +45,22 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       setIsStaffLoading(false); // Auth is ready (no user)
     } else {
       // Auth check is complete, and we have a user.
+      // Check if user is authorized admin
+      const userEmail = user.email;
+      const isAuthorized = isAuthorizedAdmin(userEmail);
+
+      if (!isAuthorized) {
+        // User is authenticated but not authorized - redirect to home
+        router.push('/');
+        setStaffInfo({ user: null, role: null });
+        setIsStaffLoading(false);
+        return;
+      }
+
       if (isLoginPage) {
         router.push('/admin/dashboard');
       }
-      
+
       const pseudoStaffUser: StaffUser = {
         id: user.uid,
         name: user.displayName || user.email?.split('@')[0] || 'Admin',
@@ -56,7 +69,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         isActive: true,
         createdAt: user.metadata.creationTime ?? null,
       };
-      
+
       setStaffInfo({ user: pseudoStaffUser, role: 'admin' });
       setIsStaffLoading(false); // Auth is ready (user found)
     }

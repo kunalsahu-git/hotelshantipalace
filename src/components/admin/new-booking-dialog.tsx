@@ -90,6 +90,7 @@ export function NewBookingDialog({
       setInstantCheckIn(false);
       setInstantRoomId('');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, prefill]);
 
   const checkIn = form.watch('checkIn');

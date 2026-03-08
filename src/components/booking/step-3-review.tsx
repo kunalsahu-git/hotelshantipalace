@@ -134,7 +134,7 @@ export function Step3Review({ prevStep, allRooms }: { prevStep: () => void; allR
                   <hr />
                   <div>
                     <strong className="block text-muted-foreground">Special Requests</strong>
-                    <p className="italic text-muted-foreground">"{data.specialRequests}"</p>
+                    <p className="italic text-muted-foreground">&ldquo;{data.specialRequests}&rdquo;</p>
                   </div>
                 </>
             )}

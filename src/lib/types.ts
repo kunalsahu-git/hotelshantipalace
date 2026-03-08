@@ -49,6 +49,9 @@ export type Guest = {
   email: string;
   idType?: string;
   idNumber?: string;
+  idFrontUrl?: string;      // URL to ID front image in Firebase Storage
+  idBackUrl?: string;       // URL to ID back image in Firebase Storage
+  idUploadedAt?: FirestoreTimestamp;  // When ID was uploaded
   address?: string;
   nationality?: string;
   notes?: string;
@@ -81,6 +84,8 @@ export type Booking = {
   earlyCheckIn?: boolean;
   lateCheckOut?: boolean;
   totalPrice?: number;
+  paymentType?: 'advance' | 'paylater';
+  advancePaid?: number;
 };
 
 export type Bill = {

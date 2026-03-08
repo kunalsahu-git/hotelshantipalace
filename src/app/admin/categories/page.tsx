@@ -84,6 +84,7 @@ function CategoryFormDialog({
       photoUrl: existing?.photoUrl ?? '',
       isActive: existing?.isActive ?? true,
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, existing]);
 
   const onSubmit = async (data: CategoryFormData) => {

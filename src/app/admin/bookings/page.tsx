@@ -327,6 +327,7 @@ function EditBookingDialog({
       numberOfGuests: booking.numberOfGuests,
       specialRequests: booking.specialRequests ?? '',
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, booking]);
 
   const checkIn = form.watch('checkIn');

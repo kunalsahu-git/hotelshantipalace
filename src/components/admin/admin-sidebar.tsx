@@ -69,13 +69,13 @@ export function AdminSidebar() {
             <Link key={link.href} href={link.href}>
               <span
                 className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 relative",
                   isActive
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'hover:bg-sidebar-accent/10'
+                    ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
+                    : 'hover:bg-sidebar-accent/10 hover:translate-x-0.5'
                 )}
               >
-                <link.icon className="h-5 w-5" />
+                <link.icon className={cn("h-5 w-5 transition-transform duration-200", isActive && "scale-110")} />
                 {link.label}
               </span>
             </Link>

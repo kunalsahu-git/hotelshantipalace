@@ -3,12 +3,11 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { collection, query, orderBy, runTransaction, doc, getDoc } from 'firebase/firestore';
-import { format, parseISO } from 'date-fns';
-import { LogIn, LogOut, UserCheck, UserX, BedDouble, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { format } from 'date-fns';
+import { LogIn, LogOut, UserCheck, UserX, CheckCircle2 } from 'lucide-react';
 
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import type { Booking, Room } from '@/lib/types';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,119 +15,13 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { CheckInWizard } from '@/components/admin/checkin-wizard';
 
 type BookingWithId = Booking & { id: string };
 type RoomWithId = Room & { id: string };
-
-// ─── Room Select Dialog (P1.4) ────────────────────────────────────────────────
-
-function RoomSelectDialog({
-  booking,
-  availableRooms,
-  open,
-  onOpenChange,
-  onConfirm,
-  isLoading,
-  guestIdMissing,
-}: {
-  booking: BookingWithId | null;
-  availableRooms: RoomWithId[];
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  onConfirm: (booking: BookingWithId, room: RoomWithId) => void;
-  isLoading: boolean;
-  guestIdMissing: boolean;
-}) {
-  const [selectedRoomId, setSelectedRoomId] = useState<string>('');
-
-  if (!booking) return null;
-
-  const matchingRooms = availableRooms
-    .filter(r => r.categoryId === booking.categoryId)
-    .sort((a, b) => {
-      const order = { inspected: 0, clean: 1, dirty: 2, in_progress: 3 };
-      return (order[a.housekeepingStatus] ?? 4) - (order[b.housekeepingStatus] ?? 4);
-    });
-
-  const handleConfirm = () => {
-    const room = matchingRooms.find(r => r.id === selectedRoomId);
-    if (room) onConfirm(booking, room);
-  };
-
-  const hkBadge = (status: Room['housekeepingStatus']) => {
-    switch (status) {
-      case 'inspected': return <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">Inspected ✓</span>;
-      case 'clean':     return <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-green-100 text-green-700">Clean</span>;
-      default:          return <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700">Not Ready</span>;
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={v => { if (!v) setSelectedRoomId(''); onOpenChange(v); }}>
-      <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
-          <DialogTitle>Assign Room — {booking.guestName}</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-3">
-          {guestIdMissing && (
-            <div className="flex items-start gap-2 rounded-md border border-yellow-300 bg-yellow-50 px-3 py-2.5 text-sm text-yellow-800">
-              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-yellow-600" />
-              <span>Guest ID not on file. Please collect ID proof before check-in.</span>
-            </div>
-          )}
-          <p className="text-sm text-muted-foreground">
-            Select an available <strong>{booking.categoryName}</strong> room:
-          </p>
-
-          {matchingRooms.length === 0 ? (
-            <div className="text-center py-6 text-sm text-muted-foreground">
-              <BedDouble className="h-8 w-8 mx-auto mb-2 opacity-30" />
-              No available {booking.categoryName} rooms. Update room status in the Rooms page first.
-            </div>
-          ) : (
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {matchingRooms.map(room => (
-                <button
-                  key={room.id}
-                  type="button"
-                  onClick={() => setSelectedRoomId(room.id)}
-                  className={`w-full text-left rounded-lg border p-3 transition-colors ${
-                    selectedRoomId === room.id
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/40 hover:bg-muted/40'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold">Room {room.roomNumber}</p>
-                    {hkBadge(room.housekeepingStatus)}
-                  </div>
-                  <p className="text-xs text-muted-foreground">{room.floor} · {room.categoryName}</p>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">Cancel</Button>
-          </DialogClose>
-          <Button
-            onClick={handleConfirm}
-            disabled={!selectedRoomId || isLoading || matchingRooms.length === 0}
-          >
-            <LogIn className="h-4 w-4 mr-1.5" />
-            {isLoading ? 'Checking In...' : 'Check In'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 // ─── Booking Row ──────────────────────────────────────────────────────────────
 
@@ -184,7 +77,6 @@ export default function CheckinPage() {
   const { toast } = useToast();
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [checkInBooking, setCheckInBooking] = useState<BookingWithId | null>(null);
-  const [guestIdMissing, setGuestIdMissing] = useState(false);
   const [checkOutDone, setCheckOutDone] = useState<BookingWithId | null>(null);
 
   const bookingsQuery = useMemoFirebase(
@@ -216,28 +108,13 @@ export default function CheckinPage() {
     [rooms]
   );
 
-  // P1.4 — opens room selection dialog; P2.3 — check guest ID
-  const handleCheckInClick = async (booking: BookingWithId) => {
+  // Opens the check-in wizard
+  const handleCheckInClick = (booking: BookingWithId) => {
     setCheckInBooking(booking);
-    setGuestIdMissing(false);
-    if (booking.guestId && firestore) {
-      try {
-        const snap = await getDoc(doc(firestore, 'guests', booking.guestId));
-        if (snap.exists()) {
-          const data = snap.data();
-          setGuestIdMissing(!data.idType && !data.idNumber);
-        } else {
-          setGuestIdMissing(true);
-        }
-      } catch {
-        // If fetch fails, don't block check-in
-      }
-    } else {
-      setGuestIdMissing(true); // No guest record at all
-    }
   };
 
-  const handleCheckInConfirm = async (booking: BookingWithId, room: RoomWithId) => {
+  // Handle final check-in confirmation from wizard
+  const handleCheckInConfirm = async (booking: BookingWithId, room: RoomWithId, paymentType: 'advance' | 'paylater') => {
     if (!firestore) return;
     setLoadingId(booking.id);
     try {
@@ -246,13 +123,17 @@ export default function CheckinPage() {
           status: 'checked_in',
           roomId: room.id,
           roomNumber: room.roomNumber,
+          paymentType,
         });
         tx.update(doc(firestore, 'rooms', room.id), {
           status: 'occupied',
           currentBookingId: booking.id,
         });
       });
-      toast({ title: 'Checked In', description: `${booking.guestName} → Room ${room.roomNumber}.` });
+      toast({
+        title: 'Checked In',
+        description: `${booking.guestName} → Room ${room.roomNumber}. Payment: ${paymentType === 'advance' ? 'Advance Paid' : 'Pay at Checkout'}.`
+      });
       setCheckInBooking(null);
     } catch {
       toast({ variant: 'destructive', title: 'Error', description: 'Check-in failed. Try again.' });
@@ -267,7 +148,6 @@ export default function CheckinPage() {
     setLoadingId(booking.id);
     try {
       await runTransaction(firestore, async tx => {
-        // All reads before any writes
         let currentTotalStays: number | null = null;
         const guestRef = booking.guestId ? doc(firestore, 'guests', booking.guestId) : null;
         if (guestRef) {
@@ -275,7 +155,6 @@ export default function CheckinPage() {
           if (guestSnap.exists()) currentTotalStays = guestSnap.data().totalStays ?? 0;
         }
 
-        // Writes
         tx.update(doc(firestore, 'bookings', booking.id), { status: 'checked_out' });
         if (booking.roomId) {
           tx.update(doc(firestore, 'rooms', booking.roomId), {
@@ -417,15 +296,14 @@ export default function CheckinPage() {
         </CardContent>
       </Card>
 
-      {/* Room Select Dialog */}
-      <RoomSelectDialog
-        booking={checkInBooking}
+      {/* Check-in Wizard */}
+      <CheckInWizard
+        booking={checkInBooking!}
         availableRooms={availableRooms}
         open={!!checkInBooking}
         onOpenChange={open => !open && setCheckInBooking(null)}
         onConfirm={handleCheckInConfirm}
         isLoading={!!loadingId}
-        guestIdMissing={guestIdMissing}
       />
 
       {/* Post-Checkout Bill Prompt */}

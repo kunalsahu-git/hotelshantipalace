@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { format, parseISO, subMonths, startOfMonth, endOfMonth } from 'date-fns';
-import { BarChart3, TrendingUp, IndianRupee, BedDouble, Users, Calendar, Star } from 'lucide-react';
+import { BarChart3, TrendingUp, IndianRupee, BedDouble, Users, Calendar, Star, LucideIcon } from 'lucide-react';
 
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import type { Bill, Booking, Room } from '@/lib/types';
@@ -28,7 +28,7 @@ function StatCard({
   title: string;
   value: string;
   sub?: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   loading?: boolean;
 }) {
   return (
@@ -130,9 +130,10 @@ export default function ReportsPage() {
 
   // ── Monthly revenue (last 6 months) ─────────────────────────────────────────
   const monthlyRevenue = useMemo(() => {
+    const now = new Date();
     const months: { label: string; key: string; amount: number }[] = [];
     for (let i = 5; i >= 0; i--) {
-      const d = subMonths(today, i);
+      const d = subMonths(now, i);
       const key = format(d, 'yyyy-MM');
       const label = format(d, 'MMM yy');
       const amount = paidBills

@@ -44,6 +44,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { AnimateIn } from '@/components/animate-in';
 
 const heroImage = PlaceHolderImages.find((img) => img.id === 'hilton-hero');
 const testimonialImages = {
@@ -152,13 +153,13 @@ export default function Home() {
         
         <div className="relative z-10 container mx-auto px-4">
             <div className="max-w-xl text-left mt-16">
-                <h1 className="text-5xl md:text-7xl font-headline font-bold text-white">
+                <h1 className="text-5xl md:text-7xl font-headline font-bold text-white animate-fade-up">
                     A Sanctuary Of Elegance And Comfort.
                 </h1>
-                <p className="mt-4 text-lg text-gray-200">
+                <p className="mt-4 text-lg text-gray-200 animate-fade-up delay-150">
                     Nestled in the heart of the city, our hotel offers an exquisite retreat where timeless elegance meets modern sophistication.
                 </p>
-                <div className="flex items-center gap-6 mt-8">
+                <div className="flex items-center gap-6 mt-8 animate-fade-up delay-300">
                     <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg py-7 px-10 rounded-full">
                         <Link href="/book">Book Now</Link>
                     </Button>
@@ -172,7 +173,7 @@ export default function Home() {
                       <DialogContent className="max-w-4xl w-full p-0 border-0 bg-black/80 backdrop-blur-sm">
                         <DialogHeader className="sr-only">
                           <DialogTitle>Hotel Promotional Video</DialogTitle>
-                          <DialogDescription>A short video showcasing the hotel's amenities and atmosphere.</DialogDescription>
+                          <DialogDescription>A short video showcasing the hotel&apos;s amenities and atmosphere.</DialogDescription>
                         </DialogHeader>
                         <div className="aspect-video">
                           <iframe
@@ -255,13 +256,13 @@ export default function Home() {
           </p>
           <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="flex flex-col items-center">
-                <div className="bg-primary/10 p-4 rounded-full">
+              <AnimateIn key={index} delay={index * 100} className="flex flex-col items-center group">
+                <div className="bg-primary/10 p-4 rounded-full transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
                   <feature.icon className="w-10 h-10 text-primary" />
                 </div>
                 <h3 className="mt-4 text-2xl font-semibold">{feature.title}</h3>
                 <p className="mt-2 text-muted-foreground">{feature.description}</p>
-              </div>
+              </AnimateIn>
             ))}
           </div>
         </div>
@@ -339,7 +340,7 @@ export default function Home() {
                         </div>
                       </CardHeader>
                       <CardContent className="flex-grow">
-                        <p className="text-muted-foreground italic">"{testimonial.review}"</p>
+                        <p className="text-muted-foreground italic">&ldquo;{testimonial.review}&rdquo;</p>
                       </CardContent>
                     </Card>
                   </div>

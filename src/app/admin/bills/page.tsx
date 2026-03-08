@@ -278,6 +278,7 @@ function GenerateBillDialog({
     if (!match) return;
     form.setValue('bookingId', initialBookingId);
     setOpen(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialBookingId, bookings.length]);
 
   const { fields, append, remove } = useFieldArray({
@@ -427,7 +428,7 @@ function GenerateBillDialog({
                 </Button>
               </div>
               {fields.length === 0 && (
-                <p className="text-sm text-muted-foreground">No extra charges. Click "Add Item" to add room service, meals, etc.</p>
+                <p className="text-sm text-muted-foreground">No extra charges. Click &ldquo;Add Item&rdquo; to add room service, meals, etc.</p>
               )}
               <div className="space-y-2">
                 {fields.map((field, index) => (
@@ -796,6 +797,7 @@ function MarkPaymentDialog({
   useEffect(() => {
     if (!open) return;
     form.reset({ paymentStatus: 'paid', paymentMethod: 'cash', paidAmount: bill?.totalAmount ?? 0 });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, bill]);
 
   const onSubmit = async (data: PaymentData) => {

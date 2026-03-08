@@ -122,6 +122,7 @@ function RoomFormDialog({
       housekeepingStatus: existing?.housekeepingStatus ?? 'clean',
       notes: existing?.notes ?? '',
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, existing]);
 
   const onSubmit = async (data: RoomFormData) => {

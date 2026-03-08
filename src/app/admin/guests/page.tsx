@@ -89,6 +89,7 @@ function GuestFormDialog({
       nationality: existing?.nationality ?? '',
       notes: existing?.notes ?? '',
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, existing]);
 
   const handleOpenChange = (v: boolean) => {

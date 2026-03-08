@@ -12,7 +12,7 @@ export default function BookPage() {
       <div className="mx-auto max-w-4xl">
         <h1 className="text-4xl font-bold text-center mb-4">Make a Reservation</h1>
         <p className="text-lg text-muted-foreground text-center mb-12">
-          We're excited to welcome you. Please fill out the details below.
+          We&apos;re excited to welcome you. Please fill out the details below.
         </p>
         {isLoading ? (
           <div className="space-y-4">

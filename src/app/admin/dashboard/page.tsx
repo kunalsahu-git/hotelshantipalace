@@ -100,8 +100,11 @@ export default function DashboardPage() {
 
   const isLoading = roomsLoading || enquiriesLoading || bookingsLoading || isStaffLoading;
 
-  const StatCard = ({ title, value, icon: Icon, description, loading }: any) => (
-    <Card>
+  const StatCard = ({ title, value, icon: Icon, description, loading, delay = 0 }: any) => (
+    <Card
+      className="transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+      style={{ animationDelay: `${delay}ms` }}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <Icon className="h-4 w-4 text-muted-foreground" />
@@ -133,7 +136,7 @@ export default function DashboardPage() {
       
       {/* New Enquiries Alert */}
       {!enquiriesLoading && newEnquiries && newEnquiries.length > 0 && (
-         <Alert className="bg-primary/5 border-primary/20">
+         <Alert className="bg-primary/5 border-primary/20 animate-scale-in">
            <AlertCircle className="h-4 w-4 text-primary" />
            <AlertTitle className="text-primary font-bold">New Enquiries</AlertTitle>
            <AlertDescription className="text-primary/90 flex justify-between items-center">
@@ -146,12 +149,13 @@ export default function DashboardPage() {
       )}
 
       {/* Top Stat Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 animate-fade-in">
         <StatCard
           title="Total Rooms"
           value={totalRooms}
           icon={Building}
           loading={isLoading}
+          delay={0}
         />
         <StatCard
           title="Website Bookings Today"
@@ -159,24 +163,28 @@ export default function DashboardPage() {
           icon={Globe}
           loading={isLoading}
           description={(websiteBookings?.length ?? 0) > 0 ? "New bookings received" : "From shantipalace.com"}
+          delay={75}
         />
         <StatCard
           title="Occupied Today"
           value={occupiedRooms}
           icon={Bed}
           loading={isLoading}
+          delay={150}
         />
         <StatCard
           title="Available Now"
           value={availableRooms}
           icon={Users}
           loading={isLoading}
+          delay={225}
         />
         <StatCard
           title="Occupancy %"
           value={`${occupancyPct}%`}
           icon={Percent}
           loading={isLoading}
+          delay={300}
         />
       </div>
 
