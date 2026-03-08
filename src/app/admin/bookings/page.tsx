@@ -60,6 +60,7 @@ import {
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { NewBookingDialog } from '@/components/admin/new-booking-dialog';
+import { CheckInWizard } from '@/components/admin/checkin-wizard';
 
 type BookingWithId = Booking & { id: string };
 type RoomWithId = Room & { id: string };
@@ -183,106 +184,6 @@ function ViewBookingDialog({
           <DialogClose asChild>
             <Button variant="secondary">Close</Button>
           </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ─── Room Select Dialog (P1.4) ────────────────────────────────────────────────
-
-function RoomSelectDialog({
-  booking,
-  availableRooms,
-  open,
-  onOpenChange,
-  onConfirm,
-  isLoading,
-}: {
-  booking: BookingWithId | null;
-  availableRooms: RoomWithId[];
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  onConfirm: (booking: BookingWithId, room: RoomWithId) => void;
-  isLoading: boolean;
-}) {
-  const [selectedRoomId, setSelectedRoomId] = useState<string>('');
-
-  if (!booking) return null;
-
-  const matchingRooms = availableRooms
-    .filter(r => r.categoryId === booking.categoryId)
-    .sort((a, b) => {
-      // inspected first, then clean, then others
-      const order = { inspected: 0, clean: 1, dirty: 2, in_progress: 3 };
-      return (order[a.housekeepingStatus] ?? 4) - (order[b.housekeepingStatus] ?? 4);
-    });
-
-  const handleConfirm = () => {
-    const room = matchingRooms.find(r => r.id === selectedRoomId);
-    if (room) onConfirm(booking, room);
-  };
-
-  const hkBadge = (status: Room['housekeepingStatus']) => {
-    switch (status) {
-      case 'inspected': return <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">Inspected ✓</span>;
-      case 'clean':     return <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-green-100 text-green-700">Clean</span>;
-      default:          return <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700">Not Ready</span>;
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={v => { if (!v) setSelectedRoomId(''); onOpenChange(v); }}>
-      <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
-          <DialogTitle>Assign Room — {booking.guestName}</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">
-            Select an available <strong>{booking.categoryName}</strong> room:
-          </p>
-
-          {matchingRooms.length === 0 ? (
-            <div className="text-center py-6 text-sm text-muted-foreground">
-              <BedDouble className="h-8 w-8 mx-auto mb-2 opacity-30" />
-              No available {booking.categoryName} rooms. Update room status in the Rooms page first.
-            </div>
-          ) : (
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {matchingRooms.map(room => (
-                <button
-                  key={room.id}
-                  type="button"
-                  onClick={() => setSelectedRoomId(room.id)}
-                  className={`w-full text-left rounded-lg border p-3 transition-colors ${
-                    selectedRoomId === room.id
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/40 hover:bg-muted/40'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold">Room {room.roomNumber}</p>
-                    {hkBadge(room.housekeepingStatus)}
-                  </div>
-                  <p className="text-xs text-muted-foreground">{room.floor} · {room.categoryName}</p>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">Cancel</Button>
-          </DialogClose>
-          <Button
-            onClick={handleConfirm}
-            disabled={!selectedRoomId || isLoading || matchingRooms.length === 0}
-          >
-            <LogIn className="h-4 w-4 mr-1.5" />
-            {isLoading ? 'Checking In...' : 'Check In'}
-          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -615,12 +516,11 @@ export default function BookingsPage() {
 
   const { page, setPage, pageSize, setPageSize, paginatedItems: pageBookings, totalItems, totalPages, showPagination } = usePagination(filteredBookings);
 
-  // P1.4 — room selection: opens dialog, actual check-in happens on confirm
   const handleCheckIn = (booking: BookingWithId) => {
     setCheckInBooking(booking);
   };
 
-  const handleCheckInConfirm = async (booking: BookingWithId, room: RoomWithId) => {
+  const handleCheckInConfirm = async (booking: BookingWithId, room: RoomWithId, paymentType: 'advance' | 'paylater') => {
     if (!firestore) return;
     setLoadingId(booking.id);
     try {
@@ -629,13 +529,17 @@ export default function BookingsPage() {
           status: 'checked_in',
           roomId: room.id,
           roomNumber: room.roomNumber,
+          paymentType,
         });
         tx.update(doc(firestore, 'rooms', room.id), {
           status: 'occupied',
           currentBookingId: booking.id,
         });
       });
-      toast({ title: 'Checked In', description: `${booking.guestName} → Room ${room.roomNumber}.` });
+      toast({
+        title: 'Checked In',
+        description: `${booking.guestName} → Room ${room.roomNumber}. Payment: ${paymentType === 'advance' ? 'Advance Paid' : 'Pay at Checkout'}.`
+      });
       setCheckInBooking(null);
     } catch {
       toast({ variant: 'destructive', title: 'Error', description: 'Check-in failed. Try again.' });
@@ -945,7 +849,7 @@ export default function BookingsPage() {
                     </TableCell>
                     <TableCell className="text-center text-sm">{booking.numberOfNights}</TableCell>
                     <TableCell className="text-right text-sm hidden sm:table-cell">
-                      {booking.totalPrice ? `₹${booking.totalPrice.toLocaleString('en-IN')}` : '—'}
+                      {booking.totalPrice ? `₹{booking.totalPrice.toLocaleString('en-IN')}` : '—'}
                     </TableCell>
                     <TableCell><SourceBadge source={booking.source} /></TableCell>
                     <TableCell><StatusBadge status={booking.status} /></TableCell>
@@ -1057,15 +961,17 @@ export default function BookingsPage() {
         onOpenChange={open => !open && setEditBooking(null)}
       />
 
-      {/* Room Select Dialog for Check-In */}
-      <RoomSelectDialog
-        booking={checkInBooking}
-        availableRooms={availableRooms}
-        open={!!checkInBooking}
-        onOpenChange={open => !open && setCheckInBooking(null)}
-        onConfirm={handleCheckInConfirm}
-        isLoading={!!loadingId}
-      />
+      {/* Check-in Wizard for Bookings */}
+      {checkInBooking && (
+        <CheckInWizard
+          booking={checkInBooking}
+          availableRooms={availableRooms}
+          open={!!checkInBooking}
+          onOpenChange={open => !open && setCheckInBooking(null)}
+          onConfirm={handleCheckInConfirm}
+          isLoading={!!loadingId}
+        />
+      )}
 
       {/* Extend Stay Dialog */}
       <ExtendStayDialog
