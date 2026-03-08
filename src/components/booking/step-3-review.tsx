@@ -10,13 +10,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { BookingFormData } from '@/lib/schemas';
-import { roomCategories } from '@/lib/mock-data';
-import type { Booking } from '@/lib/types';
+import type { Booking, RoomCategory } from '@/lib/types';
 import { useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, PartyPopper } from 'lucide-react';
 
-export function Step3Review({ prevStep }: { prevStep: () => void }) {
+export function Step3Review({ prevStep, allRooms }: { prevStep: () => void; allRooms: RoomCategory[] }) {
   const { getValues } = useFormContext<BookingFormData>();
   const router = useRouter();
   const firestore = useFirestore();
@@ -24,7 +23,7 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const data = getValues();
-  const room = roomCategories.find((r) => r.id === data.categoryId);
+  const room = allRooms.find((r) => r.id === data.categoryId);
   
   if (!room || !data.checkIn || !data.checkOut) {
     // This should not happen if steps are followed correctly.
@@ -50,6 +49,22 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
       return;
     }
 
+    // P2.7 — create guest profile on website booking
+    let guestId: string | undefined;
+    try {
+      const guestRef = await addDoc(collection(firestore, 'guests'), {
+        name: data.guestName,
+        email: data.guestEmail,
+        phone: data.guestPhone,
+        totalStays: 0,
+        source: 'website',
+        createdAt: serverTimestamp(),
+      });
+      guestId = guestRef.id;
+    } catch {
+      // Non-fatal — booking can still be created without a guest profile
+    }
+
     const bookingPayload: Omit<Booking, 'id' | 'createdAt'> = {
       guestName: data.guestName,
       guestEmail: data.guestEmail,
@@ -65,10 +80,11 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
       status: 'reserved',
       bookingType: 'advance',
       source: 'website',
+      ...(guestId ? { guestId } : {}),
     };
 
     const bookingsCollection = collection(firestore, 'bookings');
-    
+
     addDoc(bookingsCollection, {
         ...bookingPayload,
         createdAt: serverTimestamp(),
@@ -118,7 +134,7 @@ export function Step3Review({ prevStep }: { prevStep: () => void }) {
                   <hr />
                   <div>
                     <strong className="block text-muted-foreground">Special Requests</strong>
-                    <p className="italic text-muted-foreground">"{data.specialRequests}"</p>
+                    <p className="italic text-muted-foreground">&ldquo;{data.specialRequests}&rdquo;</p>
                   </div>
                 </>
             )}

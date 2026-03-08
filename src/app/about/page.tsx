@@ -66,7 +66,7 @@ export default function AboutPage() {
               Hotel Shanti Palace was born from a simple vision: to create a sanctuary of peace in the heart of the city. We believe that true luxury lies not in opulence, but in tranquility and heartfelt hospitality. Our journey began with the desire to offer a space where weary travelers could find rest, and curious explorers could find a welcoming base.
             </p>
             <p>
-              Our name, "Shanti," means peace in Sanskrit, and it is the guiding principle behind everything we do. From the carefully curated design of our rooms to the quiet corners of our garden, every detail is intended to soothe the mind and soul. We are more than just a hotel; we are a family dedicated to making your stay a memorable experience of comfort and calm.
+              Our name, &ldquo;Shanti,&rdquo; means peace in Sanskrit, and it is the guiding principle behind everything we do. From the carefully curated design of our rooms to the quiet corners of our garden, every detail is intended to soothe the mind and soul. We are more than just a hotel; we are a family dedicated to making your stay a memorable experience of comfort and calm.
             </p>
           </div>
         </div>
@@ -76,7 +76,7 @@ export default function AboutPage() {
       <section className="bg-card py-20">
         <div className="container mx-auto px-4 text-center">
           <p className="font-headline text-4xl md:text-5xl italic text-primary">
-            "Every guest is family. Every stay is a memory."
+            &ldquo;Every guest is family. Every stay is a memory.&rdquo;
           </p>
         </div>
       </section>

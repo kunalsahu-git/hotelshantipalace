@@ -36,6 +36,23 @@ export const LoginFormSchema = z.object({
 
 export type LoginFormData = z.infer<typeof LoginFormSchema>;
 
+export const AdminBookingFormSchema = z.object({
+  guestName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
+  guestPhone: z.string().min(10, { message: "Please enter a valid phone number." }),
+  guestEmail: z.string().email({ message: "Please enter a valid email address." }),
+  numberOfGuests: z.coerce.number().min(1, { message: "At least one guest is required." }),
+  categoryId: z.string({ required_error: "Please select a room category." }).min(1),
+  checkIn: z.date({ required_error: "Check-in date is required." }),
+  checkOut: z.date({ required_error: "Check-out date is required." }),
+  specialRequests: z.string().optional(),
+  bookingType: z.enum(['advance', 'walkin']),
+}).refine(data => data.checkIn < data.checkOut, {
+  message: "Check-out date must be after check-in date.",
+  path: ["checkOut"],
+});
+
+export type AdminBookingFormData = z.infer<typeof AdminBookingFormSchema>;
+
 export const RoomFormSchema = z.object({
   roomNumber: z.string().min(1, { message: "Room number is required." }),
   floor: z.string().min(1, { message: "Floor is required." }),

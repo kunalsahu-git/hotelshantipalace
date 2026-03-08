@@ -81,7 +81,7 @@ export function EnquiryForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 h-full flex flex-col">
         <div>
           <h2 className="text-2xl font-bold">Send us a Message</h2>
-          <p className="text-muted-foreground">Fill out the form and we'll be in touch.</p>
+          <p className="text-muted-foreground">Fill out the form and we&apos;ll be in touch.</p>
         </div>
         
         <div className="space-y-6 flex-grow">

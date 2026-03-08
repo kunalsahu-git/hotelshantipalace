@@ -76,12 +76,14 @@ export function BookingWizard({ allRooms }: { allRooms: RoomCategory[] }) {
             <div className="flex-grow">
                 <BookingProgress currentStep={currentStep} />
             </div>
-            <Button variant="outline" onClick={handleFillTestData}>Fill with Test Data</Button>
+            {process.env.NODE_ENV === 'development' && (
+              <Button variant="outline" onClick={handleFillTestData}>Fill with Test Data</Button>
+            )}
         </div>
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6 md:p-8">
             {currentStep === 1 && <Step1Details nextStep={nextStep} />}
             {currentStep === 2 && <Step2RoomSelection prevStep={prevStep} nextStep={nextStep} allRooms={allRooms} />}
-            {currentStep === 3 && <Step3Review prevStep={prevStep} />}
+            {currentStep === 3 && <Step3Review prevStep={prevStep} allRooms={allRooms} />}
         </div>
       </div>
     </FormProvider>

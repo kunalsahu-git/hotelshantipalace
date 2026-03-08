@@ -14,16 +14,17 @@ const amenityIcons: { [key: string]: React.ElementType } = {
 
 export function RoomCategoryCard({ category }: { category: RoomCategory }) {
   return (
-    <Card className="overflow-hidden h-full flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
+    <Card className="overflow-hidden h-full flex flex-col shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
       <CardHeader className="p-0">
-        <div className="relative aspect-video">
+        <div className="relative aspect-video overflow-hidden">
           <Image
             src={category.photoUrl}
             alt={`Photo of ${category.name}`}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             data-ai-hint={category.imageHint}
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
       </CardHeader>
       <CardContent className="p-6 flex-grow">
@@ -34,21 +35,24 @@ export function RoomCategoryCard({ category }: { category: RoomCategory }) {
         </div>
         <p className="text-muted-foreground mb-4 line-clamp-3">{category.description}</p>
         <div className="flex flex-wrap gap-2">
-            {category.amenities.map((amenity, index) => {
-                 const Icon = amenityIcons[amenity];
-                 return (
-                    <Badge key={index} variant="secondary" className="flex items-center gap-2 py-1 px-2">
-                         {Icon && <Icon className="w-4 h-4" />}
-                         <span>{amenity}</span>
-                    </Badge>
-                 )
-            })}
+          {category.amenities.map((amenity, index) => {
+            const Icon = amenityIcons[amenity];
+            return (
+              <Badge key={index} variant="secondary" className="flex items-center gap-2 py-1 px-2">
+                {Icon && <Icon className="w-4 h-4" />}
+                <span>{amenity}</span>
+              </Badge>
+            );
+          })}
         </div>
       </CardContent>
       <CardFooter className="p-6 bg-background/50 flex justify-between items-center mt-auto">
         <div>
           <p className="text-sm text-muted-foreground">From</p>
-          <p className="text-2xl font-bold text-primary">₹{category.basePrice.toLocaleString()}<span className="text-sm font-normal text-muted-foreground">/night</span></p>
+          <p className="text-2xl font-bold text-primary">
+            ₹{category.basePrice.toLocaleString()}
+            <span className="text-sm font-normal text-muted-foreground">/night</span>
+          </p>
         </div>
         <Button asChild size="lg">
           <Link href={`/rooms/${category.id}`}>View Details</Link>
