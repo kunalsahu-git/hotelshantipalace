@@ -31,7 +31,7 @@ service cloud.firestore {
       allow read, delete: if request.auth != null;
       allow update: if request.auth != null
         || request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['idType', 'idNumber', 'idFrontUrl', 'idBackUrl', 'idUploadedAt']);
+             .hasOnly(['age', 'idType', 'idNumber', 'idFrontUrl', 'idBackUrl', 'idUploadedAt']);
     }
 
     // --- Bookings ---
@@ -41,8 +41,9 @@ service cloud.firestore {
       // Allow authenticated users to read (get + list) and modify bookings.
       allow read, delete: if request.auth != null;
       allow update: if request.auth != null
-        // The QR check-in page may set guestId on a booking that doesn't have one yet.
-        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['guestId']);
+        // The QR check-in page may set guestId or additionalGuests on a booking.
+        || request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['guestId', 'additionalGuests']);
     }
 
     // --- Bills ---

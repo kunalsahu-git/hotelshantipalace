@@ -1,15 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { doc, getDoc, updateDoc, serverTimestamp, collection, addDoc } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CheckCircle2, Upload, Loader2 } from 'lucide-react';
+import { CheckCircle2, Upload, Loader2, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+// ─── Types ─────────────────────────────────────────────────────────────────────
 
 interface BookingData {
   id: string;
@@ -19,15 +22,34 @@ interface BookingData {
   guestId?: string;
   checkIn: string;
   checkOut: string;
+  numberOfGuests: number;
   status: string;
   source?: 'website' | 'admin';
 }
 
-async function uploadIdPhoto(file: File, guestId: string, side: 'front' | 'back'): Promise<string> {
+interface GuestForm {
+  name: string;
+  age: string;
+  idType: string;
+  idNumber: string;
+  frontFile: File | null;
+  frontPreview: string | null;
+  backFile: File | null;
+  backPreview: string | null;
+}
+
+// ─── Cloudinary upload helper ──────────────────────────────────────────────────
+
+async function uploadIdPhoto(
+  file: File,
+  guestId: string,
+  side: 'front' | 'back',
+  guestIndex: number
+): Promise<string> {
   const signRes = await fetch('/api/cloudinary/sign', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ guestId, side }),
+    body: JSON.stringify({ guestId, side, guestIndex }),
   });
   if (!signRes.ok) throw new Error('Failed to get upload signature');
   const { signature, timestamp, apiKey, cloudName, folder, publicId } = await signRes.json();
@@ -48,9 +70,174 @@ async function uploadIdPhoto(file: File, guestId: string, side: 'front' | 'back'
     const err = await uploadRes.json().catch(() => ({}));
     throw new Error(err.error?.message || 'Upload failed');
   }
-  const data = await uploadRes.json();
-  return data.secure_url as string;
+  return (await uploadRes.json()).secure_url as string;
 }
+
+// ─── File picker ────────────────────────────────────────────────────────────────
+
+function PhotoPicker({
+  label,
+  preview,
+  onChange,
+  onClear,
+  required,
+}: {
+  label: string;
+  preview: string | null;
+  onChange: (file: File, preview: string) => void;
+  onClear: () => void;
+  required?: boolean;
+}) {
+  const { toast } = useToast();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Please select an image file.' });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Image must be less than 5MB.' });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => onChange(file, ev.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div>
+      <Label>{label}{required && <span className="text-destructive ml-1">*</span>}</Label>
+      <div className="mt-1">
+        {preview ? (
+          <div className="relative">
+            <img src={preview} alt={label} className="w-full h-36 object-cover rounded-lg border" />
+            <Button variant="secondary" size="sm" className="absolute bottom-2 right-2" onClick={onClear}>
+              Change
+            </Button>
+          </div>
+        ) : (
+          <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-lg cursor-pointer bg-muted/30 hover:bg-muted/50 transition-colors">
+            <Upload className="w-7 h-7 mb-1 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">Tap to upload</p>
+            <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleChange} />
+          </label>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Guest section ──────────────────────────────────────────────────────────────
+
+function GuestSection({
+  index,
+  total,
+  form,
+  isPrimary,
+  onChange,
+}: {
+  index: number;
+  total: number;
+  form: GuestForm;
+  isPrimary: boolean;
+  onChange: (updated: Partial<GuestForm>) => void;
+}) {
+  return (
+    <div className="border rounded-xl p-4 space-y-3">
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-semibold">
+          {index + 1}
+        </div>
+        <div>
+          <p className="font-semibold text-sm">
+            {isPrimary ? 'Primary Guest' : `Guest ${index + 1}`}
+            {total > 1 && <span className="text-xs text-muted-foreground font-normal ml-1">({index + 1} of {total})</span>}
+          </p>
+        </div>
+      </div>
+
+      {/* Name + Age */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className={isPrimary ? 'col-span-2 sm:col-span-1' : ''}>
+          <Label>Full Name <span className="text-destructive">*</span></Label>
+          <Input
+            value={form.name}
+            onChange={e => onChange({ name: e.target.value })}
+            placeholder="Full name"
+            readOnly={isPrimary}
+            className={isPrimary ? 'bg-muted cursor-default' : ''}
+          />
+        </div>
+        <div>
+          <Label>Age <span className="text-destructive">*</span></Label>
+          <Input
+            type="number"
+            min={1}
+            max={120}
+            value={form.age}
+            onChange={e => onChange({ age: e.target.value })}
+            placeholder="Age"
+          />
+        </div>
+      </div>
+
+      {/* ID Type + Number */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label>ID Type <span className="text-destructive">*</span></Label>
+          <select
+            value={form.idType}
+            onChange={e => onChange({ idType: e.target.value })}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <option value="">Select</option>
+            <option value="aadhar">Aadhar Card</option>
+            <option value="passport">Passport</option>
+            <option value="driving_license">Driving License</option>
+            <option value="voter_id">Voter ID</option>
+            <option value="pan">PAN Card</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <Label>ID Number <span className="text-destructive">*</span></Label>
+          <Input
+            value={form.idNumber}
+            onChange={e => onChange({ idNumber: e.target.value })}
+            placeholder="ID number"
+          />
+        </div>
+      </div>
+
+      {/* Photos */}
+      <div className="grid grid-cols-2 gap-3">
+        <PhotoPicker
+          label="ID Front"
+          required
+          preview={form.frontPreview}
+          onChange={(file, preview) => onChange({ frontFile: file, frontPreview: preview })}
+          onClear={() => onChange({ frontFile: null, frontPreview: null })}
+        />
+        <PhotoPicker
+          label="ID Back (Optional)"
+          preview={form.backPreview}
+          onChange={(file, preview) => onChange({ backFile: file, backPreview: preview })}
+          onClear={() => onChange({ backFile: null, backPreview: null })}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Main page ──────────────────────────────────────────────────────────────────
+
+const EMPTY_GUEST = (): GuestForm => ({
+  name: '', age: '', idType: '', idNumber: '',
+  frontFile: null, frontPreview: null, backFile: null, backPreview: null,
+});
 
 export default function CheckinUploadPage() {
   const params = useParams();
@@ -60,18 +247,13 @@ export default function CheckinUploadPage() {
 
   const [firestore, setFirestore] = useState<any>(null);
   const [initialized, setInitialized] = useState(false);
-
   const [booking, setBooking] = useState<BookingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
 
-  const [idType, setIdType] = useState('');
-  const [idNumber, setIdNumber] = useState('');
-  const [idFrontFile, setIdFrontFile] = useState<File | null>(null);
-  const [idBackFile, setIdBackFile] = useState<File | null>(null);
-  const [idFrontPreview, setIdFrontPreview] = useState<string | null>(null);
-  const [idBackPreview, setIdBackPreview] = useState<string | null>(null);
+  const [guests, setGuests] = useState<GuestForm[]>([EMPTY_GUEST()]);
 
   useEffect(() => {
     const { firestore: fs } = initializeFirebase();
@@ -92,12 +274,10 @@ export default function CheckinUploadPage() {
           return;
         }
 
-        const data = snap.data() as BookingData;
-        data.id = snap.id;
+        const data = { ...snap.data(), id: snap.id } as BookingData;
+        const numGuests = Math.max(1, data.numberOfGuests || 1);
 
         let currentGuestId = data.guestId;
-
-        // Create guest record if one doesn't exist yet
         if (!currentGuestId) {
           const guestRef = await addDoc(collection(firestore, 'guests'), {
             name: data.guestName,
@@ -114,13 +294,17 @@ export default function CheckinUploadPage() {
 
         setBooking(data);
 
-        // Check if ID already submitted
+        // Initialise guest forms — primary guest has name pre-filled
+        setGuests([
+          { ...EMPTY_GUEST(), name: data.guestName },
+          ...Array.from({ length: numGuests - 1 }, EMPTY_GUEST),
+        ]);
+
+        // Check if already fully submitted
         const guestSnap = await getDoc(doc(firestore, 'guests', currentGuestId));
         if (guestSnap.exists()) {
-          const guestData = guestSnap.data();
-          if (guestData.idFrontUrl && guestData.idUploadedAt) {
-            setAlreadySubmitted(true);
-          }
+          const gd = guestSnap.data();
+          if (gd.idFrontUrl && gd.idUploadedAt) setAlreadySubmitted(true);
         }
       } catch (err) {
         console.error('Error fetching booking:', err);
@@ -133,23 +317,21 @@ export default function CheckinUploadPage() {
     fetchBooking();
   }, [initialized, firestore, bookingId, router, toast]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, side: 'front' | 'back') => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Please select an image file.' });
-      return;
+  const updateGuest = useCallback((index: number, patch: Partial<GuestForm>) => {
+    setGuests(prev => prev.map((g, i) => i === index ? { ...g, ...patch } : g));
+  }, []);
+
+  const validate = (): string | null => {
+    for (let i = 0; i < guests.length; i++) {
+      const g = guests[i];
+      const label = i === 0 ? 'Primary guest' : `Guest ${i + 1}`;
+      if (!g.name.trim()) return `${label}: name is required.`;
+      if (!g.age || parseInt(g.age) < 1) return `${label}: valid age is required.`;
+      if (!g.idType) return `${label}: ID type is required.`;
+      if (!g.idNumber.trim()) return `${label}: ID number is required.`;
+      if (!g.frontFile) return `${label}: ID front photo is required.`;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Image must be less than 5MB.' });
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (side === 'front') { setIdFrontFile(file); setIdFrontPreview(e.target?.result as string); }
-      else { setIdBackFile(file); setIdBackPreview(e.target?.result as string); }
-    };
-    reader.readAsDataURL(file);
+    return null;
   };
 
   const handleSubmit = async () => {
@@ -157,34 +339,66 @@ export default function CheckinUploadPage() {
       toast({ variant: 'destructive', title: 'Error', description: 'System not ready. Please try again.' });
       return;
     }
-    if (!idFrontFile) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Please upload ID front photo.' });
-      return;
-    }
-    if (!idType || !idNumber) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Please enter ID type and number.' });
+
+    const err = validate();
+    if (err) {
+      toast({ variant: 'destructive', title: 'Missing information', description: err });
       return;
     }
 
     setSubmitting(true);
     try {
-      const updates: Record<string, any> = { idType, idNumber, idUploadedAt: serverTimestamp() };
+      const total = guests.length;
 
-      updates.idFrontUrl = await uploadIdPhoto(idFrontFile, booking.guestId, 'front');
-      if (idBackFile) {
-        updates.idBackUrl = await uploadIdPhoto(idBackFile, booking.guestId, 'back');
+      // ── Primary guest ──────────────────────────────────────────────────────
+      setUploadProgress(`Uploading Guest 1 of ${total}...`);
+      const primaryUpdates: Record<string, any> = {
+        age: parseInt(guests[0].age),
+        idType: guests[0].idType,
+        idNumber: guests[0].idNumber,
+        idUploadedAt: serverTimestamp(),
+      };
+      primaryUpdates.idFrontUrl = await uploadIdPhoto(guests[0].frontFile!, booking.guestId, 'front', 0);
+      if (guests[0].backFile) {
+        primaryUpdates.idBackUrl = await uploadIdPhoto(guests[0].backFile, booking.guestId, 'back', 0);
+      }
+      await updateDoc(doc(firestore, 'guests', booking.guestId), primaryUpdates);
+
+      // ── Additional guests ──────────────────────────────────────────────────
+      const additionalGuests = [];
+      for (let i = 1; i < guests.length; i++) {
+        setUploadProgress(`Uploading Guest ${i + 1} of ${total}...`);
+        const g = guests[i];
+        const entry: Record<string, any> = {
+          name: g.name.trim(),
+          age: parseInt(g.age),
+          idType: g.idType,
+          idNumber: g.idNumber.trim(),
+        };
+        entry.idFrontUrl = await uploadIdPhoto(g.frontFile!, booking.guestId, 'front', i);
+        if (g.backFile) {
+          entry.idBackUrl = await uploadIdPhoto(g.backFile, booking.guestId, 'back', i);
+        }
+        additionalGuests.push(entry);
       }
 
-      await updateDoc(doc(firestore, 'guests', booking.guestId), updates);
-      toast({ title: 'Success', description: 'ID proof submitted successfully!' });
+      // Save additional guests to booking doc
+      if (additionalGuests.length > 0) {
+        await updateDoc(doc(firestore, 'bookings', booking.id), { additionalGuests });
+      }
+
+      toast({ title: 'Submitted!', description: 'All guest IDs have been submitted successfully.' });
       setAlreadySubmitted(true);
     } catch (err) {
       console.error('Error uploading:', err);
-      toast({ variant: 'destructive', title: 'Error', description: 'Failed to upload. Please try again.' });
+      toast({ variant: 'destructive', title: 'Error', description: 'Upload failed. Please try again.' });
     } finally {
       setSubmitting(false);
+      setUploadProgress('');
     }
   };
+
+  // ── Loading ────────────────────────────────────────────────────────────────
 
   if (loading) {
     return (
@@ -197,145 +411,91 @@ export default function CheckinUploadPage() {
     );
   }
 
+  // ── Already submitted ──────────────────────────────────────────────────────
+
   if (alreadySubmitted) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 p-4">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
             <CheckCircle2 className="h-16 w-16 mx-auto text-green-500 mb-4" />
-            <h2 className="text-2xl font-bold text-green-700">ID Submitted</h2>
-            <p className="text-muted-foreground mt-2">Your ID proof has already been submitted. Thank you!</p>
-            <p className="text-sm text-muted-foreground mt-4">You can now proceed to your room at the front desk.</p>
+            <h2 className="text-2xl font-bold text-green-700">All Done!</h2>
+            <p className="text-muted-foreground mt-2">All guest IDs have been submitted. Thank you!</p>
+            <p className="text-sm text-muted-foreground mt-1">You can now proceed to your room at the front desk.</p>
+            <Button asChild className="mt-6 w-full">
+              <Link href="/">Go to Hotel Website</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
     );
   }
 
+  // ── Form ───────────────────────────────────────────────────────────────────
+
+  const numGuests = guests.length;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-4">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-4 pb-10">
+      <div className="max-w-md mx-auto space-y-4">
+        {/* Header card */}
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-xl">Complete Check-in</CardTitle>
-            <CardDescription>Upload your ID proof to complete the check-in process</CardDescription>
+            <CardDescription>
+              Please provide ID details for all {numGuests} guest{numGuests > 1 ? 's' : ''} in your booking.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Guest Info */}
-            {booking && (
-              <div className="bg-muted/50 rounded-lg p-3 space-y-1">
-                <p className="font-semibold">{booking.guestName}</p>
-                <p className="text-sm text-muted-foreground">{booking.guestPhone}</p>
-                <p className="text-sm text-muted-foreground">
-                  Check-in: {booking.checkIn} → Check-out: {booking.checkOut}
-                </p>
+          {booking && (
+            <CardContent className="pt-0">
+              <div className="bg-muted/50 rounded-lg p-3 space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Name</span>
+                  <span className="font-medium">{booking.guestName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Check-in</span>
+                  <span className="font-medium">{booking.checkIn}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Check-out</span>
+                  <span className="font-medium">{booking.checkOut}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Guests</span>
+                  <span className="font-medium">{numGuests}</span>
+                </div>
               </div>
-            )}
+            </CardContent>
+          )}
+        </Card>
 
-            {/* ID Details */}
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="idType">ID Type</Label>
-                <select
-                  id="idType"
-                  value={idType}
-                  onChange={(e) => setIdType(e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  <option value="">Select ID type</option>
-                  <option value="aadhar">Aadhar Card</option>
-                  <option value="passport">Passport</option>
-                  <option value="driving_license">Driving License</option>
-                  <option value="voter_id">Voter ID</option>
-                  <option value="pan">PAN Card</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
+        {/* One section per guest */}
+        {guests.map((g, i) => (
+          <Card key={i}>
+            <CardContent className="pt-4">
+              <GuestSection
+                index={i}
+                total={numGuests}
+                form={g}
+                isPrimary={i === 0}
+                onChange={patch => updateGuest(i, patch)}
+              />
+            </CardContent>
+          </Card>
+        ))}
 
-              <div>
-                <Label htmlFor="idNumber">ID Number</Label>
-                <Input
-                  id="idNumber"
-                  value={idNumber}
-                  onChange={(e) => setIdNumber(e.target.value)}
-                  placeholder="Enter ID number"
-                />
-              </div>
-            </div>
-
-            {/* ID Front */}
-            <div>
-              <Label>ID Photo — Front</Label>
-              <div className="mt-1">
-                {idFrontPreview ? (
-                  <div className="relative">
-                    <img src={idFrontPreview} alt="ID Front" className="w-full h-40 object-cover rounded-lg border" />
-                    <Button
-                      variant="secondary" size="sm" className="absolute bottom-2 right-2"
-                      onClick={() => { setIdFrontFile(null); setIdFrontPreview(null); }}
-                    >
-                      Change
-                    </Button>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer bg-muted/30 hover:bg-muted/50 transition-colors">
-                    <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Tap to upload front of ID</p>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      className="hidden"
-                      onChange={(e) => handleFileChange(e, 'front')}
-                    />
-                  </label>
-                )}
-              </div>
-            </div>
-
-            {/* ID Back */}
-            <div>
-              <Label>ID Photo — Back (Optional)</Label>
-              <div className="mt-1">
-                {idBackPreview ? (
-                  <div className="relative">
-                    <img src={idBackPreview} alt="ID Back" className="w-full h-40 object-cover rounded-lg border" />
-                    <Button
-                      variant="secondary" size="sm" className="absolute bottom-2 right-2"
-                      onClick={() => { setIdBackFile(null); setIdBackPreview(null); }}
-                    >
-                      Change
-                    </Button>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer bg-muted/30 hover:bg-muted/50 transition-colors">
-                    <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Tap to upload back of ID</p>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      className="hidden"
-                      onChange={(e) => handleFileChange(e, 'back')}
-                    />
-                  </label>
-                )}
-              </div>
-            </div>
-
+        {/* Submit */}
+        <Card>
+          <CardContent className="pt-4 space-y-3">
             <p className="text-xs text-muted-foreground">
-              By submitting, you consent to Hotel Shanti Palace storing a copy of your ID for check-in verification.
+              By submitting, all guests consent to Hotel Shanti Palace storing copies of their ID for check-in verification as required by law.
             </p>
-
-            <Button
-              className="w-full"
-              onClick={handleSubmit}
-              disabled={submitting || !idFrontFile || !idType || !idNumber}
-            >
+            <Button className="w-full" onClick={handleSubmit} disabled={submitting}>
               {submitting ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Uploading...</>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {uploadProgress || 'Uploading...'}</>
               ) : (
-                <><CheckCircle2 className="w-4 h-4 mr-2" /> Submit ID Proof</>
+                <><CheckCircle2 className="w-4 h-4 mr-2" /> Submit All Guest IDs</>
               )}
             </Button>
           </CardContent>
