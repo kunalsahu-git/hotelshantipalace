@@ -11,7 +11,12 @@ export const metadata: Metadata = {
   title: 'Hotel Shanti Palace | Discover The Peace',
   description: 'Book your stay at Hotel Shanti Palace for a peaceful and luxurious experience in the heart of the city.',
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      
+      { url: '/favicon/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
+      { url: '/favicon/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/favicon/apple-touch-icon.png',
   },
 };
 
