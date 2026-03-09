@@ -300,17 +300,22 @@ export default function Home() {
                     sizes="100vw"
                   />
                   <div className={`absolute inset-0 bg-gradient-to-r ${ad.color} flex items-center px-6 md:px-12 gap-4 md:gap-8`}>
-                    <div className="hidden sm:block shrink-0">
+                    <div className="shrink-0">
                       <span className="text-[10px] uppercase tracking-widest text-rose-200 font-semibold">{ad.tag}</span>
-                      <p className="text-white font-headline font-bold text-lg md:text-2xl leading-tight">{ad.headline}</p>
+                      <p className="text-white font-headline font-bold text-xl md:text-3xl leading-tight">{ad.headline}</p>
                     </div>
-                    <div className="sm:border-l sm:border-white/30 sm:pl-6 md:pl-8">
-                      <p className="text-white/90 text-xs md:text-sm leading-snug">{ad.sub}</p>
+                    <div className="border-l border-white/30 pl-6 md:pl-8 hidden sm:block">
+                      <p className="text-white/90 text-sm md:text-base leading-snug">{ad.sub}</p>
                     </div>
                     <div className="ml-auto shrink-0">
-                      <span className="inline-block border border-white/60 text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-white hover:text-rose-900 transition-colors cursor-pointer whitespace-nowrap">
+                      <a
+                        href="https://www.instagram.com/pehnavabyneha/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block border border-white/60 text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-white hover:text-rose-900 transition-colors whitespace-nowrap"
+                      >
                         Explore Now →
-                      </span>
+                      </a>
                     </div>
                   </div>
                 </div>

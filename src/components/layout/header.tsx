@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Menu, ChevronDown } from 'lucide-react';
+import { Menu, ChevronDown, Sparkles } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '../ui/sheet';
 import { cn } from '@/lib/utils';
@@ -96,10 +97,26 @@ export function Header() {
 
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Button asChild className="hidden md:flex bg-primary text-primary-foreground hover:bg-primary/90 rounded-full font-bold">
               <Link href="/book">Book Now</Link>
             </Button>
+
+            {/* Fashion Partner — desktop */}
+            <a
+              href="https://www.instagram.com/pehnavabyneha/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:flex items-center gap-2.5 bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200 hover:border-rose-400 hover:from-rose-100 hover:to-pink-100 rounded-full pl-1.5 pr-4 py-1 transition-all duration-200 group"
+            >
+              <div className="bg-white rounded-full p-1 shadow-sm">
+                <Image src="/pehnava-logo.svg" alt="Pehnava By Neha" width={28} height={28} className="object-contain" />
+              </div>
+              <div className="leading-tight">
+                <p className="text-[9px] uppercase tracking-widest text-rose-400 font-semibold">Fashion Partner</p>
+                <p className="text-xs font-semibold text-rose-700">Pehnava By Neha</p>
+              </div>
+            </a>
 
             {/* Mobile Navigation */}
             <div className="md:hidden">
@@ -169,7 +186,24 @@ export function Header() {
                         )}
                       </div>
                     </nav>
-                    <div className="px-6 py-4 border-t">
+                    <div className="px-6 py-4 border-t space-y-3">
+                      {/* Fashion Partner — mobile */}
+                      <a
+                        href="https://www.instagram.com/pehnavabyneha/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 w-full bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200 rounded-xl px-3 py-2.5 hover:border-rose-400 transition-all"
+                      >
+                        <div className="bg-white rounded-full p-1.5 shadow-sm shrink-0">
+                          <Image src="/pehnava-logo.svg" alt="Pehnava By Neha" width={32} height={32} className="object-contain" />
+                        </div>
+                        <div className="leading-tight">
+                          <p className="text-[9px] uppercase tracking-widest text-rose-400 font-semibold">Fashion Partner</p>
+                          <p className="text-sm font-semibold text-rose-700">Pehnava By Neha</p>
+                          <p className="text-xs text-rose-400">Women&apos;s Boutique · Tap to explore</p>
+                        </div>
+                        <Sparkles className="h-4 w-4 text-rose-300 ml-auto shrink-0" />
+                      </a>
                       <SheetClose asChild>
                         <Button asChild size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
                           <Link href="/book">Book Now</Link>
