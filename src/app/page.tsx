@@ -291,7 +291,7 @@ export default function Home() {
               },
             ].map((ad, i) => (
               <CarouselItem key={i}>
-                <div className="relative w-full overflow-hidden rounded-lg" style={{ height: '90px' }}>
+                <div className="relative w-full overflow-hidden rounded-lg h-[72px] sm:h-[90px]">
                   <Image
                     src={ad.img}
                     alt={ad.headline}
@@ -299,22 +299,22 @@ export default function Home() {
                     className="object-cover"
                     sizes="100vw"
                   />
-                  <div className={`absolute inset-0 bg-gradient-to-r ${ad.color} flex items-center px-6 md:px-12 gap-4 md:gap-8`}>
-                    <div className="shrink-0">
-                      <span className="text-[10px] uppercase tracking-widest text-rose-200 font-semibold">{ad.tag}</span>
-                      <p className="text-white font-headline font-bold text-xl md:text-3xl leading-tight">{ad.headline}</p>
+                  <div className={`absolute inset-0 bg-gradient-to-r ${ad.color} flex items-center px-3 sm:px-6 md:px-12 gap-2 sm:gap-4 md:gap-8`}>
+                    <div className="shrink-0 min-w-0">
+                      <span className="text-[9px] sm:text-[10px] uppercase tracking-widest text-rose-200 font-semibold">{ad.tag}</span>
+                      <p className="text-white font-headline font-bold text-sm sm:text-xl md:text-3xl leading-tight truncate">{ad.headline}</p>
                     </div>
-                    <div className="border-l border-white/30 pl-6 md:pl-8 hidden sm:block">
-                      <p className="text-white/90 text-sm md:text-base leading-snug">{ad.sub}</p>
+                    <div className="border-l border-white/30 pl-4 sm:pl-6 md:pl-8 hidden sm:block min-w-0">
+                      <p className="text-white/90 text-xs sm:text-sm md:text-base leading-snug line-clamp-2">{ad.sub}</p>
                     </div>
                     <div className="ml-auto shrink-0">
                       <a
                         href="https://www.instagram.com/pehnavabyneha/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block border border-white/60 text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-white hover:text-rose-900 transition-colors whitespace-nowrap"
+                        className="inline-block border border-white/60 text-white text-[10px] sm:text-xs font-semibold px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full hover:bg-white hover:text-rose-900 transition-colors whitespace-nowrap"
                       >
-                        Explore Now →
+                        Explore →
                       </a>
                     </div>
                   </div>
